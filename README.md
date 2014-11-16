@@ -8,6 +8,8 @@ A Haskell DDP Client.
 
 This can be used for writing clients for [Meteor](https://www.meteor.com/) sites, among other purposes.
 
+# NOTE: This is currently a placeholder repository. The Library is currently unusable.
+
 ## Usage
 
 ## Installing
