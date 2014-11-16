@@ -1,5 +1,7 @@
 # Deadpan-DDP
 
+![Deadpan Baby](http://i.imgur.com/Nc5mA2j.png)
+
 A Haskell DDP Client.
 
 <https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md>
