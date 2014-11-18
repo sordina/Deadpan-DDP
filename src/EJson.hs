@@ -6,11 +6,13 @@ import Control.Monad
 import Data.Aeson
 import Data.Scientific
 import Data.Text.Internal
+import Data.Text.Encoding
 import Data.Time
 import Data.ByteString
 import Data.Vector
 import Data.Maybe
 import Data.HashMap.Strict
+import Data.ByteString.Base64
 
 data EJsonValue =
     EJObject !(Data.HashMap.Strict.HashMap Text EJsonValue)
@@ -31,7 +33,8 @@ parseDate :: Value -> Maybe EJsonValue
 parseDate = undefined
 
 parseBinary :: Value -> Maybe EJsonValue
-parseBinary = undefined
+parseBinary (String s) = Just (EJBinary (decodeLenient (encodeUtf8 s)))
+parseBinary _          = Nothing
 
 parseUser :: Value -> Value -> Maybe EJsonValue
 parseUser = undefined
