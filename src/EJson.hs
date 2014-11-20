@@ -73,6 +73,29 @@ data EJsonValue =
   | EJNull
   deriving (Eq, Show)
 
+instance Convertible EpochTime Scientific
+  where
+  safeConvert e = Right (Data.Convertible.convert e)
+
+ejson2value :: EJsonValue -> Value
+ejson2value (EJObject h    ) = Object (Data.HashMap.Strict.map ejson2value h)
+ejson2value (EJArray  v    ) = Array  (Data.Vector.map ejson2value v)
+ejson2value (EJString t    ) = String t
+ejson2value (EJNumber n    ) = Number n
+ejson2value (EJBool   b    ) = Bool b
+ejson2value (EJDate   t    ) = makeJsonDate t
+ejson2value (EJBinary bs   ) = String $ decodeUtf8 $ Data.ByteString.Base64.encode bs
+ejson2value (EJUser   t1 t2) = makeUser t1 t2
+ejson2value (EJNull        ) = Null
+
+value2EJson :: Value -> EJsonValue
+value2EJson (Object o) = escapeObject o
+value2EJson (Array  a) = EJArray $ Data.Vector.map value2EJson a
+value2EJson (String s) = EJString s
+value2EJson (Number n) = EJNumber n
+value2EJson (Bool   b) = EJBool   b
+value2EJson Null       = EJNull
+
 -- Smart Constructors
 
 {-# Inline ejobject #-}
@@ -160,18 +183,6 @@ escapeObject o = fromMaybe (simpleObj o)
   where
   l = Data.HashMap.Strict.size o
 
-value2EJson :: Value -> EJsonValue
-value2EJson (Object o) = escapeObject o
-value2EJson (Array  a) = EJArray $ Data.Vector.map value2EJson a
-value2EJson (String s) = EJString s
-value2EJson (Number n) = EJNumber n
-value2EJson (Bool   b) = EJBool   b
-value2EJson Null       = EJNull
-
-instance Convertible EpochTime Scientific
-  where
-  safeConvert e = Right (Data.Convertible.convert e)
-
 makeJsonDate :: EpochTime -> Value
 makeJsonDate t = Object
                $ Data.HashMap.Strict.fromList
@@ -182,14 +193,3 @@ makeUser t v = Object
            $ Data.HashMap.Strict.fromList
            [ ("$type" , String t)
            , ("$value", ejson2value v)]
-
-ejson2value :: EJsonValue -> Value
-ejson2value (EJObject h    ) = Object (Data.HashMap.Strict.map ejson2value h)
-ejson2value (EJArray  v    ) = Array  (Data.Vector.map ejson2value v)
-ejson2value (EJString t    ) = String t
-ejson2value (EJNumber n    ) = Number n
-ejson2value (EJBool   b    ) = Bool b
-ejson2value (EJDate   t    ) = makeJsonDate t
-ejson2value (EJBinary bs   ) = String $ decodeUtf8 $ Data.ByteString.Base64.encode bs
-ejson2value (EJUser   t1 t2) = makeUser t1 t2
-ejson2value (EJNull        ) = Null
