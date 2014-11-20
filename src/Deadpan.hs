@@ -12,7 +12,7 @@ import qualified Data.Text.IO        as T
 import qualified Network.WebSockets  as WS
 
 -- Internal imports
-import EJson
+import DDP
 
 -- TODO: Use better types for these...
 type URL  = String
@@ -34,10 +34,12 @@ app conn = do
         msg <- WS.receiveData conn
         T.putStrLn msg
 
+    DDP.sendEJ conn DDP.connectMsg
+
     -- Read from stdin and write to WS
     let loop = do
-            line <- T.getLine
-            unless (T.null line) $ WS.sendTextData conn line >> loop
+        line <- T.getLine
+        unless (T.null line) $ WS.sendTextData conn line >> loop
 
     loop
     WS.sendClose conn ("Bye!" :: Text)

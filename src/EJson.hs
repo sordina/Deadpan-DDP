@@ -18,7 +18,7 @@
 
   There are several smart-constructors made available to construct instances
   of EJsonValue more easily. These match the constructors exactly, except for
-  substituting lists for vectors, etc...
+  substituting lists for vectors, etc... These definitions are inlined.
 
 -}
 
@@ -56,6 +56,7 @@ import Data.Vector
 import Data.Maybe
 import Data.HashMap.Strict
 import Data.ByteString.Base64
+import Data.String
 
 -- Time
 import Data.Convertible
@@ -72,6 +73,25 @@ data EJsonValue =
   | EJUser   !Text !EJsonValue
   | EJNull
   deriving (Eq, Show)
+
+instance IsString EJsonValue
+  where
+  fromString = EJString . Data.Convertible.convert
+
+-- TODO: Decide what to do about these error cases
+instance Num EJsonValue
+  where
+  fromInteger = EJNumber . fromIntegral
+  (EJNumber a) + (EJNumber b) = EJNumber (a + b)
+  _            + _            = error "don't add non-numbers"
+  (EJNumber a) * (EJNumber b) = EJNumber (a * b)
+  _            * _            = error "don't multiply non-numbers"
+  abs (EJNumber a)            = EJNumber (abs a)
+  abs _                       = error "don't abolute non-numbers"
+  signum (EJNumber a)         = EJNumber (signum a)
+  signum _                    = error "don't signum non-numbers"
+  negate (EJNumber a)         = EJNumber (negate a)
+  negate _                    = error "don't negate non-numbers"
 
 instance Convertible EpochTime Scientific
   where
