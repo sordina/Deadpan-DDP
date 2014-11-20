@@ -17,3 +17,5 @@ This can be used for writing clients for [Meteor](https://www.meteor.com/) sites
 ## Binaries
 
 ## TODO
+
+* Add responses to Ping messages

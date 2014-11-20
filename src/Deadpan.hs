@@ -37,17 +37,11 @@ app conn = do
     DDP.sendEJ conn DDP.connectMsg
 
     -- Read from stdin and write to WS
-    let loop = do
-        line <- T.getLine
-        unless (T.null line) $ WS.sendTextData conn line >> loop
+    let loop = do line <- T.getLine
+                  unless (T.null line) $ WS.sendTextData conn line >> loop
 
     loop
     WS.sendClose conn ("Bye!" :: Text)
 
-
--- todo: meteor
-
 main :: IO ()
 main = withSocketsDo $ WS.runClient "localhost" 3000 "/websocket" app
-
-
