@@ -2,6 +2,7 @@
 
 module Deadpan where
 
+-- External imports
 import           Control.Concurrent  (forkIO)
 import           Control.Monad       (forever, unless)
 import           Network.Socket      (withSocketsDo)
@@ -9,6 +10,9 @@ import           Data.Text           (Text)
 import qualified Data.Text           as T
 import qualified Data.Text.IO        as T
 import qualified Network.WebSockets  as WS
+
+-- Internal imports
+import EJson
 
 -- TODO: Use better types for these...
 type URL  = String
@@ -38,6 +42,8 @@ app conn = do
     loop
     WS.sendClose conn ("Bye!" :: Text)
 
+
+-- todo: meteor
 
 main :: IO ()
 main = withSocketsDo $ WS.runClient "localhost" 3000 "/websocket" app

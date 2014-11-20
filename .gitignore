@@ -1,3 +1,5 @@
 dist/
+doc/
 hugsin
 .cabal-sandbox/
+test/.meteor
