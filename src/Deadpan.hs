@@ -3,45 +3,67 @@
 module Deadpan where
 
 -- External imports
+import           Safe
+import           Control.Monad
 import           Control.Concurrent  (forkIO)
-import           Control.Monad       (forever, unless)
 import           Network.Socket      (withSocketsDo)
-import           Data.Text           (Text)
-import qualified Data.Text           as T
+import           Data.Text           (Text())
+import qualified Network.URI         as U
 import qualified Data.Text.IO        as T
 import qualified Network.WebSockets  as WS
 
 -- Internal imports
 import DDP
+import EJson
 
 -- TODO: Use better types for these...
-type URL  = String
-type Host = String
-type Port = Int
+type URL = String
 
-runURL :: URL -> IO a
-runURL = undefined
+-- TODO: Make error handleable
+uriError :: String -> IO ()
+uriError uri = error $ "Error processing URI [" ++ uri ++ "]"
 
-run :: Host -> Port -> IO a
-run = undefined
+runURL :: URL -> WS.ClientApp () -> IO ()
+runURL uri app = execURI uri app $ getURI uri
 
-app :: WS.ClientApp ()
-app conn = do
-    putStrLn "Connected!"
+getURI :: String -> Maybe (String, Int, String)
+getURI uri = do parsed    <- U.parseURI uri
+                autho     <- U.uriAuthority parsed
+                port      <- readMay $ tail $ U.uriPort autho
+                let domain = U.uriRegName autho
+                    path   = U.uriPath parsed
+                return (domain, port, path)
 
+execURI :: String -> WS.ClientApp a -> Maybe (String, Int, String) -> IO ()
+execURI _   app (Just (domain, port, path)) = withSocketsDo $ WS.runClient domain port path (setupApp app)
+execURI uri _   _                           = uriError uri
+
+dispatch :: WS.Connection -> Maybe EJsonValue -> IO ()
+dispatch conn (Just v) = respond conn v
+dispatch _    Nothing  = return ()
+
+-- TODO: Remove debugging prints
+respond :: WS.Connection -> EJsonValue -> IO ()
+respond conn v | v == ejobject [("msg","ping")] = print "PONGNGNGNGNGNG" >> print v >> sendpong conn
+               | otherwise                      = print v
+
+sendpong :: WS.Connection -> IO ()
+sendpong = DDP.clientHeartPong Nothing
+
+setupApp :: WS.ClientApp a -> WS.ClientApp ()
+setupApp app conn = do
     -- Fork a thread that writes WS data to stdout
-    _ <- forkIO $ forever $ do
-        msg <- WS.receiveData conn
-        T.putStrLn msg
+    void $ forkIO $ forever $ DDP.getEJ conn >>= dispatch conn
 
-    DDP.sendEJ conn DDP.connectMsg
+    DDP.clientConnect conn
 
-    -- Read from stdin and write to WS
-    let loop = do line <- T.getLine
-                  unless (T.null line) $ WS.sendTextData conn line >> loop
+    void $ app conn
 
-    loop
+    -- TODO: Remove this and delegate blocking to App
+    void T.getLine -- Block until line entered
+
+    -- TODO: Do we need this?
     WS.sendClose conn ("Bye!" :: Text)
 
 main :: IO ()
-main = withSocketsDo $ WS.runClient "localhost" 3000 "/websocket" app
+main = runURL "websockets://localhost:3000/websocket" (const (return ()))

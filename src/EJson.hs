@@ -23,10 +23,9 @@
 -}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE     OverloadedStrings #-}
+{-# LANGUAGE     TypeSynonymInstances #-}
+{-# LANGUAGE     MultiParamTypeClasses #-}
 
 module EJson ( EJsonValue(..)
 
