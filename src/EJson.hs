@@ -45,6 +45,7 @@ module EJson ( EJsonValue(..)
              , ejnull
    ) where
 
+import Control.Lens.TH
 import Control.Monad
 import Data.Aeson
 import Data.Scientific
@@ -72,6 +73,8 @@ data EJsonValue =
   | EJUser   !Text !EJsonValue
   | EJNull
   deriving (Eq, Show)
+
+makeLenses ''EJsonValue
 
 instance IsString EJsonValue
   where
