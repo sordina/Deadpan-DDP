@@ -23,6 +23,7 @@
 -}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE     TemplateHaskell #-}
 {-# LANGUAGE     OverloadedStrings #-}
 {-# LANGUAGE     TypeSynonymInstances #-}
 {-# LANGUAGE     MultiParamTypeClasses #-}

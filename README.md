@@ -79,3 +79,4 @@ When this is completed, you will be able to install Deadpan with the following c
 * Move modules under some existing namespace
 * Haddock documentation
 * Upload to Hackage
+* Add --help flag
