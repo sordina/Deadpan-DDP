@@ -35,8 +35,10 @@ module Data.EJson.EJson ( EJsonValue(..)
              , ejbinary
              , ejuser
              , ejnull
+
    ) where
 
+import Data.Monoid
 import Control.Monad
 import Data.Aeson
 import Data.Scientific
@@ -68,6 +70,14 @@ data EJsonValue =
 instance IsString EJsonValue
   where
   fromString = EJString . Data.Convertible.convert
+
+instance Monoid EJsonValue
+  where
+  mempty = EJNull
+
+  EJObject o1 `mappend` EJObject o2 = EJObject $ mappend o1 o2
+  EJArray  a1 `mappend` EJArray  a2 = EJArray  $ mappend a1 a2
+  _           `mappend` _           = error "TODO: Haven't considered what to do here yet..."
 
 -- TODO: Decide what to do about these error cases
 instance Num EJsonValue

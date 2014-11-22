@@ -20,6 +20,7 @@
   * setHandler
   * deleteHandler
   * setDefaultHandler
+  * sendData
   * sendMessage
 
   These allow you to...
@@ -28,6 +29,7 @@
   * set new values for response handlers
   * delete existing response handlers
   * set a handler to act when no existing handler matches the incomming message
+  * send an EJsonValue to the server (low-level)
   * send messages to be interpreted as RPC calls
 
   ... respectively.
@@ -43,6 +45,7 @@
 -}
 
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Web.DDP.Deadpan.DSL where
 
@@ -96,5 +99,14 @@ deleteHandler = undefined
 setDefaultHandler :: Callback a -> DeadpanApp ()
 setDefaultHandler = undefined
 
-sendMessage :: EJsonValue -> DeadpanApp ()
-sendMessage = undefined
+-- | A low-level function intended to be able to send any arbitrary data to the server.
+--   Given that all messages to the server are intended to fit the "message" format,
+--   You should probably use `sendMessage` instead.
+sendData :: EJsonValue -> DeadpanApp ()
+sendData = undefined
+
+-- | Send a particular type of message (indicated by the key) to the server.
+sendMessage :: Text -> EJsonValue -> DeadpanApp ()
+sendMessage key m = undefined
+  where
+  messageData = ejobject [("$msg", ejstring key)] `mappend` m -- TODO: Do something with this now that we know how to create it
