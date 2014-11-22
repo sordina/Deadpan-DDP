@@ -12,6 +12,10 @@ import Data.EJson
 import qualified Network.WebSockets as WS
 import qualified Data.Aeson         as J
 
+-- Types
+
+type Callback a = WS.Connection -> EJsonValue -> IO a
+
 
 -- Client -->> Server
 
