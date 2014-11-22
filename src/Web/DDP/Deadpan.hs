@@ -14,6 +14,7 @@ import qualified Network.WebSockets  as WS
 
 -- Internal imports
 import Web.DDP.Deadpan.DDP
+import Web.DDP.Deadpan.DSL
 import Data.EJson
 
 -- TODO: Use better types for these...

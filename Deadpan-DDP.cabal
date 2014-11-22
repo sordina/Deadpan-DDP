@@ -16,7 +16,8 @@ library
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,
                        vector, convertible, lens,
-                       network-uri, safe, mtl
+                       network-uri, safe, mtl,
+                       containers
   hs-source-dirs:      src
   default-language:    Haskell2010
 
@@ -26,6 +27,7 @@ executable deadpan
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,
                        vector, convertible, lens,
-                       network-uri, safe, mtl
+                       network-uri, safe, mtl,
+                       containers
   hs-source-dirs:      src
   default-language:    Haskell2010

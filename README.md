@@ -106,3 +106,5 @@ Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 * Write test-suite
 * Fix TODO notes in code
 * Use more qualified imports, including for internal imports
+* Narrow package dependencies
+* Should Callback be a DeadpanApp monad?
