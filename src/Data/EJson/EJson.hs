@@ -1,34 +1,25 @@
 {-|
 
-  Description : Convert between Aeson values and EJson Extended JSON values
+  Description : Internal definitions for EJson functionality
 
-  The DDP protocol uses an extended JSON format called EJSON.
-  This is embedded inside JSON, so that all JSON is valid EJSON,
-  but with certain object structures representing the extended
-  types:
+  Currently EJson functionality is built on top of the
+  `Data.Aeson.Value` type.
 
-  <https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md>
+  Functions are written to convert back and forth between
+  `Data.EJson.EJsonValue` and `Data.Aeson.Value`.
 
-  This module provides a pair of functions, `value2EJson` and `ejson2value`
-  that convert back and forth between these datatypes. It also provides the
-  `EJsonValue` datatype itself.
-
-  Currently there is no implementation of the usual Aeson conversion classes,
-  but this may change in the future.
-
-  There are several smart-constructors made available to construct instances
-  of EJsonValue more easily. These match the constructors exactly, except for
-  substituting lists for vectors, etc... These definitions are inlined.
+  This has some negative impact on performance, but aids simplicity.
 
 -}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE     RankNTypes #-}
 {-# LANGUAGE     TemplateHaskell #-}
 {-# LANGUAGE     OverloadedStrings #-}
 {-# LANGUAGE     TypeSynonymInstances #-}
 {-# LANGUAGE     MultiParamTypeClasses #-}
 
-module EJson ( EJsonValue(..)
+module Data.EJson.EJson ( EJsonValue(..)
 
              -- Conversion functions
              , value2EJson
@@ -46,13 +37,12 @@ module EJson ( EJsonValue(..)
              , ejnull
    ) where
 
-import Control.Lens.TH
 import Control.Monad
 import Data.Aeson
 import Data.Scientific
 import Data.Text.Internal
 import Data.Text.Encoding
-import Data.ByteString
+import Data.ByteString hiding (putStr)
 import Data.Vector
 import Data.Maybe
 import Data.HashMap.Strict
@@ -74,8 +64,6 @@ data EJsonValue =
   | EJUser   !Text !EJsonValue
   | EJNull
   deriving (Eq, Show)
-
-makeLenses ''EJsonValue
 
 instance IsString EJsonValue
   where

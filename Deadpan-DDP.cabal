@@ -1,5 +1,5 @@
 name:                Deadpan-DDP
-version:             0.1.0.0
+version:             0.1.0.1
 synopsis:            Deadpan-DDP Project...
 homepage:            http://github.com/sordina/Deadpan-DDP
 license:             MIT
@@ -10,7 +10,7 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     EJson, DDP, Deadpan
+  exposed-modules:     Data.EJson, Data.EJson.EJson, Data.EJson.Prism, DDP, Deadpan
   build-depends:       base -any, websockets, network,
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,

@@ -3,7 +3,8 @@ test_collection = new Meteor.Collection("test")
 if (Meteor.isClient) {
   Template.hello.helpers({
     counter: function () {
-      return test_collection.find().count()
+      console.log( test_collection.findOne({name: "number"}))
+      return test_collection.findOne({name: "number"}).count
     }
   });
 }
@@ -11,12 +12,12 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
   Meteor.startup(function () {
 
-    counter = 0
-
     function add_item() {
-      counter += 1
-      name = "I am " + counter
-      test_collection.insert({name: name, i: counter})
+      test_collection.update({name: "number"}, {$inc: {count: 1}})
+    }
+
+    if(! test_collection.findOne({name: "number"})) {
+      test_collection.insert({name: "number", count: 0})
     }
 
     setInterval(Meteor.bindEnvironment(add_item), 1000)

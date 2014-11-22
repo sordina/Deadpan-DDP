@@ -2,7 +2,7 @@
 
 module DDP where
 
-import EJson
+import Data.EJson
 import qualified Network.WebSockets as WS
 import qualified Data.Aeson         as J
 
@@ -57,6 +57,7 @@ serverDataMovedBefore = undefined
 
 serverRPCResult  = undefined
 serverRPCUpdated = undefined
+
 
 -- Server Errors
 

@@ -14,7 +14,7 @@ import qualified Network.WebSockets  as WS
 
 -- Internal imports
 import DDP
-import EJson
+import Data.EJson
 
 -- TODO: Use better types for these...
 type URL = String

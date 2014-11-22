@@ -80,3 +80,4 @@ When this is completed, you will be able to install Deadpan with the following c
 * Haddock documentation
 * Upload to Hackage
 * Add --help flag
+* Update references to test.meteor.com in the docs to point to some kind of real app
