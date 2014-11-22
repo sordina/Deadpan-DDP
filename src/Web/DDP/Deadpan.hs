@@ -4,6 +4,7 @@ module Web.DDP.Deadpan where
 
 -- External imports
 import           Safe
+import           Data.Maybe
 import           Control.Monad
 import           Control.Concurrent  (forkIO)
 import           Network.Socket      (withSocketsDo)
@@ -30,10 +31,14 @@ runURL uri app = execURI uri app $ getURI uri
 getURI :: String -> Maybe (String, Int, String)
 getURI uri = do parsed    <- U.parseURI uri
                 autho     <- U.uriAuthority parsed
-                port      <- readMay $ tail $ U.uriPort autho
-                let domain = U.uriRegName autho
+                let port   = fromMaybe 80 $ readMay $ drop 1 $ U.uriPort autho
+                    domain = U.uriRegName autho
                     path   = U.uriPath parsed
                 return (domain, port, path)
+
+prop_getURI_full, prop_getURI_missingPort :: Bool
+prop_getURI_full        = getURI "http://localhost:1234/testing" == Just ("localhost", 1234, "/testing")
+prop_getURI_missingPort = getURI "http://localhost/testing"      == Just ("localhost", 80,   "/testing")
 
 execURI :: String -> WS.ClientApp a -> Maybe (String, Int, String) -> IO ()
 execURI _   app (Just (domain, port, path)) = withSocketsDo $ WS.runClient domain port path (setupApp app)

@@ -111,4 +111,4 @@ sendData = undefined
 sendMessage :: Text -> EJsonValue -> DeadpanApp ()
 sendMessage key m = sendData messageData
   where
-  messageData = ejobject [("$msg", ejstring key)] `mappend` m
+  messageData = ejobject [("msg", ejstring key)] `mappend` m
