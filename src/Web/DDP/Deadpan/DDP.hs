@@ -1,10 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module DDP where
+module Web.DDP.Deadpan.DDP where
+
+-- Internal Imports:
 
 import Data.EJson
+
+
+-- External Imports:
+
 import qualified Network.WebSockets as WS
 import qualified Data.Aeson         as J
+
 
 -- Client -->> Server
 
@@ -14,7 +21,7 @@ sendEJ c = WS.sendTextData c . J.encode . ejson2value
 -- Client Connection
 
 clientConnect :: WS.Connection -> IO ()
-clientConnect conn = DDP.sendEJ conn $
+clientConnect conn = sendEJ conn $
   ejobject [ ("msg",    "connect")
            , ("version", "1")
            , ("support", ejarray ["1","pre2","pre1"]) ]

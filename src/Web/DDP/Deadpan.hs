@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Deadpan where
+module Web.DDP.Deadpan where
 
 -- External imports
 import           Safe
@@ -13,7 +13,7 @@ import qualified Data.Text.IO        as T
 import qualified Network.WebSockets  as WS
 
 -- Internal imports
-import DDP
+import Web.DDP.Deadpan.DDP
 import Data.EJson
 
 -- TODO: Use better types for these...
@@ -48,14 +48,14 @@ respond conn v | v == ejobject [("msg","ping")] = print "PONGNGNGNGNGNG" >> prin
                | otherwise                      = print v
 
 sendpong :: WS.Connection -> IO ()
-sendpong = DDP.clientHeartPong Nothing
+sendpong = clientHeartPong Nothing
 
 setupApp :: WS.ClientApp a -> WS.ClientApp ()
 setupApp app conn = do
     -- Fork a thread that writes WS data to stdout
-    void $ forkIO $ forever $ DDP.getEJ conn >>= dispatch conn
+    void $ forkIO $ forever $ getEJ conn >>= dispatch conn
 
-    DDP.clientConnect conn
+    clientConnect conn
 
     void $ app conn
 

@@ -39,7 +39,7 @@ You can then run your instance as follows:
     runDeadpan "websockets://testapp.meteor.com:3000/websocket" myDeadpanApp
 
 
-There are also lower-level tools provided in `Web.DDP.Deadpan.Internal`.
+There are also lower-level tools provided in `Web.DDP.Deadpan.*`.
 
 #### EJson
 
@@ -105,3 +105,4 @@ Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 * Update references to test.meteor.com in the docs to point to some kind of real app
 * Write test-suite
 * Fix TODO notes in code
+* Use more qualified imports, including for internal imports

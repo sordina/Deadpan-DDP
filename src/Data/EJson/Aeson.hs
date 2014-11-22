@@ -13,7 +13,7 @@
 module Data.EJson.Aeson where
 
 import Data.Aeson
-import Data.EJson
+import Data.EJson.EJson
 
 -- TODO: Consider implementing these translations directly, rather than passing through 'Value'.
 --

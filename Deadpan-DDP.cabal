@@ -10,7 +10,8 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Data.EJson, Data.EJson.EJson, Data.EJson.Prism, DDP, Deadpan
+  exposed-modules:     Data.EJson, Data.EJson.EJson, Data.EJson.Prism, Data.EJson.Aeson,
+                       Web.DDP.Deadpan, Web.DDP.Deadpan.DDP
   build-depends:       base -any, websockets, network,
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,

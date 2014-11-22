@@ -19,9 +19,13 @@
   of EJsonValue more easily. These match the constructors exactly, except for
   substituting lists for vectors, etc... These definitions are inlined.
 
+  EJson functionality is intended to be used simply by importing `Data.EJson`.
+
   The internals of EJson are defined in `Data.EJson.EJson`.
 
   A Prism' instance is defined in `Data.EJson.Prism`.
+
+  Aeson instances are defined in `Data.EJson.Aeson`.
 -}
 
 module Data.EJson (
@@ -33,4 +37,3 @@ module Data.EJson (
 
 import Data.EJson.EJson
 import Data.EJson.Prism
-

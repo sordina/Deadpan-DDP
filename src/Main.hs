@@ -1,7 +1,7 @@
 module Main (main) where
 
 import System.Environment
-import qualified Deadpan as D
+import qualified Web.DDP.Deadpan as D
 
 main :: IO ()
 main = getArgs >>= go
