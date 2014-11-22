@@ -41,6 +41,18 @@ You can then run your instance as follows:
 
 There are also lower-level tools provided in `Web.DDP.Deadpan.Internal`.
 
+#### EJson
+
+As part of the implementation of the DDP protocol, an EJson data-format
+library has been written for Haskell.
+
+This can be found under `Data.EJson`.
+
+This primarily allows conversion between `Data.Aeson.Value` data,
+and `Data.EJson.EJsonValue` data.
+
+Lenses, Prisms, and Aeson instances are provided for this library.
+
 
 ### Using the `deadpan` debugging tool
 
@@ -70,6 +82,11 @@ When this is completed, you will be able to install Deadpan with the following c
 
 ## Testing
 
+A test-suite can be run by calling `cabal test`.
+
+This triggers the QuickCheck tests, as well as running some integration tests against
+a demo Meteor app found under the `test/` directory.
+
 
 ## Binaries
 
@@ -81,3 +98,5 @@ When this is completed, you will be able to install Deadpan with the following c
 * Upload to Hackage
 * Add --help flag
 * Update references to test.meteor.com in the docs to point to some kind of real app
+* Write test-suite
+* Fix TODO notes in code
