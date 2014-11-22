@@ -106,7 +106,9 @@ sendData :: EJsonValue -> DeadpanApp ()
 sendData = undefined
 
 -- | Send a particular type of message (indicated by the key) to the server.
+--   This should be the primary means of [client -> server] communication by
+--   a client application.
 sendMessage :: Text -> EJsonValue -> DeadpanApp ()
-sendMessage key m = undefined
+sendMessage key m = sendData messageData
   where
-  messageData = ejobject [("$msg", ejstring key)] `mappend` m -- TODO: Do something with this now that we know how to create it
+  messageData = ejobject [("$msg", ejstring key)] `mappend` m
