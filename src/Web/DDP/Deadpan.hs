@@ -4,7 +4,6 @@ module Web.DDP.Deadpan where
 
 -- External imports
 import           Safe
-import           Data.Maybe
 import           Control.Monad
 import           Control.Concurrent  (forkIO)
 import           Network.Socket      (withSocketsDo)
@@ -31,7 +30,7 @@ runURL uri app = execURI uri app $ getURI uri
 getURI :: String -> Maybe (String, Int, String)
 getURI uri = do parsed    <- U.parseURI uri
                 autho     <- U.uriAuthority parsed
-                let port   = fromMaybe 80 $ readMay $ drop 1 $ U.uriPort autho
+                let port   = readDef 80 $ drop 1 $ U.uriPort autho
                     domain = U.uriRegName autho
                     path   = U.uriPath parsed
                 return (domain, port, path)
@@ -50,7 +49,7 @@ dispatch _    Nothing  = return ()
 
 -- TODO: Remove debugging prints
 respond :: WS.Connection -> EJsonValue -> IO ()
-respond conn v | v == ejobject [("msg","ping")] = print "PONGNGNGNGNGNG" >> print v >> sendpong conn
+respond conn v | v == ejobject [("msg","ping")] = print ("PONGNGNGNGNGNG" :: String) >> print v >> sendpong conn
                | otherwise                      = print v
 
 sendpong :: WS.Connection -> IO ()
