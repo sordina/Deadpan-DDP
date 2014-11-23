@@ -97,6 +97,11 @@ Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 
 ## TODO
 
+Items that still need addressing.
+
+You can look for such items in the source by running
+`make todo`.
+
 * Write definitions for all stubs in DDP module
 * Move modules under some existing namespace
 * Haddock documentation
