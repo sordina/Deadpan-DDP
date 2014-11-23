@@ -1,3 +1,15 @@
+{-|
+
+  Description: Higher level abstractions for DDP clients.
+
+  Web.DDP.Deadpan.DDP builds on the abstractions in
+  Web.DDP.Deadpan.DSL in order to provide an API intended
+  for use by DDP client applications.
+
+  This would be the main module included by client appilcations.
+
+-}
+
 {-# LANGUAGE OverloadedStrings #-}
 
 module Web.DDP.Deadpan.DDP where
@@ -5,6 +17,7 @@ module Web.DDP.Deadpan.DDP where
 -- Internal Imports:
 
 import Data.EJson
+import Web.DDP.Deadpan.Comms
 
 
 -- External Imports:
@@ -14,9 +27,6 @@ import qualified Data.Aeson         as J
 
 
 -- Client -->> Server
-
-sendEJ :: WS.Connection -> EJsonValue -> IO ()
-sendEJ c = WS.sendTextData c . J.encode . ejson2value
 
 -- Client Connection
 
@@ -45,9 +55,6 @@ clientRPCMethod = undefined
 
 
 -- Server -->> Client
-
-getEJ :: WS.Connection -> IO (Maybe EJsonValue)
-getEJ = fmap (fmap value2EJson . J.decode) . WS.receiveData
 
 -- Server Data Subscriptions
 

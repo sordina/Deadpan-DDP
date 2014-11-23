@@ -16,6 +16,7 @@ import qualified Control.Concurrent.STM as STM
 -- Internal imports
 import Web.DDP.Deadpan.DDP
 import Web.DDP.Deadpan.DSL
+import Web.DDP.Deadpan.Comms
 import Data.EJson
 
 -- TODO: Use better types for these...

@@ -16,7 +16,7 @@
 
   The main functions exported are...
 
-  * runDeadpanWithCallbacks
+  * runDeadpan
   * setHandler
   * deleteHandler
   * setDefaultHandler
@@ -64,8 +64,8 @@ import Data.Map
 
 -- Internal Imports
 
+import Web.DDP.Deadpan.Comms
 import Data.EJson
-import Web.DDP.Deadpan.DDP
 
 
 -- Let's do this!
