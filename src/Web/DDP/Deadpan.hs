@@ -5,12 +5,13 @@ module Web.DDP.Deadpan where
 -- External imports
 import           Safe
 import           Control.Monad
-import           Control.Concurrent  (forkIO)
-import           Network.Socket      (withSocketsDo)
-import           Data.Text           (Text())
-import qualified Network.URI         as U
-import qualified Data.Text.IO        as T
-import qualified Network.WebSockets  as WS
+import           Control.Concurrent     (forkIO)
+import           Network.Socket         (withSocketsDo)
+import           Data.Text              (Text())
+import qualified Network.URI            as U
+import qualified Data.Text.IO           as T
+import qualified Network.WebSockets     as WS
+import qualified Control.Concurrent.STM as STM
 
 -- Internal imports
 import Web.DDP.Deadpan.DDP

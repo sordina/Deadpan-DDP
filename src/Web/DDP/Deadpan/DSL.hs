@@ -51,6 +51,7 @@ module Web.DDP.Deadpan.DSL where
 
 -- External Imports
 
+import Control.Concurrent.STM
 import Network.WebSockets
 import Control.Monad.RWS
 import Control.Lens
@@ -67,48 +68,53 @@ import Web.DDP.Deadpan.DDP
 
 type CallbackSet = Data.Map.Map Text (Callback ())
 
-data AppState = AppState { _defaultCallback :: Callback ()
-                         , _callbackSet     :: CallbackSet
-                         , _collections     :: EJsonValue
-                         }
+data AppState a = AppState { _defaultCallback :: Callback ()     -- ^ The callback to run when no other callbacks match
+                           , _callbackSet     :: CallbackSet     -- ^ Callbacks to match against by message
+                           , _collections     :: STM EJsonValue  -- ^ Shared data Expected to be an EJObject
+                           , _localState      :: a               -- ^ Thread-Local state
+                           }
 
 makeLenses ''AppState
 
-type DeadpanApp a = Control.Monad.RWS.RWST
-                      Network.WebSockets.Connection -- Reader
-                      ()                            -- Writer (ignore)
-                      AppState                      -- State
-                      IO                            -- Parent Monad
-                      a                             -- Result
+type DeadpanApp a s = Control.Monad.RWS.RWST
+                        Network.WebSockets.Connection -- Reader
+                        ()                            -- Writer (ignore)
+                        (AppState s)                  -- State
+                        IO                            -- Parent Monad
+                        a                             -- Result
 
 -- | The order of these args match that of runRWST
 --
-runDeadpanWithCallbacks :: DeadpanApp a -> Network.WebSockets.Connection -> AppState -> IO (a, AppState)
+runDeadpanWithCallbacks :: DeadpanApp a s
+                        -> Network.WebSockets.Connection
+                        -> AppState s
+                        -> IO (a, AppState s)
 runDeadpanWithCallbacks app conn appState = do
   (a,s,_w) <- runRWST app conn appState
   return (a,s)
 
-setHandler :: Text -> Callback a -> DeadpanApp ()
-setHandler = undefined
+-- TODO: Use a deadpan app in place of a callback
+setHandler :: Text -> Callback () -> DeadpanApp () ()
+setHandler k cb = callbackSet . at k .= Just cb
 
 -- TODO: should I add getHandler?
 
-deleteHandler :: Text -> DeadpanApp ()
+deleteHandler :: Text -> DeadpanApp () ()
 deleteHandler = undefined
 
-setDefaultHandler :: Callback a -> DeadpanApp ()
+setDefaultHandler :: Callback a -> DeadpanApp () ()
 setDefaultHandler = undefined
 
 -- | A low-level function intended to be able to send any arbitrary data to the server.
 --   Given that all messages to the server are intended to fit the "message" format,
 --   You should probably use `sendMessage` instead.
-sendData :: EJsonValue -> DeadpanApp ()
+sendData :: EJsonValue -> DeadpanApp () ()
 sendData = undefined
 
 -- | Send a particular type of message (indicated by the key) to the server.
 --   This should be the primary means of [client -> server] communication by
 --   a client application.
-sendMessage :: Text -> EJsonValue -> DeadpanApp ()
+sendMessage :: Text -> EJsonValue -> DeadpanApp () ()
 sendMessage key m = sendData messageData
   where
   messageData = ejobject [("msg", ejstring key)] `mappend` m
