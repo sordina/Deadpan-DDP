@@ -44,14 +44,18 @@
 
 -}
 
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Web.DDP.Deadpan.DSL where
 
 -- External Imports
 
 import Control.Concurrent.STM
+import Control.Applicative
 import Network.WebSockets
 import Control.Monad.RWS
 import Control.Lens
@@ -66,55 +70,77 @@ import Web.DDP.Deadpan.DDP
 
 -- Let's do this!
 
-type CallbackSet = Data.Map.Map Text (Callback ())
+type Lookup a = Data.Map.Map Text a
 
-data AppState a = AppState { _defaultCallback :: Callback ()     -- ^ The callback to run when no other callbacks match
-                           , _callbackSet     :: CallbackSet     -- ^ Callbacks to match against by message
-                           , _collections     :: STM EJsonValue  -- ^ Shared data Expected to be an EJObject
-                           , _localState      :: a               -- ^ Thread-Local state
-                           }
+data AppState cb = AppState
+  { _defaultCallback :: cb              -- ^ The callback to run when no other callbacks match
+  , _callbackSet     :: Lookup cb       -- ^ Callbacks to match against by message
+  , _collections     :: STM EJsonValue  -- ^ Shared data Expected to be an EJObject
+  -- , _localState   :: ls              -- ^ Thread-Local state -- TODO: Currently disabled
+  }
 
 makeLenses ''AppState
 
-type DeadpanApp a s = Control.Monad.RWS.RWST
-                        Network.WebSockets.Connection -- Reader
-                        ()                            -- Writer (ignore)
-                        (AppState s)                  -- State
-                        IO                            -- Parent Monad
-                        a                             -- Result
+type Callback = EJsonValue -> DeadpanApp () -- TODO: Allow any return type from callback
+
+newtype DeadpanApp a = DeadpanApp
+  { _deadpanApp :: Control.Monad.RWS.RWST
+                     Network.WebSockets.Connection -- Reader
+                     ()                            -- Writer (ignore)
+                     (AppState Callback)           -- State
+                     IO                            -- Parent Monad
+                     a                             -- Result
+  }
+
+instance Monad DeadpanApp where
+  return  = DeadpanApp . return
+  s >>= f = DeadpanApp $ _deadpanApp s >>= _deadpanApp . f
+
+instance Functor DeadpanApp where
+  fmap f (DeadpanApp m) = DeadpanApp $ fmap f m
+
+instance Applicative DeadpanApp where
+  pure = DeadpanApp . pure
+  (DeadpanApp f) <*> (DeadpanApp m) = DeadpanApp (f <*> m)
+
+makeLenses ''DeadpanApp
 
 -- | The order of these args match that of runRWST
 --
-runDeadpanWithCallbacks :: DeadpanApp a s
-                        -> Network.WebSockets.Connection
-                        -> AppState s
-                        -> IO (a, AppState s)
-runDeadpanWithCallbacks app conn appState = do
-  (a,s,_w) <- runRWST app conn appState
+runDeadpan :: DeadpanApp a
+           -> Network.WebSockets.Connection
+           -> AppState Callback
+           -> IO (a, AppState Callback)
+runDeadpan app conn appState = do
+  (a,s,_w) <- runRWST (_deadpanApp app) conn appState
   return (a,s)
 
 -- TODO: Use a deadpan app in place of a callback
-setHandler :: Text -> Callback () -> DeadpanApp () ()
-setHandler k cb = callbackSet . at k .= Just cb
+setHandler :: Text -> Callback -> DeadpanApp ()
+setHandler k cb = DeadpanApp $ callbackSet %= insert k cb
 
--- TODO: should I add getHandler?
+-- TODO: should I add getHandler/modifyHandler?
 
-deleteHandler :: Text -> DeadpanApp () ()
-deleteHandler = undefined
+deleteHandler :: Text -> DeadpanApp ()
+deleteHandler k = DeadpanApp $ callbackSet %= delete k
 
-setDefaultHandler :: Callback a -> DeadpanApp () ()
-setDefaultHandler = undefined
+-- TODO: Once we have stabalised the definition of Callback
+--       we can make better use of the 'a' parameter...
+
+setDefaultHandler :: Callback -> DeadpanApp ()
+setDefaultHandler cb = DeadpanApp $ defaultCallback .= cb
 
 -- | A low-level function intended to be able to send any arbitrary data to the server.
 --   Given that all messages to the server are intended to fit the "message" format,
 --   You should probably use `sendMessage` instead.
-sendData :: EJsonValue -> DeadpanApp () ()
-sendData = undefined
+--   TODO: Decide if this should perform the request in a seperate thread...
+sendData :: EJsonValue -> DeadpanApp ()
+sendData v = DeadpanApp $ ask >>= liftIO . flip sendEJ v
 
 -- | Send a particular type of message (indicated by the key) to the server.
 --   This should be the primary means of [client -> server] communication by
 --   a client application.
-sendMessage :: Text -> EJsonValue -> DeadpanApp () ()
+sendMessage :: Text -> EJsonValue -> DeadpanApp ()
 sendMessage key m = sendData messageData
   where
   messageData = ejobject [("msg", ejstring key)] `mappend` m
