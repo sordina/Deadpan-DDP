@@ -9,7 +9,7 @@
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module Web.DDP.Deadpan.WebSockets where
+module Web.DDP.Deadpan.Websockets where
 
 -- External imports
 import           Safe                   (readDef)
