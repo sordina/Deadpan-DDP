@@ -1,4 +1,6 @@
 
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Web.DDP.Deadpan2 where
 
 import Web.DDP.Deadpan.DSL
@@ -14,8 +16,10 @@ import Web.DDP.Deadpan.Websockets
 --   TODO: This is awful...
 
 runClient :: AppState Callback -> Params -> DeadpanApp a -> IO a
-runClient state params app = undefined
-
+runClient state params app = execURI clientApp params
+  where
+  clientApp conn = do (a,_as) <- runDeadpan app conn state
+                      return a
 
 -- | A client that registers no initial callbacks
 
