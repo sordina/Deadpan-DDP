@@ -13,27 +13,23 @@ import Web.DDP.Deadpan.Websockets
 --
 --   TODO: This is awful...
 
-runURI :: String -> DeadpanApp a -> Either String (IO a)
-runURI uri client = extract `fmap` runURL uri app
-  where
-  app conn = runDeadpan client conn undefined
-  extract act = do (a,_) <- act
-                   return a
+runClient :: AppState Callback -> Params -> DeadpanApp a -> IO a
+runClient state params app = undefined
 
 
 -- | A client that registers no initial callbacks
 
-bareClient :: DeadpanApp a -> DeadpanApp a
+bareClient :: AppState Callback
 bareClient = undefined
 
 
 -- | A client that responds to server collection messages
 
-collectiveClient :: DeadpanApp a -> DeadpanApp a
+collectiveClient :: AppState Callback
 collectiveClient = undefined
 
 
 -- | A client that logs all server sent messages
 
-loggingClient :: DeadpanApp a -> DeadpanApp a
+loggingClient :: AppState Callback
 loggingClient = undefined

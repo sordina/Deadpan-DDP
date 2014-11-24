@@ -19,17 +19,18 @@ import qualified Network.URI            as U
 import qualified Network.WebSockets     as WS
 
 -- TODO: Use better types for these...
-type URL   = String
-type Error = String
-
-runURL :: URL -> WS.ClientApp a -> Either Error (IO a)
-runURL uri app = execURI app `fmap` getURI uri
+type URL    = String
+type Domain = String
+type Port   = Int
+type Path   = String
+type Error  = String
+type Params = (Domain, Port, Path)
 
 (?>>>) :: Maybe x -> Error -> Either Error x
 Just x  ?>>> _ = Right x
 Nothing ?>>> e = Left  e
 
-getURI :: String -> Either Error (String, Int, String)
+getURI :: String -> Either Error Params
 getURI uri = do parsed    <- U.parseURI uri        ?>>> ("Couldn't parse URI [" ++ uri ++ "]")
                 autho     <- U.uriAuthority parsed ?>>> ("Couldn't find authority in URI [" ++ show parsed ++ "]")
                 let port   = readDef 80 $ drop 1 $ U.uriPort autho
