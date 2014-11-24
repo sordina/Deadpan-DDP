@@ -73,10 +73,10 @@ import Data.EJson
 type Lookup a = Data.Map.Map Text a
 
 data AppState cb = AppState
-  { _defaultCallback :: cb              -- ^ The callback to run when no other callbacks match
-  , _callbackSet     :: Lookup cb       -- ^ Callbacks to match against by message
-  , _collections     :: STM EJsonValue  -- ^ Shared data Expected to be an EJObject
-  -- , _localState   :: ls              -- ^ Thread-Local state -- TODO: Currently disabled
+  { _defaultCallback :: cb               -- ^ The callback to run when no other callbacks match
+  , _callbackSet     :: Lookup cb        -- ^ Callbacks to match against by message
+  , _collections     :: TVar EJsonValue  -- ^ Shared data Expected to be an EJObject
+  -- , _localState   :: ls               -- ^ Thread-Local state -- TODO: Currently disabled
   }
 
 makeLenses ''AppState
