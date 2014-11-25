@@ -165,6 +165,8 @@ connect = sendMessage "connect" $
   ejobject [ ("version", "1")
            , ("support", ejarray ["1","pre2","pre1"]) ]
 
+-- | Provides a way to fork a background thread running the app provided
+--   TODO: Consider returning the thread-id
 fork :: DeadpanApp a -> DeadpanApp ()
 fork app = do
   conn     <- DeadpanApp ask
