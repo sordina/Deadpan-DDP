@@ -1,5 +1,9 @@
 # Deadpan-DDP Change Log
 
+## 0.2.1.1
+
+* Updated license file to include copyright info
+
 ## 0.2.1.0
 
 * Custom Show instance to render prettier output in debugging app [09c9876]
