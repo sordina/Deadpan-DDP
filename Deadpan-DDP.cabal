@@ -45,7 +45,7 @@ library
   exposed-modules:     Data.EJson, Data.EJson.EJson, Data.EJson.Prism, Data.EJson.Aeson,
                        Web.DDP.Deadpan, Web.DDP.Deadpan.Callbacks, Web.DDP.Deadpan.Comms,
                        Web.DDP.Deadpan.DSL, Web.DDP.Deadpan.Websockets
-  build-depends:       base -any, websockets, network,
+  build-depends:       base >= 4 && < 5, websockets, network,
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,
                        vector, convertible, lens,
@@ -56,7 +56,7 @@ library
 
 executable deadpan
   main-is:             Main.hs
-  build-depends:       base -any, websockets, network,
+  build-depends:       base >= 4 && < 5, websockets, network,
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,
                        vector, convertible, lens,
