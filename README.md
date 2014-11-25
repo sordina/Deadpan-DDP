@@ -93,6 +93,7 @@ a demo Meteor app found under the `test/` directory.
 Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.1.0.1-MacOSX-10.9.5-13F34.zip>
+* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.2.0.0-MacOSX-10.9.5-13F34.zip>
 
 
 ## TODO

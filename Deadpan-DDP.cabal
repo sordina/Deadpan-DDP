@@ -1,5 +1,5 @@
 name:                Deadpan-DDP
-version:             0.1.0.1
+version:             0.2.0.0
 synopsis:            Deadpan-DDP Project...
 homepage:            http://github.com/sordina/Deadpan-DDP
 license:             MIT
@@ -11,13 +11,14 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Data.EJson, Data.EJson.EJson, Data.EJson.Prism, Data.EJson.Aeson,
-                       Web.DDP.Deadpan, Web.DDP.Deadpan.DDP, Web.DDP.Deadpan.DSL
+                       Web.DDP.Deadpan, Web.DDP.Deadpan.Callbacks, Web.DDP.Deadpan.Comms,
+                       Web.DDP.Deadpan.DSL, Web.DDP.Deadpan.Websockets
   build-depends:       base -any, websockets, network,
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,
                        vector, convertible, lens,
                        network-uri, safe, mtl,
-                       containers, stm
+                       containers, stm, transformers
   hs-source-dirs:      src
   default-language:    Haskell2010
 
@@ -28,6 +29,6 @@ executable deadpan
                        aeson, scientific, bytestring,
                        vector, convertible, lens,
                        network-uri, safe, mtl,
-                       containers, stm
+                       containers, stm, transformers
   hs-source-dirs:      src
   default-language:    Haskell2010

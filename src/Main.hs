@@ -1,15 +1,20 @@
 module Main (main) where
 
 import System.Environment
-import qualified Web.DDP.Deadpan as D
+import Web.DDP.Deadpan
 
 main :: IO ()
 main = getArgs >>= go
 
 go :: [String] -> IO ()
 go xs | hashelp xs = help
-go [url]           = D.runURL url (const (return ())) -- TODO: Create a debugging app to use here...
+go [url]           = run $ getURI url
 go _               = help
+
+run :: Either Error Params -> IO ()
+run (Left  err   ) = print err
+run (Right params) = do logger <- loggingClient
+                        runClient logger params (liftIO $ void getLine)
 
 hashelp :: [String] -> Bool
 hashelp xs = any (flip elem xs) (words "-h --help")

@@ -19,7 +19,9 @@
 {-# LANGUAGE     TypeSynonymInstances #-}
 {-# LANGUAGE     MultiParamTypeClasses #-}
 
-module Data.EJson.EJson ( EJsonValue(..)
+module Data.EJson.EJson (
+
+             EJsonValue(..)
 
              -- Conversion functions
              , value2EJson

@@ -50,3 +50,11 @@ prop_ejopristest_null = EJNull ^? _EJObject "key" == Nothing
 
 prop_ejopristest_object :: Bool
 prop_ejopristest_object = ejobject [("hello","world")] ^? _EJObject "hello" == Just "world"
+
+_EJString :: Prism' EJsonValue Text
+_EJString = prism' (const EJNull) $ f -- TODO: Does const violate prism laws?
+  where f (EJString s) = Just s
+        f _            = Nothing
+
+prop_ejspristest_string :: Bool
+prop_ejspristest_string = ejstring "hello" ^? _EJString == Just "hello"

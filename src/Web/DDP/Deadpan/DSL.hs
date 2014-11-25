@@ -50,7 +50,13 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Web.DDP.Deadpan.DSL where
+module Web.DDP.Deadpan.DSL
+  ( module Web.DDP.Deadpan.DSL
+  , module Data.EJson
+  , module Data.EJson.Prism
+  , module Data.Text
+  )
+  where
 
 -- External Imports
 
@@ -65,6 +71,7 @@ import Data.Map
 -- Internal Imports
 
 import Web.DDP.Deadpan.Comms
+import Data.EJson.Prism
 import Data.EJson
 
 
@@ -102,6 +109,9 @@ instance Functor DeadpanApp where
 instance Applicative DeadpanApp where
   pure = DeadpanApp . pure
   (DeadpanApp f) <*> (DeadpanApp m) = DeadpanApp (f <*> m)
+
+instance MonadIO DeadpanApp where
+  liftIO i = DeadpanApp $ liftIO i
 
 makeLenses ''DeadpanApp
 
@@ -144,3 +154,31 @@ sendMessage :: Text -> EJsonValue -> DeadpanApp ()
 sendMessage key m = sendData messageData
   where
   messageData = ejobject [("msg", ejstring key)] `mappend` m
+
+-- TODO: Consider creating a 'get' instance to handle this...
+getAppState :: DeadpanApp (AppState Callback)
+getAppState = DeadpanApp $ get
+
+connect :: DeadpanApp ()
+connect = sendMessage "connect" $
+  ejobject [ ("version", "1")
+           , ("support", ejarray ["1","pre2","pre1"]) ]
+
+setup :: DeadpanApp ()
+setup = do connect
+           forever $ do as      <- getAppState
+                        message <- getServerMessage
+                        respondToMessage (_callbackSet as) (_defaultCallback as) message
+
+getServerMessage :: DeadpanApp (Maybe EJsonValue)
+getServerMessage = DeadpanApp $ ask >>= liftIO . getEJ
+
+respondToMessage :: Lookup Callback -> Callback -> Maybe EJsonValue -> DeadpanApp ()
+respondToMessage _     _     Nothing        = return ()
+respondToMessage cbSet defCb (Just message) = do
+  let maybeMsgName  = message ^? _EJObject "msg" . _EJString
+      maybeCallback = do msgName <- maybeMsgName
+                         Data.Map.lookup msgName cbSet
+
+  case maybeCallback of Just    cb -> cb    message
+                        Nothing    -> defCb message
