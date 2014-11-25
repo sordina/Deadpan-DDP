@@ -61,6 +61,7 @@ module Web.DDP.Deadpan.DSL
 -- External Imports
 
 import Control.Concurrent.STM
+import Control.Concurrent
 import Control.Applicative
 import Network.WebSockets
 import Control.Monad.RWS
@@ -164,11 +165,18 @@ connect = sendMessage "connect" $
   ejobject [ ("version", "1")
            , ("support", ejarray ["1","pre2","pre1"]) ]
 
+fork :: DeadpanApp a -> DeadpanApp ()
+fork app = do
+  conn     <- DeadpanApp ask
+  appState <- DeadpanApp get
+  void $ liftIO $ forkIO $ void $ runDeadpan app conn appState
+
 setup :: DeadpanApp ()
 setup = do connect
-           forever $ do as      <- getAppState
-                        message <- getServerMessage
-                        respondToMessage (_callbackSet as) (_defaultCallback as) message
+           fork      $
+             forever $ do as      <- getAppState
+                          message <- getServerMessage
+                          respondToMessage (_callbackSet as) (_defaultCallback as) message
 
 getServerMessage :: DeadpanApp (Maybe EJsonValue)
 getServerMessage = DeadpanApp $ ask >>= liftIO . getEJ
