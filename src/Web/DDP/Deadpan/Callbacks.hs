@@ -1,3 +1,16 @@
+{-|
+
+Description: Intended to provide a set of callbacks for various server events.
+
+This module is intended to provide a set of callbacks for various server events.
+
+The set of callbacks provided fulfills the functionality require to be able
+to implement a local data-store reflecting server-sent data-update messages.
+
+"Web.DDP.Deadpan.Callbacks" is used frequently in "Web.DDP.Deadpan".
+
+-}
+
 {-# LANGUAGE OverloadedStrings #-}
 
 module Web.DDP.Deadpan.Callbacks where
@@ -18,21 +31,33 @@ pingCallback ejv = do
                Nothing  -> sendMessage "pong" $ ejobject []
 
 -- Client Data Subscriptions
--- TODO: Figure out the subscription model
 
 clientDataSub :: Text -> Text -> Maybe [ EJsonValue ] -> DeadpanApp ()
 clientDataSub _subid _name _params = undefined
 
+-- | Synonym for `clientDataSub`
+subscribe :: Text -> Text -> Maybe [ EJsonValue ] -> DeadpanApp ()
+subscribe = clientDataSub
+
 clientDataUnsub :: Text -> DeadpanApp ()
 clientDataUnsub _subid = undefined
+
+-- | Synonym for `clientDataUnsub`
+unsubscribe :: Text -> DeadpanApp ()
+unsubscribe = clientDataUnsub
 
 
 -- Client RPC
 
-{- | method:     string                        (method name)
-     params:     optional array of EJSON items (parameters to the method)
-     id:         string                        (an arbitrary client-determined identifier for this method call)
-     randomSeed: optional JSON value           (an arbitrary client-determined seed for pseudo-random generators)
+{- |
+  As explained in the Meteor DDP documentation:
+
+  @
+      method:     string                        (method name)
+      params:     optional array of EJSON items (parameters to the method)
+      id:         string                        (an arbitrary client-determined identifier for this method call)
+      randomSeed: optional JSON value           (an arbitrary client-determined seed for pseudo-random generators)
+  @
 -}
 clientRPCMethod :: Text -> Maybe [EJsonValue] -> Text -> Maybe EJsonValue -> DeadpanApp ()
 clientRPCMethod _method _params _rpcid _seed = undefined

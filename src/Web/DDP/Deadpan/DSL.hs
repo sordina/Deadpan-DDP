@@ -1,46 +1,55 @@
 {-|
 
-  Description : A DSL Designed to make writing Deadpan applications easy!
+Description: An EDSL designed to make writing deadpan applications easy!
 
-  This is a simple addition of some application specific functions to
+An EDSL designed to make writing deadpan applications easy!
 
-  type DeadpanApp a = Control.Monad.RWS.RWST
-                        Network.WebSockets.Connection
+This DSL is a simple decoration of some application specific functions
+arround an RWST monad instance.
+
+TODO: Check that this is still correct...
+
+@
+  type deadpanapp a = Control.Monad.Rws.Rwst
+                        network.websockets.connection
                         ()
-                        CallbackSet
-                        IO
+                        callbackset
+                        io
                         a
+@
 
-  A core cabal of functions are exported from this module which are then put to use
-  in Web.DDP.Deadpan to create an expressive DSL for creating DDP applications.
+A core cabal of functions are exported from this module which are then put to use
+in web.ddp.deadpan to create an expressive dsl for creating ddp applications.
 
-  The main functions exported are...
+The main functions exported are...
 
-  * runDeadpan
-  * setHandler
-  * deleteHandler
-  * setDefaultHandler
-  * sendData
-  * sendMessage
+TODO: Ensure these are up to date...
 
-  These allow you to...
+* rundeadpan
+* sethandler
+* deletehandler
+* setdefaulthandler
+* senddata
+* sendmessage
 
-  * run a Deadpan application with some initial set of callbacks
-  * set new values for response handlers
-  * delete existing response handlers
-  * set a handler to act when no existing handler matches the incomming message
-  * send an EJsonValue to the server (low-level)
-  * send messages to be interpreted as RPC calls
+these allow you to...
 
-  ... respectively.
+* run a deadpan application with some initial set of callbacks
+* set new values for response handlers
+* delete existing response handlers
+* set a handler to act when no existing handler matches the incomming message
+* send an ejsonvalue to the server (low-level)
+* send messages to be interpreted as rpc calls
 
-  There is also a `Control.Lens.Lens` `collections` provided into a single EJsonValue.
+... respectively.
 
-  This can be used to...
+There is also a `control.lens.lens` `collections` provided into a single ejsonvalue.
 
-  * retrieve any current collection data
-  * set collection data manually
-  * perform actions on collection data in callbacks
+This can be used to...
+
+* Retrieve any current collection data
+* Set collection data manually
+* Perform actions on collection data in callbacks
 
 -}
 

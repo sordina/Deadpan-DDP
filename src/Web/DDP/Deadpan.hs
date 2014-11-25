@@ -1,3 +1,14 @@
+{-|
+
+Description: A collection of utilities to provide a way to create and run Deadpan apps.
+
+A collection of utilities to provide a way to create and run Deadpan apps.
+
+This should be the only Deadpan module imported by users intending to use Deadpan as a library
+in order to write DDP applications.
+
+-}
+
 
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -32,7 +43,7 @@ runClient state params app = flip execURI params
 -- | Run a DeadpanApp against a set of connection parameters
 --
 --   Does not register any callbacks to handle server messages automatically.
---   This can be done with the `setup` function from `Web.DDP.Deadpan.DSL`.
+--   This can be done with the `setup` function from "Web.DDP.Deadpan.DSL".
 --
 --   Useful for running one-shot command-set applications... Not much else.
 --
@@ -66,7 +77,9 @@ loggingClient = do
   return $ AppState (liftIO . print) (Data.Map.singleton "ping" C.pingCallback) values
 
 
--- | A client that responds to server collection messages
+-- | A client that responds to server collection messages.
+--
+--   TODO: NOT YET IMPLEMENTED
 
-collectiveClient :: AppState Callback
+collectiveClient :: IO (AppState Callback)
 collectiveClient = undefined

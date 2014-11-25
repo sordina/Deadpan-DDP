@@ -1,6 +1,38 @@
 name:                Deadpan-DDP
 version:             0.2.0.0
-synopsis:            Deadpan-DDP Project...
+synopsis:            Write clients for Meteor's DDP Protocol
+description:         The Deadpan-DDP project includes a debugging-tool, as well as a general purpose library.
+                     .
+                     <https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md DDP> is the protocol that
+                     <http://meteor.com Meteor> speaks between client and server.
+                     .
+                     The DDP tech-stack is: Websockets -> JSON -> EJson -> Collections -> Subscriptions + RPC.
+                     .
+                     In order to use the debugging tool, install this package and run `deadpan` for a usage
+                     statement.
+                     .
+                     In order to use the library, simply import "Web.DDP.Deadpan".
+                     .
+                     The DSL monad is largely based around RPC calls and callbacks.
+                     In order to write an application you would call
+                     `Web.DDP.Deadpan.runClient` with
+                     .
+                     * An initial application state (this includes initial callbacks)
+                     * A set of connection parameters
+                     * A `Web.DDP.Deadpan.DSL.Deadpan` application
+                     .
+                     There are several callback-sets provided in "Web.DDP.Deadpan",
+                     however, if you want to pick in a more granular fashion,
+                     look inside "Web.DDP.Deadpan.Callbacks".
+                     .
+                     The connection parameters are the triple (Domain, Port, Path)...
+                     .
+                     For convenience the function getURI is provided to turn a URI
+                     of the form <websocket:://localhost:3000/websocket>
+                     into the triple (Right ("localhost", 3000, "websocket"))...
+                     or an error (Left "error message").
+                     .
+                     Refer to the <https://github.com/sordina/Deadpan-DDP#deadpan-ddp README.md> on Github for more information.
 homepage:            http://github.com/sordina/Deadpan-DDP
 license:             MIT
 license-file:        LICENSE

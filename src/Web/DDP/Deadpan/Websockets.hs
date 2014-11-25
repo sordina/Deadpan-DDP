@@ -1,9 +1,12 @@
 {-|
 
-  Description : A collection of Websocket functions to ease converting a URI
-                and a Deadpan app into an IO result.
+Description : A collection of Websocket functions to ease converting a URI
+              and a Deadpan app into an IO result.
 
-  Intended for internal use.
+A collection of Websocket functions to ease converting a URI and a Deadpan app
+into an IO result.
+
+Intended for internal use.
 
 -}
 
