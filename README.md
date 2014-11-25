@@ -36,7 +36,9 @@ This could look something like the following:
 
 You can then run your instance as follows:
 
-    runDeadpan "websockets://testapp.meteor.com:3000/websocket" myDeadpanApp
+    case getURI "https://www.meteor.com/websocket"
+      of Right params -> runDeadpan params myDeadpanApp
+         Left  error  -> print error
 
 
 There are also lower-level tools provided in `Web.DDP.Deadpan.*`.
@@ -74,9 +76,10 @@ This can be installed via the cabal tool.
 
 > cabal install
 
-It is intended that this package will be uploaded to Hackage at some point.
-When this is completed, you will be able to install Deadpan with the following command:
+This package is available on [Hackage](http://hackage.haskell.org/package/Deadpan-DDP),
+therefore, you should be able to install it by running the following commands:
 
+> cabal update
 > cabal install deadpan-ddp
 
 
@@ -94,18 +97,18 @@ Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.1.0.1-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.2.0.0-MacOSX-10.9.5-13F34.zip>
+* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.2.0.1-MacOSX-10.9.5-13F34.zip>
 
 
 ## TODO
 
 Items that still need addressing.
 
-You can look for such items in the source by running
-`make todo`.
+You can look for such items in the source by running `make todo`.
 
 * Write definitions for all stubs in DDP module
+* Fix error on exit "recv: invalid argument (Bad file descriptor)"
 * Haddock documentation
-* Upload to Hackage
 * Update references to test.meteor.com in the docs to point to some kind of real app
 * Write test-suite
 * Fix TODO notes in code

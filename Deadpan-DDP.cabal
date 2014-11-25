@@ -1,5 +1,5 @@
 name:                Deadpan-DDP
-version:             0.2.0.0
+version:             0.2.0.1
 synopsis:            Write clients for Meteor's DDP Protocol
 description:         The Deadpan-DDP project includes a debugging-tool, as well as a general purpose library.
                      .
@@ -28,7 +28,7 @@ description:         The Deadpan-DDP project includes a debugging-tool, as well 
                      The connection parameters are the triple (Domain, Port, Path)...
                      .
                      For convenience the function getURI is provided to turn a URI
-                     of the form <websocket:://localhost:3000/websocket>
+                     of the form <websocket://localhost:3000/websocket>
                      into the triple (Right ("localhost", 3000, "websocket"))...
                      or an error (Left "error message").
                      .
@@ -40,6 +40,7 @@ author:              Lyndon Maydwell
 maintainer:          maydwell@gmail.com
 build-type:          Simple
 cabal-version:       >=1.10
+Extra-Source-Files:  changelog.md
 
 library
   exposed-modules:     Data.EJson, Data.EJson.EJson, Data.EJson.Prism, Data.EJson.Aeson,
