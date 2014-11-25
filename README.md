@@ -8,7 +8,7 @@ Client.
 
 This can be used for writing clients for [Meteor](https://www.meteor.com/) sites, among other purposes.
 
-# NOTE: The Library is currently unusable.
+# NOTE: The Library is currently incomplete. Several important callbacks are so-far undefined.
 
 Things implemented so far:
 
