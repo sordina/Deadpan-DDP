@@ -57,6 +57,9 @@ import Data.String
 import Data.Convertible
 import System.Posix.Types (EpochTime)
 
+-- Display purposes
+import qualified Data.ByteString.Lazy.Char8 as BC8
+
 data EJsonValue =
     EJObject !(Data.HashMap.Strict.HashMap Text EJsonValue)
   | EJArray  !(Data.Vector.Vector EJsonValue)
@@ -67,7 +70,11 @@ data EJsonValue =
   | EJBinary !ByteString
   | EJUser   !Text !EJsonValue
   | EJNull
-  deriving (Eq, Show)
+  deriving (Eq)
+
+instance Show EJsonValue
+  where
+  show = BC8.unpack . Data.Aeson.encode . ejson2value
 
 instance IsString EJsonValue
   where
