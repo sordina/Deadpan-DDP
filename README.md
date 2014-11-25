@@ -8,6 +8,8 @@ Client.
 
 This can be used for writing clients for [Meteor](https://www.meteor.com/) sites, among other purposes.
 
+* [Other Clients](http://www.meteorpedia.com/read/DDP_Clients)
+
 # NOTE: The Library is currently incomplete. Several important callbacks are so-far undefined.
 
 Things implemented so far:
@@ -107,7 +109,7 @@ Items that still need addressing.
 You can look for such items in the source by running `make todo`.
 
 * Write definitions for all stubs in DDP module
-* Fix error on exit "recv: invalid argument (Bad file descriptor)"
+* Fix error on exit "recv: invalid argument (Bad file descriptor)" check out <https://github.com/k0001/pipes-network/issues/2>
 * Haddock documentation
 * Update references to test.meteor.com in the docs to point to some kind of real app
 * Write test-suite
