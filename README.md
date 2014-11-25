@@ -10,14 +10,23 @@ This can be used for writing clients for [Meteor](https://www.meteor.com/) sites
 
 * [Other Clients](http://www.meteorpedia.com/read/DDP_Clients)
 
-# NOTE: The Library is currently incomplete. Several important callbacks are so-far undefined.
+## NOTE: The Library is currently incomplete. Several important callbacks are so-far undefined.
 
 Things implemented so far:
+
+### Debugging Application `deadpan`
 
 * EJSON data types and conversion functions
 * Connect to server
 * Respond to PING
 * Print all incomming EJSON server messages
+
+### Library
+
+* Write DDP clients in a monadic DSL
+* Set initial callbacks
+* Update callbacks at runtime
+* Shared data-store
 
 ## Usage
 
