@@ -104,13 +104,10 @@ You can look for such items in the source by running
 `make todo`.
 
 * Write definitions for all stubs in DDP module
-* Move modules under some existing namespace
 * Haddock documentation
 * Upload to Hackage
-* Add --help flag
 * Update references to test.meteor.com in the docs to point to some kind of real app
 * Write test-suite
 * Fix TODO notes in code
 * Use more qualified imports, including for internal imports
-* Narrow package dependencies
-* Should Callback be a DeadpanApp monad?
+* Narrow package dependency versions
