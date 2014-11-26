@@ -129,3 +129,4 @@ You can look for incomplete items in the source by running `make todo`.
 * Consider ditching the state monad in favor of a pure reader (conn, TVar other-stuff...)
 * Random number generation as-per the spec
 * Find out why the protocol isn't being accepted for debugging meteor.com
+* Consider creating a blocking version of the API that auto-generates and responds to IDs
