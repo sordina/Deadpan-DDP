@@ -1,5 +1,9 @@
 # Deadpan-DDP Change Log
 
+## 0.2.2.0
+
+* Completed adding RPC method call support
+
 ## 0.2.1.1
 
 * Updated license file to include copyright info
