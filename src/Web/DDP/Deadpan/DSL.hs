@@ -63,7 +63,7 @@ module Web.DDP.Deadpan.DSL
   ( module Web.DDP.Deadpan.DSL
   , module Data.EJson
   , module Data.EJson.Prism
-  , module Data.Text
+  , Text
   )
   where
 

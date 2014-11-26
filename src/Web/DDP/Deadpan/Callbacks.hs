@@ -16,6 +16,7 @@ to implement a local data-store reflecting server-sent data-update messages.
 module Web.DDP.Deadpan.Callbacks where
 
 import Web.DDP.Deadpan.DSL
+import Control.Monad.State
 import Control.Lens
 
 -- Old Stuff...
@@ -58,9 +59,25 @@ unsubscribe = clientDataUnsub
       id:         string                        (an arbitrary client-determined identifier for this method call)
       randomSeed: optional JSON value           (an arbitrary client-determined seed for pseudo-random generators)
   @
+
+  TODO: * Should the seed actually be able to be an arbitrary value?
+        * What is the lens operator to run state against a value?
 -}
 clientRPCMethod :: Text -> Maybe [EJsonValue] -> Text -> Maybe EJsonValue -> DeadpanApp ()
-clientRPCMethod _method _params _rpcid _seed = undefined
+clientRPCMethod method params rpcid seed = do
+  let msg :: [(Text, EJsonValue)]
+      msg = [("method", ejstring method), ("id", ejstring rpcid)]
+        &~> do maybeM params $ \v -> modify (("params", ejarray  v) :)
+               maybeM seed   $ \v -> modify (("seed",            v) :)
+
+  sendMessage "method" (ejobject msg)
+
+  where
+  maybeM :: Monad m => Maybe a -> (a -> m ()) -> m ()
+  maybeM m f = maybe (return ()) f m
+
+  (&~>) :: s -> State s b -> s
+  v &~> m = flip execState v m
 
 
 -- Server -->> Client

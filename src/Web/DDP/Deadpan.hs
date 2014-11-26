@@ -14,6 +14,8 @@ in order to write DDP applications.
 
 module Web.DDP.Deadpan
   ( module Web.DDP.Deadpan
+  , module Web.DDP.Deadpan.DSL
+  , module Web.DDP.Deadpan.Callbacks
   , module Control.Monad
   , getURI
   , Error
@@ -24,7 +26,7 @@ module Web.DDP.Deadpan
 
 import Web.DDP.Deadpan.DSL
 import Web.DDP.Deadpan.Websockets
-import Web.DDP.Deadpan.Callbacks as C
+import Web.DDP.Deadpan.Callbacks
 
 import Data.Map
 import Control.Concurrent.STM
@@ -66,7 +68,7 @@ bareClient = do
 pingClient :: IO (AppState Callback)
 pingClient = do
   values <- newTVarIO (ejobject [])
-  return $ AppState (const $ return ()) (Data.Map.singleton "ping" C.pingCallback) values
+  return $ AppState (const $ return ()) (Data.Map.singleton "ping" pingCallback) values
 
 
 -- | A client that logs all server sent messages, responds to pings
@@ -74,7 +76,7 @@ pingClient = do
 loggingClient :: IO (AppState Callback)
 loggingClient = do
   values <- newTVarIO (ejobject [])
-  return $ AppState (liftIO . print) (Data.Map.singleton "ping" C.pingCallback) values
+  return $ AppState (liftIO . print) (Data.Map.singleton "ping" pingCallback) values
 
 
 -- | A client that responds to server collection messages.
