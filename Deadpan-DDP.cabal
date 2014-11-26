@@ -1,5 +1,5 @@
 name:                Deadpan-DDP
-version:             0.3.0.0
+version:             0.3.0.1
 synopsis:            Write clients for Meteor's DDP Protocol
 description:         The Deadpan-DDP project includes a debugging-tool, as well as a general purpose library.
                      .
@@ -51,7 +51,7 @@ library
                        aeson, scientific, bytestring,
                        vector, convertible, lens,
                        network-uri, safe, mtl,
-                       containers, stm, transformers
+                       containers, stm, transformers, IfElse
   hs-source-dirs:      src
   default-language:    Haskell2010
 
@@ -62,6 +62,6 @@ executable deadpan
                        aeson, scientific, bytestring,
                        vector, convertible, lens,
                        network-uri, safe, mtl,
-                       containers, stm, transformers
+                       containers, stm, transformers, IfElse
   hs-source-dirs:      src
   default-language:    Haskell2010

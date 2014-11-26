@@ -17,6 +17,7 @@ module Web.DDP.Deadpan.Callbacks where
 
 import Web.DDP.Deadpan.DSL
 import Control.Monad.State
+import Control.Monad.IfElse (awhen)
 import Control.Lens
 
 -- Old Stuff...
@@ -33,15 +34,45 @@ pingCallback ejv = do
 
 -- Client Data Subscriptions
 
+
+{- |
+
+Initiate a subscription to a named collection on the server.
+
+Provide an id to refer to the subscription in future.
+
+@
+  sub (client -> server):
+    id:     string                        (an arbitrary client-determined
+                                              identifier for this subscription)
+    name:   string                        (the name of the subscription)
+    params: optional array of EJSON items (parameters to the subscription)
+@
+
+-}
 clientDataSub :: Text -> Text -> Maybe [ EJsonValue ] -> DeadpanApp ()
-clientDataSub _subid _name _params = undefined
+clientDataSub subid name Nothing
+  = sendMessage "sub" $ ejobject [("name",   ejstring name)
+                                 ,("id",     ejstring subid)]
+clientDataSub subid name (Just params)
+  = sendMessage "sub" $ ejobject [("name",   ejstring name)
+                                 ,("params", ejarray  params)
+                                 ,("id",     ejstring subid)]
 
 -- | Synonym for `clientDataSub`
 subscribe :: Text -> Text -> Maybe [ EJsonValue ] -> DeadpanApp ()
 subscribe = clientDataSub
 
+{- |
+Unsubscribe from an existing subscription indicated by its ID.
+
+@
+  unsub (client -> server):
+    id: string (the id passed to 'sub')
+@
+-}
 clientDataUnsub :: Text -> DeadpanApp ()
-clientDataUnsub _subid = undefined
+clientDataUnsub subid = sendMessage "unsub" $ ejobject [("id", ejstring subid)]
 
 -- | Synonym for `clientDataUnsub`
 unsubscribe :: Text -> DeadpanApp ()
@@ -59,24 +90,14 @@ unsubscribe = clientDataUnsub
       id:         string                        (an arbitrary client-determined identifier for this method call)
       randomSeed: optional JSON value           (an arbitrary client-determined seed for pseudo-random generators)
   @
-
-  TODO: What is the lens operator to run state against a value?
 -}
 clientRPCMethod :: Text -> Maybe [EJsonValue] -> Text -> Maybe Text -> DeadpanApp ()
 clientRPCMethod method params rpcid seed = do
-  let msg :: [(Text, EJsonValue)]
-      msg = [("method", ejstring method), ("id", ejstring rpcid)]
-        &~> do maybeM params $ \v -> modify (("params", ejarray  v) :)
-               maybeM seed   $ \v -> modify (("seed",   ejstring v) :)
+  let msg = [("method", ejstring method), ("id", ejstring rpcid)]
+         &~ do awhen params $ \v -> modify (("params", ejarray  v) :)
+               awhen seed   $ \v -> modify (("seed",   ejstring v) :)
 
   sendMessage "method" (ejobject msg)
-
-  where
-  maybeM :: Monad m => Maybe a -> (a -> m ()) -> m ()
-  maybeM m f = maybe (return ()) f m
-
-  (&~>) :: s -> State s b -> s
-  v &~> m = flip execState v m
 
 
 -- Server -->> Client

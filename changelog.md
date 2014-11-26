@@ -1,5 +1,11 @@
 # Deadpan-DDP Change Log
 
+## 0.3.0.1
+
+* Added further callback implementations
+* Added test-app
+* Added documentation
+
 ## 0.2.2.0
 
 * Completed adding RPC method call support
