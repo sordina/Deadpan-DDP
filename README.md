@@ -47,8 +47,9 @@ This could look something like the following:
 
 You can then run your instance as follows:
 
+    initialState <- pingClient
     case getURI "https://www.meteor.com/websocket"
-      of Right params -> runDeadpan params myDeadpanApp
+      of Right params -> runClient initialState params myDeadpanApp
          Left  error  -> print error
 
 
