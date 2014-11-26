@@ -52,8 +52,10 @@ You can then run your instance as follows:
       of Right params -> runClient initialState params myDeadpanApp
          Left  error  -> print error
 
+Further examples of applications can be found in the test/client/ directory.
 
 There are also lower-level tools provided in `Web.DDP.Deadpan.*`.
+
 
 #### EJson
 
@@ -72,7 +74,7 @@ Lenses, Prisms, and Aeson instances are provided for this library.
 
 Run `deadpan` against an existing Meteor installation as follows:
 
-> deadpan websocets://testapp.meteor.com:3000/websocket
+> deadpan websocets://meteor.com/websocket
 
 This will dump all server messages to STDOUT.
 
@@ -91,8 +93,8 @@ This can be installed via the cabal tool.
 This package is available on [Hackage](http://hackage.haskell.org/package/Deadpan-DDP),
 therefore, you should be able to install it by running the following commands:
 
-> cabal update
-> cabal install deadpan-ddp
+    cabal update
+    cabal install deadpan-ddp
 
 
 ## Testing
@@ -114,17 +116,15 @@ Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 
 ## TODO
 
-Items that still need addressing.
-
-You can look for such items in the source by running `make todo`.
+You can look for incomplete items in the source by running `make todo`.
 
 * Write definitions for all stubs in DDP module
 * Fix error on exit "recv: invalid argument (Bad file descriptor)" check out <https://github.com/k0001/pipes-network/issues/2>
 * Haddock documentation
-* Update references to test.meteor.com in the docs to point to some kind of real app
 * Write test-suite
 * Fix TODO notes in code
 * Use more qualified imports, including for internal imports
 * Narrow package dependency versions
 * Consider ditching the state monad in favor of a pure reader (conn, TVar other-stuff...)
 * Random number generation as-per the spec
+* Find out why the protocol isn't being accepted for debugging meteor.com
