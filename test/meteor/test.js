@@ -21,4 +21,11 @@ if (Meteor.isServer) {
 
     setInterval(Meteor.bindEnvironment(increment), 1000)
   });
+
+  Meteor.methods({
+    realMethod: function() {
+      console.log("Client called realMethod")
+      return new Date()
+    }
+  })
 }

@@ -12,6 +12,10 @@ go (Left  err   ) = print err
 go (Right params) = do clnt <- loggingClient
                        runClient clnt params app
 
+-- TODO: This doesn't seem to be working completely...
 app :: DeadpanApp ()
-app = do clientRPCMethod "testrpcmethod" Nothing "testid" Nothing
+app = do void $ liftIO getLine
+         clientRPCMethod "realMethod"    Nothing "testid2" Nothing
+         void $ liftIO getLine
+         clientRPCMethod "missingMethod" Nothing "testid1" Nothing
          void $ liftIO getLine
