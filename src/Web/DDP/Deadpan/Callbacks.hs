@@ -60,15 +60,14 @@ unsubscribe = clientDataUnsub
       randomSeed: optional JSON value           (an arbitrary client-determined seed for pseudo-random generators)
   @
 
-  TODO: * Should the seed actually be able to be an arbitrary value?
-        * What is the lens operator to run state against a value?
+  TODO: What is the lens operator to run state against a value?
 -}
-clientRPCMethod :: Text -> Maybe [EJsonValue] -> Text -> Maybe EJsonValue -> DeadpanApp ()
+clientRPCMethod :: Text -> Maybe [EJsonValue] -> Text -> Maybe Text -> DeadpanApp ()
 clientRPCMethod method params rpcid seed = do
   let msg :: [(Text, EJsonValue)]
       msg = [("method", ejstring method), ("id", ejstring rpcid)]
         &~> do maybeM params $ \v -> modify (("params", ejarray  v) :)
-               maybeM seed   $ \v -> modify (("seed",            v) :)
+               maybeM seed   $ \v -> modify (("seed",   ejstring v) :)
 
   sendMessage "method" (ejobject msg)
 

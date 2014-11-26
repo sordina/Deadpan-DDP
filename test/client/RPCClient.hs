@@ -15,7 +15,9 @@ go (Right params) = do clnt <- loggingClient
 -- TODO: This doesn't seem to be working completely...
 app :: DeadpanApp ()
 app = do void $ liftIO getLine
-         clientRPCMethod "realMethod"    Nothing "testid2" Nothing
+         clientRPCMethod "realMethod"    Nothing "testid1" Nothing
          void $ liftIO getLine
-         clientRPCMethod "missingMethod" Nothing "testid1" Nothing
+         clientRPCMethod "missingMethod" Nothing "testid2" Nothing
+         void $ liftIO getLine
+         clientRPCMethod "realMethod2"   Nothing "testid3" Nothing
          void $ liftIO getLine

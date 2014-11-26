@@ -126,3 +126,4 @@ You can look for such items in the source by running `make todo`.
 * Use more qualified imports, including for internal imports
 * Narrow package dependency versions
 * Consider ditching the state monad in favor of a pure reader (conn, TVar other-stuff...)
+* Random number generation as-per the spec

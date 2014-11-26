@@ -26,6 +26,10 @@ if (Meteor.isServer) {
     realMethod: function() {
       console.log("Client called realMethod")
       return new Date()
+    },
+    realMethod2: function() {
+      console.log("Client called realMethod2")
+      return new Date()
     }
   })
 }
