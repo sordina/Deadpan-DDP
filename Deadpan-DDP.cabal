@@ -18,7 +18,9 @@ description:         The Deadpan-DDP project includes a debugging-tool, as well 
                      `Web.DDP.Deadpan.runClient` with
                      .
                      * An initial application state (this includes initial callbacks)
+                     .
                      * A set of connection parameters
+                     .
                      * A `Web.DDP.Deadpan.DSL.Deadpan` application
                      .
                      There are several callback-sets provided in "Web.DDP.Deadpan",
