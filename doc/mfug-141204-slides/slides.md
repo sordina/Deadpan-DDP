@@ -212,6 +212,28 @@ Would be the most common.
              clientRPCMethod "missingMethod" Nothing "testid2" Nothing
              void $ liftIO getLine
 
+# Debugging App
+
+## `deadpan`
+
+A command-line app `deadpan` is built alongside this library.
+
+    > deadpan
+    Usage: deadpan [-h | --help] <URL>
+
+This will connection to a DDP server, respond to pings, and print all incomming messages.
+
+## In Action
+
+    > deadpan websocket://localhost:3000/websocket
+    {"server_id":"0"}
+    {"msg":"connected","session":"9EccYbEWeePEHLJRb"}
+    {"collection":"test","msg":"added","id":"qdfJLj7cQwLevYJEv","fields":{"name":"I am 2","i":2}}
+    {"collection":"test","msg":"added","id":"KM9TKFNoywzX2tqwj","fields":{"name":"I am 8","i":8}}
+    {"collection":"test","msg":"added","id":"zeM8HrqugzZpDXZPv","fields":{"name":"I am 3","i":3}}
+    {"collection":"test","msg":"added","id":"HrEGrqPvBTfiCvyAk","fields":{"name":"I am 4","i":4}}
+    ...
+
 # TODO
 
 ## What's left

@@ -194,6 +194,22 @@ app = do void $ liftIO getLine
          clientRPCMethod &quot;missingMethod&quot; Nothing &quot;testid2&quot; Nothing
          void $ liftIO getLine</code></pre>
 </section></section>
+<section><section id="debugging-app" class="titleslide slide level1"><h1>Debugging App</h1></section><section id="deadpan-1" class="slide level2">
+<h1><code>deadpan</code></h1>
+<p>A command-line app <code>deadpan</code> is built alongside this library.</p>
+<pre><code>&gt; deadpan
+Usage: deadpan [-h | --help] &lt;URL&gt;</code></pre>
+<p>This will connection to a DDP server, respond to pings, and print all incomming messages.</p>
+</section><section id="in-action" class="slide level2">
+<h1>In Action</h1>
+<pre><code>&gt; deadpan websocket://localhost:3000/websocket
+{&quot;server_id&quot;:&quot;0&quot;}
+{&quot;msg&quot;:&quot;connected&quot;,&quot;session&quot;:&quot;9EccYbEWeePEHLJRb&quot;}
+{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;qdfJLj7cQwLevYJEv&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 2&quot;,&quot;i&quot;:2}}
+{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;KM9TKFNoywzX2tqwj&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 8&quot;,&quot;i&quot;:8}}
+{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;zeM8HrqugzZpDXZPv&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 3&quot;,&quot;i&quot;:3}}
+{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;HrEGrqPvBTfiCvyAk&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 4&quot;,&quot;i&quot;:4}}</code></pre>
+</section></section>
 <section><section id="todo" class="titleslide slide level1"><h1>TODO</h1></section><section id="whats-left" class="slide level2">
 <h1>What's left</h1>
 <ul>
