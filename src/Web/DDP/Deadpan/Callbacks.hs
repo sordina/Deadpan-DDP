@@ -16,9 +16,20 @@ to implement a local data-store reflecting server-sent data-update messages.
 module Web.DDP.Deadpan.Callbacks where
 
 import Web.DDP.Deadpan.DSL
+import Control.Concurrent.MVar
 import Control.Monad.State
 import Control.Monad.IfElse (awhen)
 import Control.Lens
+import Data.UUID.V4 (nextRandom)
+import Data.UUID    (toString)
+
+-- IDs
+
+newID :: DeadpanApp Text
+newID = do guid <- liftIO nextRandom
+           let str  = toString guid
+               text = pack str
+           return text
 
 -- Old Stuff...
 
@@ -28,7 +39,7 @@ import Control.Lens
 
 pingCallback :: Callback
 pingCallback ejv = do
-  let mpid = ejv ^? _EJObject "id"
+  let mpid = ejv ^. _EJObjectKey "id"
   case mpid of Just pid -> sendMessage "pong" $ ejobject [("id", pid)]
                Nothing  -> sendMessage "pong" $ ejobject []
 
@@ -99,6 +110,18 @@ clientRPCMethod method params rpcid seed = do
 
   sendMessage "method" (ejobject msg)
 
+-- | Like clientRPCMethod, except that it blocks, returning the response from the server.
+--
+rpcWait :: Text -> Maybe [EJsonValue] -> DeadpanApp EJsonValue
+rpcWait method params = do uuid <- newID
+                           mv   <- liftIO $ newEmptyMVar
+                           setIdHandler uuid (handler mv uuid)
+                           clientRPCMethod method params uuid Nothing -- TODO: Should we use the seed?
+                           val  <- liftIO $ readMVar mv
+                           return val
+  where
+  handler mv uuid itm = do liftIO $ putMVar mv itm
+                           deleteHandlerID uuid
 
 -- Server -->> Client
 

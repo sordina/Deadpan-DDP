@@ -5,18 +5,7 @@ Description: An EDSL designed to make writing deadpan applications easy!
 An EDSL designed to make writing deadpan applications easy!
 
 This DSL is a simple decoration of some application specific functions
-arround an RWST monad instance.
-
-TODO: Check that this is still correct...
-
-@
-  type deadpanapp a = Control.Monad.Rws.Rwst
-                        network.websockets.connection
-                        ()
-                        callbackset
-                        io
-                        a
-@
+arround a ReaderT monad instance.
 
 A core cabal of functions are exported from this module which are then put to use
 in web.ddp.deadpan to create an expressive dsl for creating ddp applications.
@@ -62,8 +51,8 @@ This can be used to...
 module Web.DDP.Deadpan.DSL
   ( module Web.DDP.Deadpan.DSL
   , module Data.EJson
-  , module Data.EJson.Prism
   , Text
+  , pack
   )
   where
 
@@ -73,27 +62,33 @@ import Control.Concurrent.STM
 import Control.Concurrent
 import Control.Applicative
 import Network.WebSockets
-import Control.Monad.RWS
+import Control.Monad.Reader
 import Control.Lens
+import Data.Monoid
 import Data.Text
-import Data.Map
 
 -- Internal Imports
 
 import Web.DDP.Deadpan.Comms
-import Data.EJson.Prism
 import Data.EJson
 
 
 -- Let's do this!
 
-type Lookup a = Data.Map.Map Text a
+-- | The LookupItem data-type is used to store a set of callbacks
+--   If ident, or messageType are set, then the callback will
+--   only be called if these fields match.
+--
+data LookupItem a = LI { _ident :: Maybe Text, _messageType :: Maybe Text, _body :: a }
+
+makeLenses ''LookupItem
+
+type Lookup a = [ LookupItem a ]
 
 data AppState cb = AppState
-  { _defaultCallback :: cb               -- ^ The callback to run when no other callbacks match
-  , _callbackSet     :: Lookup cb        -- ^ Callbacks to match against by message
-  , _collections     :: TVar EJsonValue  -- ^ Shared data Expected to be an EJObject
-  -- , _localState   :: ls               -- ^ Thread-Local state -- TODO: Currently disabled
+  { _callbackSet :: Lookup cb                      -- ^ Callbacks to match against by message
+  , _collections :: EJsonValue                     -- ^ Shared data Expected to be an EJObject
+  , _connection  :: Network.WebSockets.Connection  -- ^ Network connection to server
   }
 
 makeLenses ''AppState
@@ -101,12 +96,10 @@ makeLenses ''AppState
 type Callback = EJsonValue -> DeadpanApp () -- TODO: Allow any return type from callback
 
 newtype DeadpanApp a = DeadpanApp
-  { _deadpanApp :: Control.Monad.RWS.RWST
-                     Network.WebSockets.Connection -- Reader
-                     ()                            -- Writer (ignore)
-                     (AppState Callback)           -- State
-                     IO                            -- Parent Monad
-                     a                             -- Result
+  { _deadpanApp :: ReaderT
+                     (TVar (AppState Callback)) -- Reader
+                     IO                         -- Parent Monad
+                     a                          -- Result
   }
 
 instance Monad DeadpanApp where
@@ -125,37 +118,48 @@ instance MonadIO DeadpanApp where
 
 makeLenses ''DeadpanApp
 
--- | The order of these args match that of runRWST
+-- | The order of these args match that of runReaderT
 --
 runDeadpan :: DeadpanApp a
-           -> Network.WebSockets.Connection
-           -> AppState Callback
-           -> IO (a, AppState Callback)
-runDeadpan app conn appState = do
-  (a,s,_w) <- runRWST (_deadpanApp app) conn appState
-  return (a,s)
+           -> TVar (AppState Callback)
+           -> IO a
+runDeadpan app appState = runReaderT (_deadpanApp app) appState
 
--- TODO: Use a deadpan app in place of a callback
-setHandler :: Text -> Callback -> DeadpanApp ()
-setHandler k cb = DeadpanApp $ callbackSet %= insert k cb
+setHandler :: LookupItem Callback -> DeadpanApp ()
+setHandler i = modifyAppState foo
+  where foo x = x &~ callbackSet %= (i:)
 
--- TODO: should I add getHandler/modifyHandler?
+setIdHandler :: Text -> Callback -> DeadpanApp ()
+setIdHandler myid cb = setHandler $ LI (Just myid) Nothing cb
 
-deleteHandler :: Text -> DeadpanApp ()
-deleteHandler k = DeadpanApp $ callbackSet %= delete k
+setMsgHandler :: Text -> Callback -> DeadpanApp ()
+setMsgHandler msg cb = setHandler $ LI Nothing (Just msg) cb
 
--- TODO: Once we have stabalised the definition of Callback
---       we can make better use of the 'a' parameter...
+setCatchAllHandler :: Callback -> DeadpanApp ()
+setCatchAllHandler cb = setHandler $ LI Nothing Nothing cb
 
-setDefaultHandler :: Callback -> DeadpanApp ()
-setDefaultHandler cb = DeadpanApp $ defaultCallback .= cb
+-- TODO: Use better names than foo and bar
+deleteHandlerID :: Text -> DeadpanApp ()
+deleteHandlerID k = modifyAppState foo
+  where foo x = x &~ callbackSet %= Prelude.filter bar
+        bar y = _ident y == Nothing
+             || _ident y == Just k
+
+modifyAppState :: (AppState Callback -> AppState Callback) -> DeadpanApp ()
+modifyAppState f = DeadpanApp
+  $ do st <- ask
+       liftIO $ atomically $ do s <- readTVar st
+                                writeTVar st (f s)
+
+getAppState :: DeadpanApp (AppState Callback)
+getAppState = DeadpanApp $ ask >>= liftIO . atomically . readTVar
 
 -- | A low-level function intended to be able to send any arbitrary data to the server.
 --   Given that all messages to the server are intended to fit the "message" format,
 --   You should probably use `sendMessage` instead.
 --   TODO: Decide if this should perform the request in a seperate thread...
 sendData :: EJsonValue -> DeadpanApp ()
-sendData v = DeadpanApp $ ask >>= liftIO . flip sendEJ v
+sendData v = getAppState >>= liftIO . flip sendEJ v . _connection
 
 -- | Send a particular type of message (indicated by the key) to the server.
 --   This should be the primary means of [client -> server] communication by
@@ -165,39 +169,37 @@ sendMessage key m = sendData messageData
   where
   messageData = ejobject [("msg", ejstring key)] `mappend` m
 
--- TODO: Consider creating a 'get' instance to handle this...
-getAppState :: DeadpanApp (AppState Callback)
-getAppState = DeadpanApp $ get
-
 connect :: DeadpanApp ()
 connect = sendMessage "connect" $
   ejobject [ ("version", "1")
            , ("support", ejarray ["1","pre2","pre1"]) ]
 
 -- | Provides a way to fork a background thread running the app provided
---   TODO: Consider returning the thread-id
-fork :: DeadpanApp a -> DeadpanApp ()
+fork :: DeadpanApp a -> DeadpanApp ThreadId
 fork app = do
-  conn     <- DeadpanApp ask
-  appState <- DeadpanApp get
-  void $ liftIO $ forkIO $ void $ runDeadpan app conn appState
+  st <- DeadpanApp ask
+  liftIO $ forkIO $ void $ runDeadpan app st
 
-setup :: DeadpanApp ()
-setup = do connect
-           fork      $
-             forever $ do as      <- getAppState
-                          message <- getServerMessage
-                          respondToMessage (_callbackSet as) (_defaultCallback as) message
+fetchMessages :: DeadpanApp ()
+fetchMessages = void      $
+                 fork     $
+                  forever $ do as      <- getAppState
+                               message <- getServerMessage
+                               fork $ respondToMessage (_callbackSet as) message
 
 getServerMessage :: DeadpanApp (Maybe EJsonValue)
-getServerMessage = DeadpanApp $ ask >>= liftIO . getEJ
+getServerMessage = getAppState >>= liftIO . getEJ . _connection
 
-respondToMessage :: Lookup Callback -> Callback -> Maybe EJsonValue -> DeadpanApp ()
-respondToMessage _     _     Nothing        = return ()
-respondToMessage cbSet defCb (Just message) = do
-  let maybeMsgName  = message ^? _EJObject "msg" . _EJString
-      maybeCallback = do msgName <- maybeMsgName
-                         Data.Map.lookup msgName cbSet
+(=?) :: Eq a => Maybe a -> Maybe a -> Bool
+x@(Just _) =? y = x == y
+_          =? _ = True
 
-  case maybeCallback of Just    cb -> cb    message
-                        Nothing    -> defCb message
+respondToMessage :: Lookup Callback -> Maybe EJsonValue -> DeadpanApp ()
+respondToMessage    _                  Nothing           = return ()
+respondToMessage    cbSet              (Just message)    = do
+  let maybeMsgName  = message ^? _EJObjectKeyString "msg"
+      maybeID       = message ^? _EJObjectKeyString "id"
+
+  forM_ cbSet $ \x -> do
+    when (_ident x =? maybeID && _messageType x =? maybeMsgName)
+      (_body x message)

@@ -12,6 +12,7 @@
 
 -}
 
+{-# LANGUAGE     OverloadedStrings #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE     RankNTypes #-}
 {-# LANGUAGE     TemplateHaskell #-}
@@ -38,6 +39,19 @@ module Data.EJson.EJson (
              , ejuser
              , ejnull
 
+             -- Prisms
+             , _EJObject
+             , _EJObjectKey
+             , _EJObjectKeyString
+             , _EJArray
+             , _EJAraryIndex
+             , _EJString
+             , _EJNumber
+             , _EJBool
+             , _EJDate
+             , _EJBinary
+             , _EJUser
+             , _EJNull
    ) where
 
 import Data.Monoid
@@ -52,6 +66,8 @@ import Data.Maybe
 import Data.HashMap.Strict
 import Data.ByteString.Base64
 import Data.String
+import Control.Lens
+import Control.Applicative
 
 -- Time
 import Data.Convertible
@@ -71,6 +87,37 @@ data EJsonValue =
   | EJUser   !Text !EJsonValue
   | EJNull
   deriving (Eq)
+
+-- Instances follow!
+
+-- Prismo time!
+-- http://adventuretime.wikia.com/wiki/Prismo
+
+makePrisms ''EJsonValue
+
+_EJObjectKey :: Applicative f
+             => Text
+             -> (Maybe EJsonValue -> f (Maybe EJsonValue))
+             -> EJsonValue
+             -> f EJsonValue
+_EJObjectKey k = _EJObject . at k
+
+-- | A helpful prism that looks up values of type EJ{"foo" : "bar", ...}
+--   with a Text key "foo" and returns Just "bar", or Nothing.
+--   Used frequently for checking message types and ids.
+_EJObjectKeyString :: Applicative f
+                   => Text
+                   -> (Text -> f Text)
+                   -> EJsonValue
+                   -> f EJsonValue
+_EJObjectKeyString k = _EJObject . at k . _Just . _EJString
+
+_EJAraryIndex :: Applicative f
+              => Int
+              -> (EJsonValue -> f EJsonValue)
+              -> EJsonValue
+              -> f EJsonValue
+_EJAraryIndex i = _EJArray . ix i
 
 instance Show EJsonValue
   where

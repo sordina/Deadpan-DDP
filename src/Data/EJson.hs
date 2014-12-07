@@ -31,9 +31,7 @@
 module Data.EJson (
 
     module Data.EJson.EJson
-  , module Data.EJson.Prism
 
   ) where
 
 import Data.EJson.EJson
-import Data.EJson.Prism

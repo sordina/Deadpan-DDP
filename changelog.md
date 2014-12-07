@@ -1,5 +1,11 @@
 # Deadpan-DDP Change Log
 
+## 0.4.0.0
+
+* Large refactor including API changes
+* No longer require specifying app-state to run an app
+* Added blocking RPCWait
+
 ## 0.3.0.1
 
 * Added further callback implementations

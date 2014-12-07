@@ -10,13 +10,12 @@ main = getArgs >>= go
 
 go :: [String] -> IO ()
 go xs | hashelp xs = help
-go [url]           = run $ getURI url
+go [url]           = void $ run $ getURI url
 go _               = help >> exitFailure
 
-run :: Either Error Params -> IO ()
+run :: Either Error Params -> IO String
 run (Left  err   ) = hPutStrLn stderr err >> exitFailure
-run (Right params) = do logger <- loggingClient
-                        runClient logger params (liftIO $ void getLine)
+run (Right params) = runPingClient params (logEverything >> liftIO getLine)
 
 hashelp :: [String] -> Bool
 hashelp xs = any (flip elem xs) (words "-h --help")

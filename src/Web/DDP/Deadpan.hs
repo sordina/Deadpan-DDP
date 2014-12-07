@@ -28,60 +28,47 @@ import Web.DDP.Deadpan.DSL
 import Web.DDP.Deadpan.Websockets
 import Web.DDP.Deadpan.Callbacks
 
-import Data.Map
 import Control.Concurrent.STM
+import Control.Concurrent.Chan
 import Control.Monad
 import Control.Monad.IO.Class
 
 -- | Run a DeadpanApp against a set of connection parameters
 --
--- Automatically spawns a background thread to respond to server messages
--- using the callback set provided in the App State.
+--   Only runs the app. Does not send connection request. Does not respond to ping!
 --
-runClient :: AppState Callback -> Params -> DeadpanApp a -> IO a
-runClient state params app = flip execURI params
-                  $ \conn -> fmap fst $ runDeadpan (setup >> app) conn state
+runBareClient :: Params -> DeadpanApp a -> IO a
+runBareClient params app = flip execURI params
+                $ \conn -> do appState <- newTVarIO $ AppState [] (ejobject []) conn
+                              runDeadpan app appState
 
--- | Run a DeadpanApp against a set of connection parameters
+-- | Run a DeadpanApp after establishing a server conncetion
 --
---   Does not register any callbacks to handle server messages automatically.
---   This can be done with the `setup` function from "Web.DDP.Deadpan.DSL".
+--   Does not respond to ping!
 --
---   Useful for running one-shot command-set applications... Not much else.
+runConnectClient :: Params -> DeadpanApp a -> IO a
+runConnectClient params app = runBareClient params (fetchMessages >> connect >> app)
+
+-- | Run a DeadpanApp after registering a ping handler, then establishing a server conncetion.
 --
-runUnhookedClient :: AppState Callback -> Params -> DeadpanApp a -> IO a
-runUnhookedClient state params app = flip execURI params
-                          $ \conn -> fmap fst $ runDeadpan (connect >> app) conn state
+runPingClient :: Params -> DeadpanApp a -> IO a
+runPingClient params app = runConnectClient params (fetchMessages >> handlePings >> app)
 
--- | A client that registers no initial callbacks
---   Note: !!! This does not respond to ping,
---   so you better perform your actions quickly!
+-- | Automatically respond to server pings
+--
+handlePings :: DeadpanApp ()
+handlePings = setMsgHandler "ping" pingCallback
 
-bareClient :: IO (AppState Callback)
-bareClient = do
-  values <- newTVarIO (ejobject [])
-  return $ AppState (const $ return ()) Data.Map.empty values
-
-
--- | A client that only responds to pings so that it can stay alive
-
-pingClient :: IO (AppState Callback)
-pingClient = do
-  values <- newTVarIO (ejobject [])
-  return $ AppState (const $ return ()) (Data.Map.singleton "ping" pingCallback) values
-
-
--- | A client that logs all server sent messages, responds to pings
-
-loggingClient :: IO (AppState Callback)
-loggingClient = do
-  values <- newTVarIO (ejobject [])
-  return $ AppState (liftIO . print) (Data.Map.singleton "ping" pingCallback) values
-
+-- | Log all incomming messages to STDOUT
+--
+logEverything :: DeadpanApp ()
+logEverything = do pipe <- liftIO $ newChan
+                   setCatchAllHandler (liftIO . writeChan pipe)
+                   void $ fork $ liftIO $ getChanContents pipe >>= mapM_ print
 
 -- | A client that responds to server collection messages.
 --
 --   TODO: NOT YET IMPLEMENTED
-
+--
 collectiveClient :: IO (AppState Callback)
 collectiveClient = undefined
