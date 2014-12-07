@@ -142,8 +142,7 @@ setCatchAllHandler cb = setHandler $ LI Nothing Nothing cb
 deleteHandlerID :: Text -> DeadpanApp ()
 deleteHandlerID k = modifyAppState foo
   where foo x = x &~ callbackSet %= Prelude.filter bar
-        bar y = _ident y == Nothing
-             || _ident y == Just k
+        bar y = _ident y == Nothing || _ident y /= Just k
 
 modifyAppState :: (AppState Callback -> AppState Callback) -> DeadpanApp ()
 modifyAppState f = DeadpanApp
@@ -183,8 +182,8 @@ fork app = do
 fetchMessages :: DeadpanApp ()
 fetchMessages = void      $
                  fork     $
-                  forever $ do as      <- getAppState
-                               message <- getServerMessage
+                  forever $ do message <- getServerMessage
+                               as      <- getAppState
                                fork $ respondToMessage (_callbackSet as) message
 
 getServerMessage :: DeadpanApp (Maybe EJsonValue)

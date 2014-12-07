@@ -112,7 +112,7 @@ clientRPCMethod method params rpcid seed = do
 
 -- | Like clientRPCMethod, except that it blocks, returning the response from the server.
 --
-rpcWait :: Text -> Maybe [EJsonValue] -> DeadpanApp EJsonValue
+rpcWait :: Text -> Maybe [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValue)
 rpcWait method params = do uuid <- newID
                            mv   <- liftIO $ newEmptyMVar
                            setIdHandler uuid (handler mv uuid)
@@ -120,8 +120,15 @@ rpcWait method params = do uuid <- newID
                            val  <- liftIO $ readMVar mv
                            return val
   where
-  handler mv uuid itm = do liftIO $ putMVar mv itm
-                           deleteHandlerID uuid
+  handler mv uuid itm = do
+
+    awhen (itm ^. _EJObjectKey "error") $ \err -> do
+      liftIO $ putMVar mv (Left err)
+      deleteHandlerID uuid
+
+    awhen (itm ^. _EJObjectKey "result") $ \result -> do
+      liftIO $ putMVar mv (Right result)
+      deleteHandlerID uuid
 
 -- Server -->> Client
 

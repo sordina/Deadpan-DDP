@@ -12,21 +12,27 @@ This can be used for writing clients for [Meteor](https://www.meteor.com/) sites
 
 ## NOTE: The Library is currently incomplete. Several important callbacks are so-far undefined.
 
-Things implemented so far:
+### Things implemented so far:
 
-### Debugging Application `deadpan`
+#### Debugging Application `deadpan`
 
 * EJSON data types and conversion functions
 * Connect to server
 * Respond to PING
 * Print all incomming EJSON server messages
+* Blocking style RPC
 
-### Library
+#### Library
 
 * Write DDP clients in a monadic DSL
 * Set initial callbacks
 * Update callbacks at runtime
 * Shared data-store
+
+### Things missing:
+
+* Data subscription helpers
+
 
 ## Usage
 
@@ -40,16 +46,15 @@ This could look something like the following:
 
     myDeadpanApp = do
       subscribe "kittens"
-      message "kittens.add" (ejobject [("cute", ejbool True)])
-      sessionId <- getSessionId
-      liftIO $ print sessionId
-
+      response  <- rpcWait "kittens.add" (ejobject [("cute", ejbool True)])
+      case response of Right good -> liftIO $ print response
+                       Left  bad  -> liftIO $ print "oops!"
+      return 123
 
 You can then run your instance as follows:
 
-    initialState <- pingClient
     case getURI "https://www.meteor.com/websocket"
-      of Right params -> runClient initialState params myDeadpanApp
+      of Right params -> runPingClient params (logEverything >> myDeadpanApp)
          Left  error  -> print error
 
 Further examples of applications can be found in the test/client/ directory.
@@ -114,6 +119,7 @@ Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.2.0.1-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.3.0.1-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.4.0.0-MacOSX-10.9.5-13F34.zip>
+* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.4.1.0-MacOSX-10.9.5-13F34.zip>
 
 
 ## TODO

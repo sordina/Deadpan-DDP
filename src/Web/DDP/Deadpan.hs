@@ -52,7 +52,7 @@ runConnectClient params app = runBareClient params (fetchMessages >> connect >> 
 -- | Run a DeadpanApp after registering a ping handler, then establishing a server conncetion.
 --
 runPingClient :: Params -> DeadpanApp a -> IO a
-runPingClient params app = runConnectClient params (fetchMessages >> handlePings >> app)
+runPingClient params app = runConnectClient params (handlePings >> app)
 
 -- | Automatically respond to server pings
 --
@@ -61,10 +61,15 @@ handlePings = setMsgHandler "ping" pingCallback
 
 -- | Log all incomming messages to STDOUT
 --
-logEverything :: DeadpanApp ()
+--   Passes all messages through a Chan in order to not intermingle output lines.
+--
+--   Returns the chan so that it can be used by other sections of the app.
+--
+logEverything :: DeadpanApp (Chan String)
 logEverything = do pipe <- liftIO $ newChan
-                   setCatchAllHandler (liftIO . writeChan pipe)
-                   void $ fork $ liftIO $ getChanContents pipe >>= mapM_ print
+                   setCatchAllHandler (liftIO . writeChan pipe . show)
+                   void $ fork $ liftIO $ getChanContents pipe >>= mapM_ putStrLn
+                   return pipe
 
 -- | A client that responds to server collection messages.
 --

@@ -1,5 +1,10 @@
 # Deadpan-DDP Change Log
 
+## 0.4.1.0
+
+* Fixed some bugs
+* RPC responses now return an Either to indicate success or failure
+
 ## 0.4.0.0
 
 * Large refactor including API changes

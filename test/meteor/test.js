@@ -23,13 +23,13 @@ if (Meteor.isServer) {
   });
 
   Meteor.methods({
-    realMethod: function() {
+    realMethod: function(x) {
       console.log("Client called realMethod")
-      return new Date()
+      return "Hello World"
     },
-    realMethod2: function() {
+    realMethod2: function(x) {
       console.log("Client called realMethod2")
-      return new Date()
+      return "DEADBEEF"
     }
   })
 }
