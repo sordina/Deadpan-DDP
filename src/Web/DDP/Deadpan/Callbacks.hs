@@ -117,18 +117,15 @@ rpcWait method params = do uuid <- newID
                            mv   <- liftIO $ newEmptyMVar
                            setIdHandler uuid (handler mv uuid)
                            clientRPCMethod method params uuid Nothing -- TODO: Should we use the seed?
-                           val  <- liftIO $ readMVar mv
-                           return val
+                           liftIO $ readMVar mv
   where
-  handler mv uuid itm = do
+  handler mv uuid itm = do awhen (itm ^. _EJObjectKey "error") $ \err -> do
+                                 liftIO $ putMVar mv (Left err)
 
-    awhen (itm ^. _EJObjectKey "error") $ \err -> do
-      liftIO $ putMVar mv (Left err)
-      deleteHandlerID uuid
+                           awhen (itm ^. _EJObjectKey "result") $ \result -> do
+                                 liftIO $ putMVar mv (Right result)
 
-    awhen (itm ^. _EJObjectKey "result") $ \result -> do
-      liftIO $ putMVar mv (Right result)
-      deleteHandlerID uuid
+                           deleteHandlerID uuid
 
 -- Server -->> Client
 

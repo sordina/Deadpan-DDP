@@ -65,7 +65,7 @@ import Network.WebSockets
 import Control.Monad.Reader
 import Control.Lens
 import Data.Monoid
-import Data.Text
+import Data.Text hiding (reverse, map)
 
 -- Internal Imports
 
@@ -118,6 +118,16 @@ instance MonadIO DeadpanApp where
 
 makeLenses ''DeadpanApp
 
+data Version = Vpre1 | Vpre2 | V1 deriving (Eq, Ord, Enum, Bounded, Read, Show)
+
+version2string :: Version -> EJsonValue
+version2string Vpre1 = ejstring "pre1"
+version2string Vpre2 = ejstring "pre2"
+version2string V1    = ejstring "1"
+
+reverseVersions :: [EJsonValue]
+reverseVersions = map version2string $ reverse [minBound ..]
+
 -- | The order of these args match that of runReaderT
 --
 runDeadpan :: DeadpanApp a
@@ -168,10 +178,13 @@ sendMessage key m = sendData messageData
   where
   messageData = ejobject [("msg", ejstring key)] `mappend` m
 
+connectVersion :: Version -> DeadpanApp ()
+connectVersion v = sendMessage "connect" $ ejobject [ ("version", version2string v)
+                                                    , ("support", ejarray $ reverseVersions) ]
+
 connect :: DeadpanApp ()
-connect = sendMessage "connect" $
-  ejobject [ ("version", "1")
-           , ("support", ejarray ["1","pre2","pre1"]) ]
+connect = sendMessage "connect" $ ejobject [ ("version", version2string V1)
+                                           , ("support", ejarray $ reverseVersions) ]
 
 -- | Provides a way to fork a background thread running the app provided
 fork :: DeadpanApp a -> DeadpanApp ThreadId
