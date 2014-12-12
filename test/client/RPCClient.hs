@@ -20,6 +20,7 @@ app chan = do
   response <- rpcWait "realMethod" Nothing
   liftIO $ writeChan chan "Got response:"
   liftIO $ writeChan chan (show response)
+  unsubscribe "test"
   clientRPCMethod "realMethod"    Nothing "testid1" Nothing
   liftIO getLine
   clientRPCMethod "missingMethod" Nothing "testid2" Nothing

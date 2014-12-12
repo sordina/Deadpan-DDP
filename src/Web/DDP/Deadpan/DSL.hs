@@ -66,6 +66,8 @@ import Control.Monad.Reader
 import Control.Lens
 import Data.Monoid
 import Data.Text hiding (reverse, map)
+import Data.UUID.V4     (nextRandom)
+import Data.UUID        (toString)
 
 -- Internal Imports
 
@@ -75,11 +77,11 @@ import Data.EJson
 
 -- Let's do this!
 
--- | The LookupItem data-type is used to store a set of callbacks
---   If ident, or messageType are set, then the callback will
---   only be called if these fields match.
+-- | The LookupItem data-type is used to store a set of callbacks.
 --
-data LookupItem a = LI { _ident :: Maybe Text, _messageType :: Maybe Text, _body :: a }
+--   _ident is a reference to the callback, not the expected message id.
+--
+data LookupItem a = LI { _ident :: Text, _body :: a }
 
 makeLenses ''LookupItem
 
@@ -135,24 +137,41 @@ runDeadpan :: DeadpanApp a
            -> IO a
 runDeadpan app appState = runReaderT (_deadpanApp app) appState
 
-setHandler :: LookupItem Callback -> DeadpanApp ()
-setHandler i = modifyAppState foo
+-- IDs
+--
+newID :: DeadpanApp Text
+newID = do guid <- liftIO nextRandom
+           let str  = toString guid
+               text = pack str
+           return text
+
+-- Handlers
+
+addHandler :: LookupItem Callback -> DeadpanApp ()
+addHandler i = modifyAppState foo
   where foo x = x &~ callbackSet %= (i:)
 
-setIdHandler :: Text -> Callback -> DeadpanApp ()
-setIdHandler myid cb = setHandler $ LI (Just myid) Nothing cb
+setHandler :: Text -> Callback -> DeadpanApp Text
+setHandler guid cb = addHandler (LI guid cb) >> return guid
 
-setMsgHandler :: Text -> Callback -> DeadpanApp ()
-setMsgHandler msg cb = setHandler $ LI Nothing (Just msg) cb
+onMatchId :: Text -> Callback -> Callback
+onMatchId guid cb e = when (matches (makeId guid) e) (cb e)
 
-setCatchAllHandler :: Callback -> DeadpanApp ()
-setCatchAllHandler cb = setHandler $ LI Nothing Nothing cb
+setIdHandler :: Text -> Callback -> DeadpanApp Text
+setIdHandler myid cb = setHandler myid (onMatchId myid cb)
 
--- TODO: Use better names than foo and bar
+onMatchMsg :: Text -> Callback -> Callback
+onMatchMsg t cb e = when (matches (makeMsg t) e) (cb e)
+
+setMsgHandler :: Text -> Callback -> DeadpanApp Text
+setMsgHandler msg cb = newID >>= flip setHandler (onMatchMsg msg cb)
+
+setCatchAllHandler :: Callback -> DeadpanApp Text
+setCatchAllHandler cb = newID >>= flip setHandler cb
+
 deleteHandlerID :: Text -> DeadpanApp ()
-deleteHandlerID k = modifyAppState foo
-  where foo x = x &~ callbackSet %= Prelude.filter bar
-        bar y = _ident y == Nothing || _ident y /= Just k
+deleteHandlerID k = modifyAppState $
+                    over callbackSet (Prelude.filter ((/= k) . _ident))
 
 modifyAppState :: (AppState Callback -> AppState Callback) -> DeadpanApp ()
 modifyAppState f = DeadpanApp
@@ -176,7 +195,7 @@ sendData v = getAppState >>= liftIO . flip sendEJ v . _connection
 sendMessage :: Text -> EJsonValue -> DeadpanApp ()
 sendMessage key m = sendData messageData
   where
-  messageData = ejobject [("msg", ejstring key)] `mappend` m
+  messageData = makeMsg key `mappend` m
 
 connectVersion :: Version -> DeadpanApp ()
 connectVersion v = sendMessage "connect" $ ejobject [ ("version", version2string v)
@@ -202,16 +221,11 @@ fetchMessages = void      $
 getServerMessage :: DeadpanApp (Maybe EJsonValue)
 getServerMessage = getAppState >>= liftIO . getEJ . _connection
 
-(=?) :: Eq a => Maybe a -> Maybe a -> Bool
-x@(Just _) =? y = x == y
-_          =? _ = True
-
+-- | Loop through all callbacks
+--
+--   Each callback is responsible for discarding messages
+--   that it doesn't care about...
+--
 respondToMessage :: Lookup Callback -> Maybe EJsonValue -> DeadpanApp ()
-respondToMessage    _                  Nothing           = return ()
-respondToMessage    cbSet              (Just message)    = do
-  let maybeMsgName  = message ^? _EJObjectKeyString "msg"
-      maybeID       = message ^? _EJObjectKeyString "id"
-
-  forM_ cbSet $ \x -> do
-    when (_ident x =? maybeID && _messageType x =? maybeMsgName)
-      (_body x message)
+respondToMessage _     Nothing        = return ()
+respondToMessage cbSet (Just message) = mapM_ (flip _body message) cbSet

@@ -66,7 +66,7 @@ runPingClientVersion params v app = runConnectClientVersion params v (handlePing
 
 -- | Automatically respond to server pings
 --
-handlePings :: DeadpanApp ()
+handlePings :: DeadpanApp Text
 handlePings = setMsgHandler "ping" pingCallback
 
 -- | Log all incomming messages to STDOUT
@@ -77,8 +77,8 @@ handlePings = setMsgHandler "ping" pingCallback
 --
 logEverything :: DeadpanApp (Chan String)
 logEverything = do pipe <- liftIO $ newChan
-                   setCatchAllHandler (liftIO . writeChan pipe . show)
-                   void $ fork $ liftIO $ getChanContents pipe >>= mapM_ putStrLn
+                   _    <- setCatchAllHandler (liftIO . writeChan pipe . show)
+                   _    <- fork $ liftIO $ getChanContents pipe >>= mapM_ putStrLn
                    return pipe
 
 -- | A client that responds to server collection messages.
@@ -87,3 +87,15 @@ logEverything = do pipe <- liftIO $ newChan
 --
 collectiveClient :: IO (AppState Callback)
 collectiveClient = undefined
+
+-- | A client that sets the session id if the server sends it
+--   {"server_id":"83752cf1-a9bf-a15e-b06a-91f110383550"}
+--
+setServerID :: DeadpanApp ()
+setServerID = undefined
+
+-- | A client that sets the server_id if the server sends it
+--   {"msg":"connected","session":"T6gBRv5RpCTwKcMSW"}
+--
+setSession :: DeadpanApp Text
+setSession = setMsgHandler "connected" undefined

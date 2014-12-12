@@ -20,16 +20,6 @@ import Control.Concurrent.MVar
 import Control.Monad.State
 import Control.Monad.IfElse (awhen)
 import Control.Lens
-import Data.UUID.V4 (nextRandom)
-import Data.UUID    (toString)
-
--- IDs
-
-newID :: DeadpanApp Text
-newID = do guid <- liftIO nextRandom
-           let str  = toString guid
-               text = pack str
-           return text
 
 -- Old Stuff...
 
@@ -115,7 +105,7 @@ clientRPCMethod method params rpcid seed = do
 rpcWait :: Text -> Maybe [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValue)
 rpcWait method params = do uuid <- newID
                            mv   <- liftIO $ newEmptyMVar
-                           setIdHandler uuid (handler mv uuid)
+                           _    <- setIdHandler uuid (handler mv uuid)
                            clientRPCMethod method params uuid Nothing -- TODO: Should we use the seed?
                            liftIO $ readMVar mv
   where

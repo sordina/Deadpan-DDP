@@ -28,10 +28,57 @@
   Aeson instances are defined in `Data.EJson.Aeson`.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Data.EJson (
 
-    module Data.EJson.EJson
+    module Data.EJson.EJson,
+    matches,
+    makeMsg,
+    makeId
 
   ) where
 
 import Data.EJson.EJson
+import Control.Lens
+import Data.HashMap.Strict
+import Data.Text (Text())
+
+
+
+-- | A function to check if all of the values in 'a' match values that exist in 'b'.
+--   Not the same as equality.
+--
+--   { x = L     <=>     ==  { x = L
+--   , y = M     <=>     ==  , y = M
+--   , z = N     <=>     ==  , z = N
+--   }           <=>    ...  , a = ... }
+--
+--   is still considered as matching.
+--
+--   Matching is applied recursively.
+--
+--   Items that are not EJObjects are compared for equality directly.
+--
+matches :: EJsonValue -> EJsonValue -> Bool
+matches a@(EJObject _) b@(EJObject _) = all pairMatches (kvs a)
+  where
+
+  kvs (EJObject h) = toList h
+  kvs _            = []
+
+  pairMatches (k,v) = case (b ^. _EJObjectKey k)
+    of Just x  -> matches v x
+       Nothing -> False
+
+matches a b = a == b
+
+-- | Construct a simple message object with no data.
+--
+makeMsg :: Text -> EJsonValue
+makeMsg key = ejobject [("msg", ejstring key)]
+
+-- | Construct a simple object with only an ID.
+--
+makeId :: Text -> EJsonValue
+makeId key = ejobject [("id", ejstring key)]
