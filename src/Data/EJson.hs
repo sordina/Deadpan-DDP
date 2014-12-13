@@ -26,6 +26,8 @@
   A Prism' instance is defined in `Data.EJson.Prism`.
 
   Aeson instances are defined in `Data.EJson.Aeson`.
+
+  This module tests examples and properties using DocTest.
 -}
 
 {-# LANGUAGE OverloadedStrings #-}
@@ -33,13 +35,24 @@
 module Data.EJson (
 
     module Data.EJson.EJson,
+    module Data.EJson.EJson2Value,
     matches,
     makeMsg,
-    makeId
+    makeId,
+    isEJObject,
+    isEJArray,
+    isEJString,
+    isEJNumber,
+    isEJBool,
+    isEJDate,
+    isEJBinary,
+    isEJUser,
+    isEJNull
 
   ) where
 
 import Data.EJson.EJson
+import Data.EJson.EJson2Value
 import Control.Lens
 import Data.HashMap.Strict
 import Data.Text (Text())
@@ -82,3 +95,31 @@ makeMsg key = ejobject [("msg", ejstring key)]
 --
 makeId :: Text -> EJsonValue
 makeId key = ejobject [("id", ejstring key)]
+
+-- |
+-- Examples:
+--
+-- >>> isEJObject EJNull
+-- False
+
+-- | Constructor tests...
+isEJObject, isEJArray, isEJString, isEJNumber, isEJBool, isEJDate, isEJBinary, isEJUser, isEJNull :: EJsonValue -> Bool
+
+isEJObject (EJObject _)   = True
+isEJObject _              = False
+isEJArray  (EJArray _)    = True
+isEJArray  _              = False
+isEJString (EJString _)   = True
+isEJString _              = False
+isEJNumber (EJNumber _)   = True
+isEJNumber _              = False
+isEJBool   (EJBool _)     = True
+isEJBool   _              = False
+isEJDate   (EJDate _)     = True
+isEJDate   _              = False
+isEJBinary (EJBinary _)   = True
+isEJBinary _              = False
+isEJUser   (EJUser _ _)   = True
+isEJUser   _              = False
+isEJNull   EJNull         = True
+isEJNull   _              = False

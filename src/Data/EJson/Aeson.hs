@@ -16,6 +16,7 @@ module Data.EJson.Aeson where
 
 import Data.Aeson
 import Data.EJson.EJson
+import Data.EJson.EJson2Value
 
 -- TODO: Consider implementing these translations directly, rather than passing through 'Value'.
 

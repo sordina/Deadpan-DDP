@@ -8,6 +8,9 @@
   Functions are written to convert back and forth between
   `Data.EJson.EJsonValue` and `Data.Aeson.Value`.
 
+  The conversion functions from EJsonValue to Value are in a seperate
+  module: "Data.EJson.EJson2Value".
+
   This has some negative impact on performance, but aids simplicity.
 
 -}
@@ -26,7 +29,6 @@ module Data.EJson.EJson (
 
              -- Conversion functions
              , value2EJson
-             , ejson2value
 
              -- Smart Constructors
              , ejobject
@@ -60,29 +62,24 @@ import Data.Aeson
 import Data.Scientific
 import Data.Text.Internal
 import Data.Text.Encoding
-import Data.ByteString hiding (putStr)
-import Data.Vector
-import Data.Maybe
-import Data.HashMap.Strict
+import Data.ByteString hiding (putStr, map)
 import Data.ByteString.Base64
+import Data.Maybe
 import Data.String
 import Control.Lens
 import Control.Applicative
 
--- Time
-import Data.Convertible
-import System.Posix.Types (EpochTime)
-
--- Display purposes
-import qualified Data.ByteString.Lazy.Char8 as BC8
+import qualified Data.Vector
+import qualified Data.HashMap.Strict as HM
+import qualified Data.Text as T
 
 data EJsonValue =
-    EJObject !(Data.HashMap.Strict.HashMap Text EJsonValue)
+    EJObject !(HM.HashMap Text EJsonValue)
   | EJArray  !(Data.Vector.Vector EJsonValue)
   | EJString !Text
   | EJNumber !Scientific
   | EJBool   !Bool
-  | EJDate   !EpochTime
+  | EJDate   !Scientific
   | EJBinary !ByteString
   | EJUser   !Text !EJsonValue
   | EJNull
@@ -119,13 +116,9 @@ _EJAraryIndex :: Applicative f
               -> f EJsonValue
 _EJAraryIndex i = _EJArray . ix i
 
-instance Show EJsonValue
-  where
-  show = BC8.unpack . Data.Aeson.encode . ejson2value
-
 instance IsString EJsonValue
   where
-  fromString = EJString . Data.Convertible.convert
+  fromString = EJString . T.pack
 
 instance Monoid EJsonValue
   where
@@ -150,34 +143,11 @@ instance Num EJsonValue
   negate (EJNumber a)         = EJNumber (negate a)
   negate _                    = error "don't negate non-numbers"
 
-instance Convertible EpochTime Scientific
-  where
-  safeConvert e = Right (Data.Convertible.convert e)
-
-ejson2value :: EJsonValue -> Value
-ejson2value (EJObject h    ) = Object (Data.HashMap.Strict.map ejson2value h)
-ejson2value (EJArray  v    ) = Array  (Data.Vector.map ejson2value v)
-ejson2value (EJString t    ) = String t
-ejson2value (EJNumber n    ) = Number n
-ejson2value (EJBool   b    ) = Bool b
-ejson2value (EJDate   t    ) = makeJsonDate t
-ejson2value (EJBinary bs   ) = String $ decodeUtf8 $ Data.ByteString.Base64.encode bs
-ejson2value (EJUser   t1 t2) = makeUser t1 t2
-ejson2value (EJNull        ) = Null
-
-value2EJson :: Value -> EJsonValue
-value2EJson (Object o) = escapeObject o
-value2EJson (Array  a) = EJArray $ Data.Vector.map value2EJson a
-value2EJson (String s) = EJString s
-value2EJson (Number n) = EJNumber n
-value2EJson (Bool   b) = EJBool   b
-value2EJson Null       = EJNull
-
 -- Smart Constructors
 
 {-# Inline ejobject #-}
 ejobject :: [(Text, EJsonValue)] -> EJsonValue
-ejobject = EJObject . Data.HashMap.Strict.fromList
+ejobject = EJObject . HM.fromList
 
 {-# Inline ejarray #-}
 ejarray :: [EJsonValue] -> EJsonValue
@@ -196,7 +166,7 @@ ejbool :: Bool -> EJsonValue
 ejbool = EJBool
 
 {-# Inline ejdate #-}
-ejdate :: EpochTime -> EJsonValue
+ejdate :: Scientific -> EJsonValue
 ejdate = EJDate
 
 {-# Inline ejbinary #-}
@@ -212,16 +182,24 @@ ejnull :: EJsonValue
 ejnull = EJNull
 
 
+-- Conversion
+
+value2EJson :: Value -> EJsonValue
+value2EJson (Object o) = escapeObject o
+value2EJson (Array  a) = EJArray $ Data.Vector.map value2EJson a
+value2EJson (String s) = EJString s
+value2EJson (Number n) = EJNumber n
+value2EJson (Bool   b) = EJBool   b
+value2EJson Null       = EJNull
+
+
 -- Helpers
 
 simpleKey :: Text -> Object -> Maybe Value
-simpleKey k = Data.HashMap.Strict.lookup k
-
-integer2date :: Integer -> EpochTime
-integer2date = Data.Convertible.convert
+simpleKey k = HM.lookup k
 
 parseDate :: Value -> Maybe EJsonValue
-parseDate (Number n) = Just $ EJDate $ integer2date $ round n
+parseDate (Number n) = Just $ EJDate n
 parseDate _          = Nothing
 
 parseBinary :: Value -> Maybe EJsonValue
@@ -236,37 +214,25 @@ parseEscaped :: Value -> Maybe EJsonValue
 parseEscaped (Object o) = Just $ simpleObj o
 parseEscaped          _ = Nothing
 
-isDate        :: Int -> Object -> Maybe EJsonValue
-isDate    1 o  = parseDate =<< simpleKey "$date" o
-isDate    _ _  = Nothing
-isBinary      :: Int -> Object -> Maybe EJsonValue
-isBinary  1 o  = parseBinary =<< simpleKey "$binary" o
-isBinary  _ _  = Nothing
-isUser        :: Int -> Object -> Maybe EJsonValue
-isUser    2 o  = do t <- simpleKey "$type"  o
-                    v <- simpleKey "$value" o
-                    parseUser t v
-isUser    _ _  = Nothing
-isEscaped     :: Int -> Object -> Maybe EJsonValue
-isEscaped 1 o  = parseEscaped =<< simpleKey "$escape" o
-isEscaped _ _  = Nothing
+getDate        :: Int -> Object -> Maybe EJsonValue
+getDate    1 o  = parseDate =<< simpleKey "$date" o
+getDate    _ _  = Nothing
+getBinary      :: Int -> Object -> Maybe EJsonValue
+getBinary  1 o  = parseBinary =<< simpleKey "$binary" o
+getBinary  _ _  = Nothing
+getUser        :: Int -> Object -> Maybe EJsonValue
+getUser    2 o  = do t <- simpleKey "$type"  o
+                     v <- simpleKey "$value" o
+                     parseUser t v
+getUser    _ _  = Nothing
+getEscaped     :: Int -> Object -> Maybe EJsonValue
+getEscaped 1 o  = parseEscaped =<< simpleKey "$escape" o
+getEscaped _ _  = Nothing
 
-simpleObj :: HashMap Text Value -> EJsonValue
-simpleObj o = EJObject $ Data.HashMap.Strict.map value2EJson o
+simpleObj :: HM.HashMap Text Value -> EJsonValue
+simpleObj o = EJObject $ HM.map value2EJson o
 
 escapeObject :: Object -> EJsonValue
-escapeObject o = fromMaybe (simpleObj o)
-               $ msum $ Prelude.map ($ o) [isDate l, isBinary l, isUser l, isEscaped l]
-  where
-  l = Data.HashMap.Strict.size o
-
-makeJsonDate :: EpochTime -> Value
-makeJsonDate t = Object
-               $ Data.HashMap.Strict.fromList
-               [ ("$date", Number $ Data.Convertible.convert t) ]
-
-makeUser :: Text -> EJsonValue -> Value
-makeUser t v = Object
-           $ Data.HashMap.Strict.fromList
-           [ ("$type" , String t)
-           , ("$value", ejson2value v)]
+escapeObject o = fromMaybe (simpleObj o) $ msum
+               $ map (`uncurry` (HM.size o, o))
+                     [getDate, getBinary, getUser, getEscaped]

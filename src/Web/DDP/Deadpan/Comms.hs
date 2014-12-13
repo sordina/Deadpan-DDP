@@ -33,5 +33,13 @@ sendEJ :: WS.Connection -> EJsonValue -> IO ()
 sendEJ c = WS.sendTextData c . J.encode . ejson2value
 
 -- | Possibly gets an EJsonValue from the server over the connection provided
+--   TODO: Consider catching exceptions here...
+-- getEJ :: WS.Connection -> IO (Maybe EJsonValue)
+-- getEJ = fmap (fmap value2EJson . J.decode) . WS.receiveData
+--
 getEJ :: WS.Connection -> IO (Maybe EJsonValue)
-getEJ = fmap (fmap value2EJson . J.decode) . WS.receiveData
+getEJ w = do d <- WS.receiveData w
+             print d
+             let result = (fmap value2EJson . J.decode) d
+             print result
+             return result

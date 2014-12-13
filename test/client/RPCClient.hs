@@ -4,30 +4,32 @@
 module RPCClient where
 
 import Web.DDP.Deadpan
-import Control.Concurrent.Chan
+import System.IO
 
 main :: IO ()
-main = go $ getURI "http://localhost:3000/websocket"
+main = do hSetBuffering stdout LineBuffering
+          go $ getURI "http://localhost:3000/websocket"
 
 go :: Show a => Either a Params -> IO ()
 go (Left  err   ) = print err
-go (Right params) = void $ runPingClient params (logEverything >>= app)
+go (Right params) = void $ runPingClient params (setSession >> logEverything >> app)
 
-app :: Chan String -> DeadpanApp String
-app chan = do
+app :: DeadpanApp String
+app = do
   liftIO $ putStrLn "Hit Enter to send realMethod and wait for response"
   liftIO getLine
   response <- rpcWait "realMethod" Nothing
-  liftIO $ writeChan chan "Got response:"
-  liftIO $ writeChan chan (show response)
+  liftIO $ putStrLn "Got response:"
+  liftIO $ putStrLn (show response)
   unsubscribe "test"
+  getCollections >>= liftIO . putStrLn . ("Collections Yo: " ++) . show
   clientRPCMethod "realMethod"    Nothing "testid1" Nothing
   liftIO getLine
   clientRPCMethod "missingMethod" Nothing "testid2" Nothing
   liftIO getLine
   errorResponse <- rpcWait "missingMethod" Nothing
-  liftIO $ writeChan chan "Got response:"
-  liftIO $ writeChan chan (show errorResponse)
+  liftIO $ putStrLn "Got response:"
+  liftIO $ putStrLn (show errorResponse)
   liftIO getLine
   clientRPCMethod "realMethod2"   Nothing "testid3" Nothing
   liftIO getLine

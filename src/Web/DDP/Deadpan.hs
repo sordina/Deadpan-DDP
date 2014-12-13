@@ -24,6 +24,7 @@ module Web.DDP.Deadpan
   )
   where
 
+import Control.Monad.IfElse (awhen)
 import Web.DDP.Deadpan.DSL
 import Web.DDP.Deadpan.Websockets
 import Web.DDP.Deadpan.Callbacks
@@ -31,6 +32,7 @@ import Web.DDP.Deadpan.Callbacks
 import Control.Concurrent.STM
 import Control.Concurrent.Chan
 import Control.Monad
+import Control.Lens
 import Control.Monad.IO.Class
 
 -- | Run a DeadpanApp against a set of connection parameters
@@ -75,6 +77,8 @@ handlePings = setMsgHandler "ping" pingCallback
 --
 --   Returns the chan so that it can be used by other sections of the app.
 --
+--   Alternatively just set LineBuffering on your output handle.
+--
 logEverything :: DeadpanApp (Chan String)
 logEverything = do pipe <- liftIO $ newChan
                    _    <- setCatchAllHandler (liftIO . writeChan pipe . show)
@@ -94,8 +98,13 @@ collectiveClient = undefined
 setServerID :: DeadpanApp ()
 setServerID = undefined
 
+putInBase :: Text -> EJsonValue -> DeadpanApp ()
+putInBase k v = modifyAppState $ set (collections . _EJObjectKey k) (Just v)
+
 -- | A client that sets the server_id if the server sends it
 --   {"msg":"connected","session":"T6gBRv5RpCTwKcMSW"}
 --
 setSession :: DeadpanApp Text
-setSession = setMsgHandler "connected" undefined
+setSession = setMsgHandler "connected" $
+      \e -> awhen (e ^. _EJObjectKey "session")
+                  (putInBase "session")

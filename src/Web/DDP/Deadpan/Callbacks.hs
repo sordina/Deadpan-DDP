@@ -51,17 +51,14 @@ Provide an id to refer to the subscription in future.
 @
 
 -}
-clientDataSub :: Text -> Text -> Maybe [ EJsonValue ] -> DeadpanApp ()
-clientDataSub subid name Nothing
-  = sendMessage "sub" $ ejobject [("name",   ejstring name)
-                                 ,("id",     ejstring subid)]
-clientDataSub subid name (Just params)
+clientDataSub :: Text -> Text -> [ EJsonValue ] -> DeadpanApp ()
+clientDataSub subid name params
   = sendMessage "sub" $ ejobject [("name",   ejstring name)
                                  ,("params", ejarray  params)
                                  ,("id",     ejstring subid)]
 
 -- | Synonym for `clientDataSub`
-subscribe :: Text -> Text -> Maybe [ EJsonValue ] -> DeadpanApp ()
+subscribe :: Text -> Text -> [ EJsonValue ] -> DeadpanApp ()
 subscribe = clientDataSub
 
 {- |

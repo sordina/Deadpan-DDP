@@ -174,13 +174,13 @@ deleteHandlerID k = modifyAppState $
                     over callbackSet (Prelude.filter ((/= k) . _ident))
 
 modifyAppState :: (AppState Callback -> AppState Callback) -> DeadpanApp ()
-modifyAppState f = DeadpanApp
-  $ do st <- ask
-       liftIO $ atomically $ do s <- readTVar st
-                                writeTVar st (f s)
+modifyAppState f = DeadpanApp $ ask >>= liftIO . atomically . flip modifyTVar f
 
 getAppState :: DeadpanApp (AppState Callback)
 getAppState = DeadpanApp $ ask >>= liftIO . atomically . readTVar
+
+getCollections :: DeadpanApp EJsonValue
+getCollections = fmap _collections getAppState
 
 -- | A low-level function intended to be able to send any arbitrary data to the server.
 --   Given that all messages to the server are intended to fit the "message" format,
@@ -216,7 +216,7 @@ fetchMessages = void      $
                  fork     $
                   forever $ do message <- getServerMessage
                                as      <- getAppState
-                               fork $ respondToMessage (_callbackSet as) message
+                               respondToMessage (_callbackSet as) message
 
 getServerMessage :: DeadpanApp (Maybe EJsonValue)
 getServerMessage = getAppState >>= liftIO . getEJ . _connection
@@ -228,4 +228,4 @@ getServerMessage = getAppState >>= liftIO . getEJ . _connection
 --
 respondToMessage :: Lookup Callback -> Maybe EJsonValue -> DeadpanApp ()
 respondToMessage _     Nothing        = return ()
-respondToMessage cbSet (Just message) = mapM_ (flip _body message) cbSet
+respondToMessage cbSet (Just m) = forM_ cbSet $ \cb -> (fork . _body cb) m

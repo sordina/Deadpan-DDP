@@ -120,6 +120,7 @@ Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.3.0.1-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.4.0.0-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.4.1.0-MacOSX-10.9.5-13F34.zip>
+* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.5.0.0-MacOSX-10.9.5-13F34.zip>
 
 
 ## TODO
@@ -138,3 +139,5 @@ You can look for incomplete items in the source by running `make todo`.
 * Find out why the protocol isn't being accepted for debugging meteor.com
 * Consider creating a blocking version of the API that auto-generates and responds to IDs
 * Make a newtype for IDs
+* Find a better structure for dates...
+* Roll my own UUID instead of using that outdated package

@@ -1,5 +1,5 @@
 name:                Deadpan-DDP
-version:             0.4.1.0
+version:             0.5.0.0
 synopsis:            Write clients for Meteor's DDP Protocol
 description:         The Deadpan-DDP project includes a debugging-tool, as well as a general purpose library.
                      .
@@ -51,7 +51,7 @@ library
   build-depends:       base >= 4 && < 5, websockets, network, uuid,
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,
-                       vector, convertible, lens,
+                       vector, lens,
                        network-uri, safe, mtl,
                        containers, stm, transformers, IfElse
   hs-source-dirs:      src
@@ -62,8 +62,20 @@ executable deadpan
   build-depends:       base >= 4 && < 5, websockets, network, uuid,
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,
-                       vector, convertible, lens,
+                       vector, lens,
                        network-uri, safe, mtl,
                        containers, stm, transformers, IfElse
   hs-source-dirs:      src
   default-language:    Haskell2010
+
+test-suite doctests
+  type:          exitcode-stdio-1.0
+  ghc-options:   -threaded
+  main-is:       test/DocTestTests.hs
+  build-depends: base, doctest >= 0.8
+
+test-suite quickcheck
+  type:          exitcode-stdio-1.0
+  ghc-options:   -threaded
+  main-is:       test/QuickCheckTests.hs
+  build-depends: base, QuickCheck >= 2.0, process >= 1.0
