@@ -14,9 +14,7 @@ in order to write DDP applications.
 
 module Web.DDP.Deadpan
   ( module Web.DDP.Deadpan
-  , module Web.DDP.Deadpan.DSL
-  , module Web.DDP.Deadpan.Callbacks
-  , module Control.Monad
+  , module ReExports
   , getURI
   , Error
   , Params
@@ -24,15 +22,14 @@ module Web.DDP.Deadpan
   )
   where
 
-import Control.Monad.IfElse (awhen)
-import Web.DDP.Deadpan.DSL
+import Web.DDP.Deadpan.DSL       as ReExports
+import Web.DDP.Deadpan.Callbacks as ReExports
+import Control.Monad             as ReExports
+
 import Web.DDP.Deadpan.Websockets
-import Web.DDP.Deadpan.Callbacks
 
 import Control.Concurrent.STM
 import Control.Concurrent.Chan
-import Control.Monad
-import Control.Lens
 import Control.Monad.IO.Class
 
 -- | Run a DeadpanApp against a set of connection parameters
@@ -80,7 +77,7 @@ handlePings = setMsgHandler "ping" pingCallback
 --   Alternatively just set LineBuffering on your output handle.
 --
 logEverything :: DeadpanApp (Chan String)
-logEverything = do pipe <- liftIO $ newChan
+logEverything = do pipe <- liftIO newChan
                    _    <- setCatchAllHandler (liftIO . writeChan pipe . show)
                    _    <- fork $ liftIO $ getChanContents pipe >>= mapM_ putStrLn
                    return pipe
@@ -106,5 +103,4 @@ putInBase k v = modifyAppState $ set (collections . _EJObjectKey k) (Just v)
 --
 setSession :: DeadpanApp Text
 setSession = setMsgHandler "connected" $
-      \e -> awhen (e ^. _EJObjectKey "session")
-                  (putInBase "session")
+       \e -> forOf_ (_EJObjectKey "session" . _Just) e (putInBase "session")

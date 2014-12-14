@@ -18,8 +18,6 @@ module Web.DDP.Deadpan.Callbacks where
 import Web.DDP.Deadpan.DSL
 import Control.Concurrent.MVar
 import Control.Monad.State
-import Control.Monad.IfElse (awhen)
-import Control.Lens
 
 -- Old Stuff...
 
@@ -57,9 +55,31 @@ clientDataSub subid name params
                                  ,("params", ejarray  params)
                                  ,("id",     ejstring subid)]
 
--- | Synonym for `clientDataSub`
-subscribe :: Text -> Text -> [ EJsonValue ] -> DeadpanApp ()
-subscribe = clientDataSub
+-- | Activates a subscription with an auto-generated ID, returning the ID.
+--
+subscribe :: Text -> [ EJsonValue ] -> DeadpanApp ()
+subscribe name params = newID >>= \guid -> clientDataSub guid name params
+
+subscribeWait :: Text -> [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValue)
+subscribeWait name params = do
+  mv         <- liftIO newEmptyMVar
+  subId      <- newID
+  handlerIdL <- setMatchHandler (makeNoSub    subId) (handlerL mv)
+  handlerIdR <- setMatchHandler (makeSubReady subId) (handlerR mv)
+  _          <- clientDataSub subId name params
+  res        <- liftIO $ readMVar mv
+
+  -- Note: This occurs after reading the MVar so it should be safe.
+  deleteHandlerID handlerIdR
+  deleteHandlerID handlerIdL
+  return res
+
+  where
+  -- {"msg":"ready","subs":["849d1899-f3af-44b9-919c-7a1ca72c8857"]}
+  handlerR mv itm = liftIO $ putMVar mv $ Right itm
+  -- {"error":{...},"msg":"nosub","id":"af0a7ce1-3c37-40d7-8875-b8e3dd737765"}
+  handlerL mv itm = forOf_ (_EJObjectKey "error"  . _Just) itm $ liftIO . putMVar mv . Left
+
 
 {- |
 Unsubscribe from an existing subscription indicated by its ID.
@@ -92,27 +112,29 @@ unsubscribe = clientDataUnsub
 clientRPCMethod :: Text -> Maybe [EJsonValue] -> Text -> Maybe Text -> DeadpanApp ()
 clientRPCMethod method params rpcid seed = do
   let msg = [("method", ejstring method), ("id", ejstring rpcid)]
-         &~ do awhen params $ \v -> modify (("params", ejarray  v) :)
-               awhen seed   $ \v -> modify (("seed",   ejstring v) :)
+         &~ do forOf_ _Just params $ \v -> modify (("params", ejarray  v):)
+               forOf_ _Just seed   $ \v -> modify (("seed",   ejstring v):)
 
   sendMessage "method" (ejobject msg)
 
 -- | Like clientRPCMethod, except that it blocks, returning the response from the server.
 --
+-- TODO: Should we use the seed?
+--
 rpcWait :: Text -> Maybe [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValue)
-rpcWait method params = do uuid <- newID
-                           mv   <- liftIO $ newEmptyMVar
-                           _    <- setIdHandler uuid (handler mv uuid)
-                           clientRPCMethod method params uuid Nothing -- TODO: Should we use the seed?
-                           liftIO $ readMVar mv
+rpcWait method params = do
+  mv         <- liftIO newEmptyMVar
+  rpcId      <- newID
+  handlerId  <- setMatchHandler (makeId rpcId) (handler mv)
+  _          <- clientRPCMethod method params rpcId Nothing
+  res        <- liftIO $ readMVar mv
+
+  deleteHandlerID handlerId -- Note: This occurs after reading the MVar so it should be safe.
+  return res
+
   where
-  handler mv uuid itm = do awhen (itm ^. _EJObjectKey "error") $ \err -> do
-                                 liftIO $ putMVar mv (Left err)
-
-                           awhen (itm ^. _EJObjectKey "result") $ \result -> do
-                                 liftIO $ putMVar mv (Right result)
-
-                           deleteHandlerID uuid
+  handler mv itm = do forOf_ (_EJObjectKey "error"  . _Just) itm $ liftIO . putMVar mv . Left
+                      forOf_ (_EJObjectKey "result" . _Just) itm $ liftIO . putMVar mv . Right
 
 -- Server -->> Client
 

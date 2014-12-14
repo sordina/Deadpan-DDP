@@ -8,9 +8,10 @@ import Data.Aeson
 import Data.Text.Internal
 import Data.Text.Encoding
 import Data.Vector
-import Data.Scientific
 import Data.HashMap.Strict
 import Data.ByteString.Base64
+import Data.Time.Clock.POSIX
+import Data.Time.Clock
 
 -- Display purposes
 import qualified Data.ByteString.Lazy.Char8 as BC8
@@ -38,7 +39,9 @@ makeUser t v = Object
            [ ("$type" , String t)
            , ("$value", ejson2value v)]
 
-makeJsonDate :: Scientific -> Value
+makeJsonDate :: UTCTime -> Value
 makeJsonDate t = Object
                $ Data.HashMap.Strict.fromList
-               [ ("$date", Number t) ]
+               [ ("$date", Number t') ]
+  where
+  t' = realToFrac $ utcTimeToPOSIXSeconds t

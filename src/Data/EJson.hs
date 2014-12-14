@@ -36,9 +36,12 @@ module Data.EJson (
 
     module Data.EJson.EJson,
     module Data.EJson.EJson2Value,
+    module Control.Lens,
     matches,
     makeMsg,
     makeId,
+    makeSubReady,
+    makeNoSub,
     isEJObject,
     isEJArray,
     isEJString,
@@ -80,7 +83,7 @@ matches a@(EJObject _) b@(EJObject _) = all pairMatches (kvs a)
   kvs (EJObject h) = toList h
   kvs _            = []
 
-  pairMatches (k,v) = case (b ^. _EJObjectKey k)
+  pairMatches (k,v) = case b ^. _EJObjectKey k
     of Just x  -> matches v x
        Nothing -> False
 
@@ -95,6 +98,19 @@ makeMsg key = ejobject [("msg", ejstring key)]
 --
 makeId :: Text -> EJsonValue
 makeId key = ejobject [("id", ejstring key)]
+
+-- | Construct a matcher for subscription-ready based on ID.
+--
+-- TODO: Allow for propper matcher behavior and abstraction a-la clojure's midje methods.
+--       This is important as there could be multiple subscription ids listed here...
+--
+makeSubReady :: Text -> EJsonValue
+makeSubReady key = ejobject [("msg","ready"), ("subs", ejarray [ejstring key])]
+
+-- | Construct a matcher for subscription failure based on ID.
+--
+makeNoSub :: Text -> EJsonValue
+makeNoSub key = ejobject [("msg","nosub"), ("id", ejstring key)]
 
 -- |
 -- Examples:

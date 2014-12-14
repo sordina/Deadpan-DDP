@@ -15,7 +15,6 @@
 
 -}
 
-{-# LANGUAGE     OverloadedStrings #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE     RankNTypes #-}
 {-# LANGUAGE     TemplateHaskell #-}
@@ -60,6 +59,8 @@ import Data.Monoid
 import Control.Monad
 import Data.Aeson
 import Data.Scientific
+import Data.Time.Clock.POSIX
+import Data.Time.Clock
 import Data.Text.Internal
 import Data.Text.Encoding
 import Data.ByteString hiding (putStr, map)
@@ -79,7 +80,7 @@ data EJsonValue =
   | EJString !Text
   | EJNumber !Scientific
   | EJBool   !Bool
-  | EJDate   !Scientific
+  | EJDate   !UTCTime
   | EJBinary !ByteString
   | EJUser   !Text !EJsonValue
   | EJNull
@@ -167,7 +168,7 @@ ejbool = EJBool
 
 {-# Inline ejdate #-}
 ejdate :: Scientific -> EJsonValue
-ejdate = EJDate
+ejdate = EJDate . posixSecondsToUTCTime . realToFrac
 
 {-# Inline ejbinary #-}
 ejbinary :: ByteString -> EJsonValue
@@ -196,10 +197,10 @@ value2EJson Null       = EJNull
 -- Helpers
 
 simpleKey :: Text -> Object -> Maybe Value
-simpleKey k = HM.lookup k
+simpleKey = HM.lookup
 
 parseDate :: Value -> Maybe EJsonValue
-parseDate (Number n) = Just $ EJDate n
+parseDate (Number n) = Just $ EJDate $ posixSecondsToUTCTime $ realToFrac n
 parseDate _          = Nothing
 
 parseBinary :: Value -> Maybe EJsonValue

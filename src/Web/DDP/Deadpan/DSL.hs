@@ -135,7 +135,7 @@ reverseVersions = map version2string $ reverse [minBound ..]
 runDeadpan :: DeadpanApp a
            -> TVar (AppState Callback)
            -> IO a
-runDeadpan app appState = runReaderT (_deadpanApp app) appState
+runDeadpan app = runReaderT (_deadpanApp app)
 
 -- IDs
 --
@@ -154,17 +154,17 @@ addHandler i = modifyAppState foo
 setHandler :: Text -> Callback -> DeadpanApp Text
 setHandler guid cb = addHandler (LI guid cb) >> return guid
 
-onMatchId :: Text -> Callback -> Callback
-onMatchId guid cb e = when (matches (makeId guid) e) (cb e)
+onMatches :: EJsonValue -> Callback -> Callback
+onMatches val cb e = when (matches val e) (cb e)
+
+setMatchHandler :: EJsonValue -> Callback -> DeadpanApp Text
+setMatchHandler val cb = newID >>= flip setHandler (onMatches val cb)
 
 setIdHandler :: Text -> Callback -> DeadpanApp Text
-setIdHandler myid cb = setHandler myid (onMatchId myid cb)
-
-onMatchMsg :: Text -> Callback -> Callback
-onMatchMsg t cb e = when (matches (makeMsg t) e) (cb e)
+setIdHandler guid cb = newID >>= flip setHandler (onMatches (makeId guid) cb)
 
 setMsgHandler :: Text -> Callback -> DeadpanApp Text
-setMsgHandler msg cb = newID >>= flip setHandler (onMatchMsg msg cb)
+setMsgHandler msg cb = newID >>= flip setHandler (onMatches (makeMsg msg) cb)
 
 setCatchAllHandler :: Callback -> DeadpanApp Text
 setCatchAllHandler cb = newID >>= flip setHandler cb
@@ -199,11 +199,11 @@ sendMessage key m = sendData messageData
 
 connectVersion :: Version -> DeadpanApp ()
 connectVersion v = sendMessage "connect" $ ejobject [ ("version", version2string v)
-                                                    , ("support", ejarray $ reverseVersions) ]
+                                                    , ("support", ejarray reverseVersions) ]
 
 connect :: DeadpanApp ()
 connect = sendMessage "connect" $ ejobject [ ("version", version2string V1)
-                                           , ("support", ejarray $ reverseVersions) ]
+                                           , ("support", ejarray reverseVersions) ]
 
 -- | Provides a way to fork a background thread running the app provided
 fork :: DeadpanApp a -> DeadpanApp ThreadId

@@ -19,6 +19,8 @@ app :: Chan String -> DeadpanApp String
 app chan = do
   liftIO $ writeChan chan "Connecting to Todos app"
   liftIO $ writeChan chan "Hit enter to quit..."
-  newID >>= \guid -> subscribe guid "todos" ["By8CtgWGvbZfJPFsd"]
-  newID >>= \guid -> subscribe guid "publicLists" []
+  subscribe "todos" ["By8CtgWGvbZfJPFsd"]
+  x <- subscribeWait "publicLists" []
+  liftIO $ print x
+  subscribe "missingList" []
   liftIO getLine

@@ -5,9 +5,7 @@
   Properties for the EJsonValue datatype.
 -}
 
-{-# LANGUAGE     OverloadedStrings #-}
 {-# LANGUAGE     RankNTypes #-}
-{-# LANGUAGE     TemplateHaskell #-}
 {-# LANGUAGE     OverloadedStrings #-}
 {-# LANGUAGE     TypeSynonymInstances #-}
 {-# LANGUAGE     MultiParamTypeClasses #-}

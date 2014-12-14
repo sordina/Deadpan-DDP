@@ -53,7 +53,7 @@ library
                        aeson, scientific, bytestring,
                        vector, lens,
                        network-uri, safe, mtl,
-                       containers, stm, transformers, IfElse
+                       containers, stm, transformers, time >= 1.4
   hs-source-dirs:      src
   default-language:    Haskell2010
 
@@ -64,7 +64,7 @@ executable deadpan
                        aeson, scientific, bytestring,
                        vector, lens,
                        network-uri, safe, mtl,
-                       containers, stm, transformers, IfElse
+                       containers, stm, transformers, time >= 1.4
   hs-source-dirs:      src
   default-language:    Haskell2010
 
