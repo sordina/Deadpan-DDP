@@ -4,32 +4,29 @@
 
 A Haskell
 [DDP](https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md)
-Client.
+Client. [(Other Clients)](http://www.meteorpedia.com/read/DDP_Clients)
 
-This can be used for writing clients for [Meteor](https://www.meteor.com/) sites, among other purposes.
+Deadpan can be used for writing clients for [Meteor](https://www.meteor.com/) sites, among other purposes.
 
-* [Other Clients](http://www.meteorpedia.com/read/DDP_Clients)
+## Implemented
 
-## NOTE: The Library is currently incomplete. Several important callbacks are so-far undefined.
-
-### Things implemented so far:
-
-#### Debugging Application `deadpan`
+### Debugging Application `deadpan`
 
 * EJSON data types and conversion functions
 * Connect to server
 * Respond to PING
 * Print all incomming EJSON server messages
-* Blocking style RPC
 
-#### Library
+### Library
 
-* Write DDP clients in a monadic DSL
-* Set initial callbacks
+* Monadic client DSL
+* Set of callbacks available
 * Update callbacks at runtime
 * Shared data-store
+* Blocking RPC
+* Blocking subscriptions
 
-### Things missing:
+## Missing:
 
 * Data subscription helpers
 

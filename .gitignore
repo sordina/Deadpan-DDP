@@ -2,3 +2,4 @@ dist/
 hugsin
 .cabal-sandbox/
 .meteor/
+test/meteor/todos/
