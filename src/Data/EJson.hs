@@ -37,11 +37,15 @@ module Data.EJson (
     module Data.EJson.EJson,
     module Data.EJson.EJson2Value,
     module Control.Lens,
+
     matches,
+    putInPath,
+
     makeMsg,
     makeId,
     makeSubReady,
     makeNoSub,
+
     isEJObject,
     isEJArray,
     isEJString,
@@ -57,9 +61,9 @@ module Data.EJson (
 import Data.EJson.EJson
 import Data.EJson.EJson2Value
 import Control.Lens
-import Data.HashMap.Strict
 import Data.Text (Text())
 
+import qualified Data.HashMap.Strict as HM
 
 
 -- | A function to check if all of the values in 'a' match values that exist in 'b'.
@@ -80,7 +84,7 @@ matches :: EJsonValue -> EJsonValue -> Bool
 matches a@(EJObject _) b@(EJObject _) = all pairMatches (kvs a)
   where
 
-  kvs (EJObject h) = toList h
+  kvs (EJObject h) = HM.toList h
   kvs _            = []
 
   pairMatches (k,v) = case b ^. _EJObjectKey k
@@ -88,6 +92,47 @@ matches a@(EJObject _) b@(EJObject _) = all pairMatches (kvs a)
        Nothing -> False
 
 matches a b = a == b
+
+-- | putInPath is a method for placing a value into an EJsonValue object at a point indicated by a path
+--   The path is a list of text values indicating successive object keys.
+--   This can't be done with simple lenses, as the nested obects may not exist.
+--   If they do exist, then it is simply an update.
+--   However, if they don't exist then EJObjects are created during the traversal.
+--
+--   Examples:
+--
+--   >>> :set -XOverloadedStrings
+--
+--   >>> putInPath ["a"] "b" (ejobject [("x","y")])
+--   Right {"a":"b","x":"y"}
+--
+--   >>> putInPath ["a","q","r"] (ejobject [("s","t")]) (ejobject [("x","y")])
+--   Right {"a":{"q":{"r":{"s":"t"}}},"x":"y"}
+--
+--   If you attempt to update a value as if it were an EJObject when in-fact it is something else,
+--   then you will receive an Error.
+--
+--   Example:
+--
+--   >>> putInPath ["a", "b"] "c" (ejobject [("a","hello")])
+--   Left "Value \"hello\" does not match path [\"b\"]."
+--
+putInPath :: [Text] -> EJsonValue -> EJsonValue -> Either String EJsonValue
+
+putInPath [] payload _ = Right payload
+
+putInPath (h:t) payload target@(EJObject _) =
+  -- Note: You must clone the lens to allow it to both view and update here...
+  let l = _EJObjectKey h
+   in case target ^. _EJObjectKey h
+      of Nothing -> Right $ set l (Just (expandPayload t payload)) target
+         Just v  -> do r <- putInPath t payload v
+                       Right $ set l (Just r) target
+
+putInPath path _ target = Left (concat ["Value ", show target, " does not match path ", show path, "."])
+
+expandPayload :: [Text] -> EJsonValue -> EJsonValue
+expandPayload path payload = foldr ($) payload (map f path) where f x y = ejobject [(x,y)]
 
 -- | Construct a simple message object with no data.
 --

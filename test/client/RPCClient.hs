@@ -12,7 +12,7 @@ main = do hSetBuffering stdout LineBuffering
 
 go :: Show a => Either a Params -> IO ()
 go (Left  err   ) = print err
-go (Right params) = void $ runPingClient params (setSession >> logEverything >> app)
+go (Right params) = void $ runPingClient params (setSession >> logEverything >> collectiveClient >> app)
 
 app :: DeadpanApp String
 app = do

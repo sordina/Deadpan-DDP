@@ -16,6 +16,7 @@ Deadpan can be used for writing clients for [Meteor](https://www.meteor.com/) si
 * Connect to server
 * Respond to PING
 * Print all incomming EJSON server messages
+* Send EJson formatted lines of input to server as messages
 
 ### Library
 
@@ -79,6 +80,8 @@ Run `deadpan` against an existing Meteor installation as follows:
 > deadpan websocets://meteor.com/websocket
 
 This will dump all server messages to STDOUT.
+
+Lines of input from STDIN are parsed as EJSON and sent as messages to the server.
 
 For further instructions on how to use the tool, you can run:
 

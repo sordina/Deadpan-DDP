@@ -26,8 +26,10 @@ import Web.DDP.Deadpan.DSL       as ReExports
 import Web.DDP.Deadpan.Callbacks as ReExports
 import Control.Monad             as ReExports
 
+
 import Web.DDP.Deadpan.Websockets
 
+import Data.Maybe
 import Control.Concurrent.STM
 import Control.Concurrent.Chan
 import Control.Monad.IO.Class
@@ -84,22 +86,55 @@ logEverything = do pipe <- liftIO newChan
 
 -- | A client that responds to server collection messages.
 --
+--   Warning: this overwrites the collections key of the collections field of the AppState.
+--
 --   TODO: NOT YET IMPLEMENTED
 --
-collectiveClient :: IO (AppState Callback)
-collectiveClient = undefined
+collectiveClient :: DeadpanApp ()
+collectiveClient = do
+  void $ setMsgHandler "added"    dataAddedHandler
+  void $ setMsgHandler "modified" dataModifiedHandler
+  void $ setMsgHandler "deleted"  dataRemovedHandler
+
+  where
+  -- {"collection":"lists","msg":"added","id":"F73xFyAuKrqsb2J3m","fields":{"incompleteCount":6,"name":"Favorite Scientists"}}
+  dataModifiedHandler _ = return () -- TODO
+  dataRemovedHandler  _ = return () -- TODO
+  dataAddedHandler    m = fromMaybe (return ()) $ do
+    collectionName <- m ^? _EJObjectKeyString "collection"
+    itemId         <- m ^? _EJObjectKeyString "id"
+    fields         <- m ^. _EJObjectKey       "fields"
+    return $ modifyAppState (over collections (putInPath' ["subscription-data", collectionName, itemId] fields))
+
+putInPath' :: [Text] -> EJsonValue -> EJsonValue -> EJsonValue
+putInPath' path payload target = case putInPath path payload target
+                                   of Right x -> x
+                                      Left  _ -> target
+
 
 -- | A client that sets the session id if the server sends it
 --   {"server_id":"83752cf1-a9bf-a15e-b06a-91f110383550"}
 --
+--   The handler deletes itself when the session is set.
+--
 setServerID :: DeadpanApp ()
-setServerID = undefined
+setServerID = do
+  hid <- newID
+  void $ setHandler hid
+       $ \e -> forOf_ (_EJObjectKey "server_id" . _Just) e
+       $ \x -> putInBase "server_id" x
+            >> deleteHandlerID hid
 
 putInBase :: Text -> EJsonValue -> DeadpanApp ()
 putInBase k v = modifyAppState $ set (collections . _EJObjectKey k) (Just v)
 
+-- ensure :: Lens -> Default -> Modifier -> NewValue
+-- ensure k v = modifyAppState $ set (collections . _EJObjectKey k) (Just v)
+
 -- | A client that sets the server_id if the server sends it
 --   {"msg":"connected","session":"T6gBRv5RpCTwKcMSW"}
+--
+--   TODO: The handler deletes itself when the session is set.
 --
 setSession :: DeadpanApp Text
 setSession = setMsgHandler "connected" $

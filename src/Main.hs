@@ -8,6 +8,9 @@ import System.IO
 import System.Exit
 import Web.DDP.Deadpan
 import System.Environment
+import Data.Aeson
+import Data.EJson.Aeson -- TODO: Aeson instance should come with EJson import
+import qualified Data.ByteString.Lazy.Char8 as C8
 
 main :: IO ()
 main = getArgs >>= go
@@ -19,11 +22,24 @@ go _                          = help >> exitFailure
 
 -- TODO: No sane person would use this Maybe Maybe monstrosity, but aren't we all a little mad?
 
-run :: Either Error Params -> Maybe (Maybe Version) -> IO String
+run :: Either Error Params -> Maybe (Maybe Version) -> IO ()
 run (Left  err   ) _               = hPutStrLn stderr err >> exitFailure
 run _              (Just Nothing)  = hPutStrLn stderr "Incorrect version specified..." >> exitFailure
-run (Right params) (Just (Just v)) = runPingClientVersion params v (logEverything >> liftIO getLine)
-run (Right params) Nothing         = runPingClient params (logEverything >> liftIO getLine)
+run (Right params) (Just (Just v)) = runPingClientVersion params v (logEverything >> sendMessages)
+run (Right params) Nothing         = runPingClient params (logEverything >> sendMessages)
+
+-- TODO: Readline support...
+-- TODO: Allow a full DSL to be used rather than just messages?
+--
+sendMessages :: DeadpanApp ()
+sendMessages = do contents <- liftIO getContents
+                  mapM_ sendPossibleMessage (lines contents)
+
+sendPossibleMessage :: String -> DeadpanApp ()
+sendPossibleMessage msgStr = do
+  let decoded = decode $ C8.pack msgStr
+  case decoded of Just m  -> sendData m
+                  Nothing -> liftIO $ print "Invalid Message"
 
 getVersion :: [String] -> (Maybe (Maybe Version), [String])
 getVersion ss = (extractVersion ss, deleteVersion ss)
