@@ -140,38 +140,41 @@ rpcWait method params = do
 
 -- Server Data Subscriptions
 
-serverDataNosub :: Callback
-serverDataNosub = undefined
-
-serverDataAdded :: Callback
-serverDataAdded = undefined
-
-serverDataChanged :: Callback
-serverDataChanged = undefined
-
-serverDataRemoved :: Callback
-serverDataRemoved = undefined
-
-serverDataReady :: Callback
-serverDataReady = undefined
-
-serverDataAddedBefore :: Callback
-serverDataAddedBefore = undefined
-
-serverDataMovedBefore :: Callback
-serverDataMovedBefore = undefined
+-- TODO
+-- serverDataNosub :: Callback
+-- serverDataNosub = undefined
+-- TODO
+-- serverDataAdded :: Callback
+-- serverDataAdded = undefined
+-- TODO
+-- serverDataChanged :: Callback
+-- serverDataChanged = undefined
+-- TODO
+-- serverDataRemoved :: Callback
+-- serverDataRemoved = undefined
+-- TODO
+-- serverDataReady :: Callback
+-- serverDataReady = undefined
+-- TODO
+-- serverDataAddedBefore :: Callback
+-- serverDataAddedBefore = undefined
+-- TODO
+-- serverDataMovedBefore :: Callback
+-- serverDataMovedBefore = undefined
 
 
 -- Server RPC
 
-serverRPCResult :: Callback
-serverRPCResult  = undefined
-
-serverRPCUpdated :: Callback
-serverRPCUpdated = undefined
+-- TODO
+-- serverRPCResult :: Callback
+-- serverRPCResult  = undefined
+-- TODO
+-- serverRPCUpdated :: Callback
+-- serverRPCUpdated = undefined
 
 
 -- Server Errors
 
-serverError :: Callback
-serverError = undefined
+-- TODO
+-- serverError :: Callback
+-- serverError = undefined

@@ -16,7 +16,7 @@ Deadpan can be used for writing clients for [Meteor](https://www.meteor.com/) si
 * Connect to server
 * Respond to PING
 * Print all incomming EJSON server messages
-* Send EJson formatted lines of input to server as messages
+* Send EJson formatted lines of input to server as messages (with readline support)
 
 ### Library
 
@@ -26,10 +26,7 @@ Deadpan can be used for writing clients for [Meteor](https://www.meteor.com/) si
 * Shared data-store
 * Blocking RPC
 * Blocking subscriptions
-
-## Missing:
-
-* Data subscription helpers
+* Respond to data-updates from the server
 
 
 ## Usage
@@ -142,6 +139,7 @@ a demo Meteor app found under the `test/` directory.
 
 Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 
+* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.6.0.0-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.5.0.1-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.5.0.0-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.4.1.0-MacOSX-10.9.5-13F34.zip>
@@ -156,9 +154,8 @@ Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 
 You can look for incomplete items in the source by running `make todo`.
 
-* Write definitions for all stubs in DDP module
+* Add full minimongo capabilities for data modification
 * Fix error on exit "recv: invalid argument (Bad file descriptor)" check out <https://github.com/k0001/pipes-network/issues/2>
-* Fix TODO notes in code
 * Use more qualified imports, including for internal imports
 * Narrow package dependency versions
 * Random number generation as-per the spec

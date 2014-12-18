@@ -5,6 +5,7 @@
 * Subscription capabilities have begun to be added
 * Add Data
 * Remove Data
+* Modify Data (Simplistic)
 * Wait on subscription
 
 ## 0.4.1.0

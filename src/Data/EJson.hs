@@ -178,10 +178,9 @@ modifyInPath path modifications target =
        _                -> Left (concat ["Path ", show path, " not present in object ", show target])
 
 simpleMerge :: EJsonValue -> EJsonValue -> EJsonValue
-simpleMerge modifications = execState $ traverseOf_ _EJObject foo modifications
+simpleMerge modifications = execState $ traverseOf_ _EJObject (mapM_ setPair . HM.toList) modifications
   where
-  foo hm    = mapM_ bar (HM.toList hm)
-  bar (k,v) = _EJObjectKey k .= Just v
+  setPair (k,v) = _EJObjectKey k .= Just v
 
 -- | A variatnt of modifyInPath that leaves the EJsonValue unchanged if the update is not sensible.
 --
