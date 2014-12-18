@@ -1,3 +1,3 @@
 todo:
-	grep -r TODO src test/*/* README.md
-	grep -r undefined src test/*/* README.md
+	grep -r TODO src test/client/* README.md
+	grep -r undefined src test/client/* README.md
