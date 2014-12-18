@@ -132,7 +132,7 @@ putInPath [] payload _ = Right payload
 putInPath (h:t) payload target@(EJObject _) =
   let l = _EJObjectKey h
    in case target ^. l
-      of Nothing -> Right $ set l (Just (expandPayload t payload)) target
+      of Nothing -> Right $ set l (Just (expand t payload)) target
          Just v  -> do r <- putInPath t payload v
                        Right $ set l (Just r) target
 
@@ -173,7 +173,7 @@ putInPath' path payload target = case putInPath path payload target
 --
 modifyInPath :: [Text] -> EJsonValue -> EJsonValue -> Either String EJsonValue
 modifyInPath path modifications target =
-  case (Just target & pathToPrism path <<%~ fmap (simpleMerge modifications))
+  case Just target & pathTo path <<%~ fmap (simpleMerge modifications)
     of (Just _, Just r) -> Right r
        _                -> Left (concat ["Path ", show path, " not present in object ", show target])
 
@@ -218,12 +218,17 @@ modifyInPath' path modifications target =
 --   Left "Path [\"a\",\"q\",\"r\"] not present in object {\"x\":\"y\"}"
 --
 removeFromPath :: [Text] -> EJsonValue -> Either String EJsonValue
-removeFromPath path target = case (Just target & pathToPrism path <<.~ Nothing)
+removeFromPath path target = case (Just target & pathTo path <<.~ Nothing)
                                of (Just _, Just r) -> Right r
                                   _                -> Left (concat ["Path ", show path, " not present in object ", show target])
 
-pathToPrism :: [Text] -> Traversal' (Maybe EJsonValue) (Maybe EJsonValue)
-pathToPrism path = foldl (.) id (map textToPrism path)
+-- | Constructs a Traversal' along a path of EJObject keys.
+--
+--   Both ends of the traversal are maybes in order to allow self-composition,
+--   and to allow the insertion/deletion of values at a point in the path.
+--
+pathTo :: [Text] -> Traversal' (Maybe EJsonValue) (Maybe EJsonValue)
+pathTo path = foldl (.) id (map textToPrism path)
 
 textToPrism :: Text -> Traversal' (Maybe EJsonValue) (Maybe EJsonValue)
 textToPrism x = _Just . _EJObject . at x
@@ -243,9 +248,11 @@ textToPrism x = _Just . _EJObject . at x
 removeFromPath' :: [Text] -> EJsonValue -> EJsonValue
 removeFromPath' p v = either (const v) id (removeFromPath p v)
 
-
-expandPayload :: [Text] -> EJsonValue -> EJsonValue
-expandPayload path payload = foldr ($) payload (map f path) where f x y = ejobject [(x,y)]
+-- | Takes a path and an EJsonValue and wraps the EJsonValue in
+--   successive EJObjects for each item in the path.
+--
+expand :: [Text] -> EJsonValue -> EJsonValue
+expand path payload = foldr f payload path where f x y = ejobject [(x,y)]
 
 -- | Construct a simple message object with no data.
 --
