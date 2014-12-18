@@ -176,8 +176,18 @@ deleteHandlerID k = modifyAppState $
 modifyAppState :: (AppState Callback -> AppState Callback) -> DeadpanApp ()
 modifyAppState f = DeadpanApp $ ask >>= liftIO . atomically . flip modifyTVar f
 
+-- | Get the raw app state. Reads the value out of the TVar container.
+--
 getAppState :: DeadpanApp (AppState Callback)
 getAppState = DeadpanApp $ ask >>= liftIO . atomically . readTVar
+
+-- | Get the app state in conjunction with a Prism, allowing for more succing state access
+--
+getAppStateL :: Prism' (AppState Callback) x -> DeadpanApp (Maybe x)
+getAppStateL l = DeadpanApp $ do
+  v <- ask
+  w <- liftIO $ atomically $ readTVar v
+  return $ w ^? l
 
 getCollections :: DeadpanApp EJsonValue
 getCollections = fmap _collections getAppState
@@ -185,22 +195,28 @@ getCollections = fmap _collections getAppState
 -- | A low-level function intended to be able to send any arbitrary data to the server.
 --   Given that all messages to the server are intended to fit the "message" format,
 --   You should probably use `sendMessage` instead.
---   TODO: Decide if this should perform the request in a seperate thread...
+--
 sendData :: EJsonValue -> DeadpanApp ()
 sendData v = getAppState >>= liftIO . flip sendEJ v . _connection
 
 -- | Send a particular type of message (indicated by the key) to the server.
 --   This should be the primary means of [client -> server] communication by
 --   a client application.
+--
 sendMessage :: Text -> EJsonValue -> DeadpanApp ()
 sendMessage key m = sendData messageData
   where
   messageData = makeMsg key `mappend` m
 
+-- | Send a connection message to the server and specify the DDP API version
+--   that you wish to use.
+--
 connectVersion :: Version -> DeadpanApp ()
 connectVersion v = sendMessage "connect" $ ejobject [ ("version", version2string v)
                                                     , ("support", ejarray reverseVersions) ]
 
+-- | Send a generic connection message to the server.
+--
 connect :: DeadpanApp ()
 connect = sendMessage "connect" $ ejobject [ ("version", version2string V1)
                                            , ("support", ejarray reverseVersions) ]

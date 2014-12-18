@@ -31,6 +31,7 @@
 -}
 
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Data.EJson (
@@ -42,6 +43,8 @@ module Data.EJson (
     matches,
     putInPath,
     putInPath',
+    removeFromPath,
+    removeFromPath',
 
     makeMsg,
     makeId,
@@ -144,6 +147,52 @@ putInPath' :: [Text] -> EJsonValue -> EJsonValue -> EJsonValue
 putInPath' path payload target = case putInPath path payload target
                                    of Right x -> x
                                       Left  _ -> target
+
+-- | removeFromPath is a method for removing a value from an EJsonValue object at a point indicated by a path.
+--
+--   The path is a list of text values indicating successive object keys.
+--
+--   Examples:
+--
+--   >>> :set -XOverloadedStrings
+--
+--   >>> removeFromPath ["a"] (ejobject [("a","b"),("x","y")])
+--   Right {"x":"y"}
+--
+--   If you attempt to update a value as if it were an EJObject when in-fact it is something else,
+--   then you will receive an Error.
+--
+--   Example:
+--
+--   >>> removeFromPath ["a","q","r"] (ejobject [("x","y")])
+--   Left "Path [\"a\",\"q\",\"r\"] not present in object {\"x\":\"y\"}"
+--
+removeFromPath :: [Text] -> EJsonValue -> Either String EJsonValue
+removeFromPath path target = case (Just target & pathToPrism path <<.~ Nothing)
+                               of (Just _, Just r) -> Right r
+                                  _                -> Left (concat ["Path ", show path, " not present in object ", show target])
+
+pathToPrism :: [Text] -> Traversal' (Maybe EJsonValue) (Maybe EJsonValue)
+pathToPrism path = foldl (.) id (map textToPrism path)
+
+textToPrism :: Text -> Traversal' (Maybe EJsonValue) (Maybe EJsonValue)
+textToPrism x = _Just . _EJObject . at x
+
+-- | A variatnt of removeFromPath that leaves the EJsonValue unchanged if the update is not sensible
+--
+--   Example:
+--
+--   >>> :set -XOverloadedStrings
+--
+--   >>> removeFromPath' ["a","b"] (ejobject [("a", ejobject [("b","c")]), ("d","e")])
+--   {"a":{},"d":"e"}
+--
+--   >>> removeFromPath' ["a"] "hello"
+--   "hello"
+--
+removeFromPath' :: [Text] -> EJsonValue -> EJsonValue
+removeFromPath' p v = either (const v) id (removeFromPath p v)
+
 
 expandPayload :: [Text] -> EJsonValue -> EJsonValue
 expandPayload path payload = foldr ($) payload (map f path) where f x y = ejobject [(x,y)]

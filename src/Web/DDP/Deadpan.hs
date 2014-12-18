@@ -102,11 +102,10 @@ collect :: DeadpanApp ()
 collect = do
   void $ setMsgHandler "added"    dataAdded
   void $ setMsgHandler "modified" dataModifiedHandler
-  void $ setMsgHandler "deleted"  dataRemovedHandler
+  void $ setMsgHandler "removed"  dataRemovedHandler
 
   where
   dataModifiedHandler _ = return () -- TODO
-  dataRemovedHandler  _ = return () -- TODO
 
 -- | An app to handle the addition of subscription data items...
 --
@@ -120,6 +119,18 @@ dataAdded           m = fromMaybe (return ()) $ do
   itemId         <- m ^? _EJObjectKeyString "id"
   fields         <- m ^. _EJObjectKey       "fields"
   return $ modifyAppState (over collections (putInPath' ["subscription-data", collectionName, itemId] fields))
+
+-- | An app to handle the removal of subscription data items...
+--
+--   For Example: {"collection":"lists","msg":"removed","id":"By8CtgWGvbZfJPFsd"}
+--
+--   Not especially useful on its own. You would usually use `collect` instead.
+--
+dataRemovedHandler :: Callback
+dataRemovedHandler  m = fromMaybe (return ()) $ do
+  collectionName <- m ^? _EJObjectKeyString "collection"
+  itemId         <- m ^? _EJObjectKeyString "id"
+  return $ modifyAppState (over collections (removeFromPath' ["subscription-data", collectionName, itemId]))
 
 -- | A helper lens into the subscription data inside the collections section of the dynamic app state.
 --

@@ -109,6 +109,8 @@ This will dump all server messages to STDOUT.
 
 Lines of input from STDIN are parsed as EJSON and sent as messages to the server.
 
+Input is editable via [Haskeline.](http://hackage.haskell.org/package/haskeline)
+
 For further instructions on how to use the tool, you can run:
 
 > deadpan --help

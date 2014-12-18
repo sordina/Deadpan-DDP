@@ -1,5 +1,12 @@
 # Deadpan-DDP Change Log
 
+## 0.6.0.0
+
+* Subscription capabilities have begun to be added
+* Add Data
+* Remove Data
+* Wait on subscription
+
 ## 0.4.1.0
 
 * Fixed some bugs

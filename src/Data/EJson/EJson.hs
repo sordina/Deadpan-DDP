@@ -93,16 +93,15 @@ data EJsonValue =
 
 makePrisms ''EJsonValue
 
-_EJObjectKey :: Applicative f
-             => Text
-             -> (Maybe EJsonValue -> f (Maybe EJsonValue))
-             -> EJsonValue
-             -> f EJsonValue
+-- Possibly access the value indicated by a key into a possible EJsonValue EJObject.
+--
+_EJObjectKey :: Text -> Traversal' EJsonValue (Maybe EJsonValue)
 _EJObjectKey k = _EJObject . at k
 
 -- | A helpful prism that looks up values of type EJ{"foo" : "bar", ...}
 --   with a Text key "foo" and returns Just "bar", or Nothing.
 --   Used frequently for checking message types and ids.
+--
 _EJObjectKeyString :: Applicative f
                    => Text
                    -> (Text -> f Text)
