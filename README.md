@@ -59,6 +59,32 @@ Further examples of applications can be found in the test/client/ directory.
 
 There are also lower-level tools provided in `Web.DDP.Deadpan.*`.
 
+#### Collection Support
+
+Since Meteor sites are usually heavily focused on collections,
+support for automatically aggregating subscription data is
+included in the form of the `collect` app.
+
+This adds data to the `subscription-data` key of the `collections` field of the
+app-state. This is updated dynamically, but you can use a blocking subscription
+call if you want to ensure that it is in a sane state before you query it.
+
+For example:
+
+    myDeadpanApp = do
+      -- Can check for an error here if desired
+      _  <- subscribeWait "songs"
+      as <- getAppState
+      let mySong = as ^. subscriptions
+                       . _EJObjectKey "songs" . _Just
+                       . _EJObjectKey "prelude"
+      case mySong of Just s  -> print s
+                     Nothing -> print "Could not find my song"
+
+Run with:
+
+    runPingClient params (collect >> myDeadpanApp)
+
 
 #### EJson
 
@@ -136,3 +162,5 @@ You can look for incomplete items in the source by running `make todo`.
 * Random number generation as-per the spec
 * Make a newtype for IDs
 * Roll my own UUID instead of using that outdated package
+* Potentially use Isos for EJsonValue <-> Value conversions
+* Adopt a more layered aproach for internal organisation with an 'apps' layer before Deadpan.hs

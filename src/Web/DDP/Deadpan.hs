@@ -11,6 +11,7 @@ in order to write DDP applications.
 
 
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Web.DDP.Deadpan
   ( module Web.DDP.Deadpan
@@ -26,10 +27,10 @@ import Web.DDP.Deadpan.DSL       as ReExports
 import Web.DDP.Deadpan.Callbacks as ReExports
 import Control.Monad             as ReExports
 
-
 import Web.DDP.Deadpan.Websockets
 
 import Data.Maybe
+import Control.Applicative
 import Control.Concurrent.STM
 import Control.Concurrent.Chan
 import Control.Monad.IO.Class
@@ -84,32 +85,55 @@ logEverything = do pipe <- liftIO newChan
                    _    <- fork $ liftIO $ getChanContents pipe >>= mapM_ putStrLn
                    return pipe
 
+-- | A variant of log-everything returning a chan to recieve messages on
+--   instead of STDOUT.
+logEverythingVia :: DeadpanApp (Chan String)
+logEverythingVia = do pipe <- liftIO newChan
+                      _    <- setCatchAllHandler (liftIO . writeChan pipe . show)
+                      return pipe
+
 -- | A client that responds to server collection messages.
 --
 --   Warning: this overwrites the collections key of the collections field of the AppState.
 --
 --   TODO: NOT YET IMPLEMENTED
 --
-collectiveClient :: DeadpanApp ()
-collectiveClient = do
-  void $ setMsgHandler "added"    dataAddedHandler
+collect :: DeadpanApp ()
+collect = do
+  void $ setMsgHandler "added"    dataAdded
   void $ setMsgHandler "modified" dataModifiedHandler
   void $ setMsgHandler "deleted"  dataRemovedHandler
 
   where
-  -- {"collection":"lists","msg":"added","id":"F73xFyAuKrqsb2J3m","fields":{"incompleteCount":6,"name":"Favorite Scientists"}}
   dataModifiedHandler _ = return () -- TODO
   dataRemovedHandler  _ = return () -- TODO
-  dataAddedHandler    m = fromMaybe (return ()) $ do
-    collectionName <- m ^? _EJObjectKeyString "collection"
-    itemId         <- m ^? _EJObjectKeyString "id"
-    fields         <- m ^. _EJObjectKey       "fields"
-    return $ modifyAppState (over collections (putInPath' ["subscription-data", collectionName, itemId] fields))
 
-putInPath' :: [Text] -> EJsonValue -> EJsonValue -> EJsonValue
-putInPath' path payload target = case putInPath path payload target
-                                   of Right x -> x
-                                      Left  _ -> target
+-- | An app to handle the addition of subscription data items...
+--
+--   For Example: {"collection":"lists","msg":"added","id":"F73xFyAuKrqsb2J3m","fields":{"incompleteCount":6,"name":"Favorite Scientists"}}
+--
+--   Not especially useful on its own. You would usually use `collect` instead.
+--
+dataAdded :: Callback
+dataAdded           m = fromMaybe (return ()) $ do
+  collectionName <- m ^? _EJObjectKeyString "collection"
+  itemId         <- m ^? _EJObjectKeyString "id"
+  fields         <- m ^. _EJObjectKey       "fields"
+  return $ modifyAppState (over collections (putInPath' ["subscription-data", collectionName, itemId] fields))
+
+-- | A helper lens into the subscription data inside the collections section of the dynamic app state.
+--
+--   Example:
+--
+--   >>> :set -XOverloadedStrings
+--   >>> _collections $ set (subscriptions . _EJObjectKey "songs") (Just ejnull) (AppState undefined ejnull undefined)
+--   null
+--
+--   TODO: Make this a Simple Prism somehow...
+--   subscriptions :: Simple Prism (AppState a) (Maybe EJsonValue)
+--
+subscriptions :: Applicative f => (EJsonValue -> f EJsonValue) -> AppState cb0 -> f (AppState cb0)
+subscriptions = collections . _EJObjectKey "subscription-data" . _Just
 
 
 -- | A client that sets the session id if the server sends it

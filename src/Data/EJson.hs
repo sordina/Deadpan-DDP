@@ -31,6 +31,7 @@
 -}
 
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Data.EJson (
 
@@ -40,6 +41,7 @@ module Data.EJson (
 
     matches,
     putInPath,
+    putInPath',
 
     makeMsg,
     makeId,
@@ -122,14 +124,26 @@ putInPath :: [Text] -> EJsonValue -> EJsonValue -> Either String EJsonValue
 putInPath [] payload _ = Right payload
 
 putInPath (h:t) payload target@(EJObject _) =
-  -- Note: You must clone the lens to allow it to both view and update here...
   let l = _EJObjectKey h
-   in case target ^. _EJObjectKey h
+   in case target ^. l
       of Nothing -> Right $ set l (Just (expandPayload t payload)) target
          Just v  -> do r <- putInPath t payload v
                        Right $ set l (Just r) target
 
 putInPath path _ target = Left (concat ["Value ", show target, " does not match path ", show path, "."])
+
+-- | A variatnt of putInPath that leaves the EJsonValue unchanged if the update is not sensible
+--
+--   Example:
+--
+--   >>> :set -XOverloadedStrings
+--   >>> putInPath' ["a"] "b" "hello"
+--   "hello"
+--
+putInPath' :: [Text] -> EJsonValue -> EJsonValue -> EJsonValue
+putInPath' path payload target = case putInPath path payload target
+                                   of Right x -> x
+                                      Left  _ -> target
 
 expandPayload :: [Text] -> EJsonValue -> EJsonValue
 expandPayload path payload = foldr ($) payload (map f path) where f x y = ejobject [(x,y)]

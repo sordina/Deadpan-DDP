@@ -9,8 +9,11 @@ import System.Exit
 import Web.DDP.Deadpan
 import System.Environment
 import Data.Aeson
+import Data.Maybe
+import Control.Concurrent.Chan
 import Data.EJson.Aeson -- TODO: Aeson instance should come with EJson import
 import qualified Data.ByteString.Lazy.Char8 as C8
+import qualified System.Console.Haskeline   as R
 
 main :: IO ()
 main = getArgs >>= go
@@ -26,14 +29,26 @@ run :: Either Error Params -> Maybe (Maybe Version) -> IO ()
 run (Left  err   ) _               = hPutStrLn stderr err >> exitFailure
 run _              (Just Nothing)  = hPutStrLn stderr "Incorrect version specified..." >> exitFailure
 run (Right params) (Just (Just v)) = runPingClientVersion params v (logEverything >> sendMessages)
-run (Right params) Nothing         = runPingClient params (logEverything >> sendMessages)
+run (Right params) Nothing         = runPingClient        params   (logEverything >> sendMessages)
 
--- TODO: Readline support...
 -- TODO: Allow a full DSL to be used rather than just messages?
 --
 sendMessages :: DeadpanApp ()
-sendMessages = do contents <- liftIO getContents
-                  mapM_ sendPossibleMessage (lines contents)
+sendMessages = do
+  c <- liftIO $ newChan
+  let settings = R.defaultSettings { R.autoAddHistory = True }
+  void $ fork $ liftIO $ R.runInputT settings (inOutLoop c)
+  contents <- liftIO (getChanContents c)
+  mapM_ sendPossibleMessage (catMaybes (takeWhile isJust contents))
+
+inOutLoop :: Chan (Maybe String) -> R.InputT IO ()
+inOutLoop c = do
+  maybeLine <- R.getInputLine ""
+  case maybeLine of
+    Nothing      -> liftIO $ writeChan c Nothing -- EOF / control-d
+    Just ":exit" -> liftIO $ writeChan c Nothing
+    Just line    -> do liftIO $ writeChan c (Just line)
+                       inOutLoop c
 
 sendPossibleMessage :: String -> DeadpanApp ()
 sendPossibleMessage msgStr = do
