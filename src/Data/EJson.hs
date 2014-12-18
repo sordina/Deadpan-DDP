@@ -23,8 +23,6 @@
 
   The internals of EJson are defined in `Data.EJson.EJson`.
 
-  A Prism' instance is defined in `Data.EJson.Prism`.
-
   Aeson instances are defined in `Data.EJson.Aeson`.
 
   This module tests examples and properties using DocTest.
@@ -43,6 +41,8 @@ module Data.EJson (
     matches,
     putInPath,
     putInPath',
+    modifyInPath,
+    modifyInPath',
     removeFromPath,
     removeFromPath',
 
@@ -66,6 +66,7 @@ module Data.EJson (
 import Data.EJson.EJson
 import Data.EJson.EJson2Value
 import Control.Lens
+import Control.Monad.State (execState)
 import Data.Text (Text())
 
 import qualified Data.HashMap.Strict as HM
@@ -74,10 +75,12 @@ import qualified Data.HashMap.Strict as HM
 -- | A function to check if all of the values in 'a' match values that exist in 'b'.
 --   Not the same as equality.
 --
---   { x = L     <=>     ==  { x = L
---   , y = M     <=>     ==  , y = M
---   , z = N     <=>     ==  , z = N
---   }           <=>    ...  , a = ... }
+--   @
+--       { x = L             ==  { x = L
+--       , y = M     <=>     ==  , y = M
+--       , z = N             ==  , z = N
+--       }                  ...  , a = ... }
+--   @
 --
 --   is still considered as matching.
 --
@@ -148,7 +151,55 @@ putInPath' path payload target = case putInPath path payload target
                                    of Right x -> x
                                       Left  _ -> target
 
--- | removeFromPath is a method for removing a value from an EJsonValue object at a point indicated by a path.
+-- | modifyInPath modifies values in an EJsonValue object at a point indicated by a path.
+--
+--   Examples:
+--
+--   >>> :set -XOverloadedStrings
+--
+--   >>> modifyInPath [] (ejobject [("q","r")]) (ejobject [("x","y")])
+--   Right {"q":"r","x":"y"}
+--
+--   If you attempt to update a value as if it were an EJObject when in-fact it is something else,
+--   then you will receive an Error.
+--
+--   Example:
+--
+--   >>> modifyInPath ["a", "b"] "c" (ejobject [("a","hello")])
+--   Left "Path [\"a\",\"b\"] not present in object {\"a\":\"hello\"}"
+--
+--   >>> modifyInPath ["a", "b"] (ejobject [("a","hello")]) "c"
+--   Left "Path [\"a\",\"b\"] not present in object \"c\""
+--
+modifyInPath :: [Text] -> EJsonValue -> EJsonValue -> Either String EJsonValue
+modifyInPath path modifications target =
+  case (Just target & pathToPrism path <<%~ fmap (simpleMerge modifications))
+    of (Just _, Just r) -> Right r
+       _                -> Left (concat ["Path ", show path, " not present in object ", show target])
+
+simpleMerge :: EJsonValue -> EJsonValue -> EJsonValue
+simpleMerge modifications = execState $ traverseOf_ _EJObject foo modifications
+  where
+  foo hm    = mapM_ bar (HM.toList hm)
+  bar (k,v) = _EJObjectKey k .= Just v
+
+-- | A variatnt of modifyInPath that leaves the EJsonValue unchanged if the update is not sensible.
+--
+--   Example:
+--
+--   >>> :set -XOverloadedStrings
+--
+--   >>> modifyInPath' ["a", "b"] "c" (ejobject [("a","hello")])
+--   {"a":"hello"}
+--
+--   >>> modifyInPath' ["a", "b"] (ejobject [("a","hello")]) "c"
+--   "c"
+--
+modifyInPath' :: [Text] -> EJsonValue -> EJsonValue -> EJsonValue
+modifyInPath' path modifications target =
+  either (const target) id (modifyInPath path modifications target)
+
+-- | removeFromPath removes values from an EJsonValue object at a point indicated by a path.
 --
 --   The path is a list of text values indicating successive object keys.
 --

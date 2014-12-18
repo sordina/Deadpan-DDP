@@ -94,18 +94,12 @@ logEverythingVia = do pipe <- liftIO newChan
 
 -- | A client that responds to server collection messages.
 --
---   Warning: this overwrites the collections key of the collections field of the AppState.
---
---   TODO: NOT YET IMPLEMENTED
+--   Warning: this overwrites the "subscription-data" key of the collections field of the AppState.
 --
 collect :: DeadpanApp ()
-collect = do
-  void $ setMsgHandler "added"    dataAdded
-  void $ setMsgHandler "modified" dataModifiedHandler
-  void $ setMsgHandler "removed"  dataRemovedHandler
-
-  where
-  dataModifiedHandler _ = return () -- TODO
+collect = void $ setMsgHandler "added"   dataAdded
+              >> setMsgHandler "removed" dataRemoved
+              >> setMsgHandler "changed" dataChanged
 
 -- | An app to handle the addition of subscription data items...
 --
@@ -120,14 +114,27 @@ dataAdded           m = fromMaybe (return ()) $ do
   fields         <- m ^. _EJObjectKey       "fields"
   return $ modifyAppState (over collections (putInPath' ["subscription-data", collectionName, itemId] fields))
 
+-- | An app to handle the modification of subscription data items...
+--
+--   For Example: {"collection":"lists","msg":"changed","id":"TThFzYerrZaxmgjA7","fields":{"name":"List Aasdf"}}
+--
+--   Not especially useful on its own. You would usually use `collect` instead.
+--
+dataChanged :: Callback
+dataChanged  m = fromMaybe (return ()) $ do
+  collectionName <- m ^? _EJObjectKeyString "collection"
+  itemId         <- m ^? _EJObjectKeyString "id"
+  fields         <- m ^. _EJObjectKey       "fields"
+  return $ modifyAppState (over collections (modifyInPath' ["subscription-data", collectionName, itemId] fields))
+
 -- | An app to handle the removal of subscription data items...
 --
 --   For Example: {"collection":"lists","msg":"removed","id":"By8CtgWGvbZfJPFsd"}
 --
 --   Not especially useful on its own. You would usually use `collect` instead.
 --
-dataRemovedHandler :: Callback
-dataRemovedHandler  m = fromMaybe (return ()) $ do
+dataRemoved :: Callback
+dataRemoved  m = fromMaybe (return ()) $ do
   collectionName <- m ^? _EJObjectKeyString "collection"
   itemId         <- m ^? _EJObjectKeyString "id"
   return $ modifyAppState (over collections (removeFromPath' ["subscription-data", collectionName, itemId]))
