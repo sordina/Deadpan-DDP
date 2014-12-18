@@ -131,8 +131,10 @@ therefore, you should be able to install it by running the following commands:
 
 A test-suite can be run by calling `cabal test`.
 
-This triggers the QuickCheck tests, as well as running some integration tests against
-a demo Meteor app found under the `test/` directory.
+This triggers the QuickCheck tests, and Doctests.
+
+In addition to these automated tests, there are Meteor test-applications, and Deadpan
+clients in the test/ directory.
 
 
 ## Binaries
