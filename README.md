@@ -100,7 +100,7 @@ Lenses, Prisms, and Aeson instances are provided for this library.
 
 Run `deadpan` against an existing Meteor installation as follows:
 
-> deadpan websocets://meteor.com/websocket
+> deadpan -v Vpre1 http://meteor.com/websocket
 
 This will dump all server messages to STDOUT.
 
