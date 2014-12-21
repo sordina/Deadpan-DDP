@@ -173,7 +173,7 @@ putInPath' path payload target = case putInPath path payload target
 --
 modifyInPath :: [Text] -> EJsonValue -> EJsonValue -> Either String EJsonValue
 modifyInPath path modifications target =
-  case Just target & pathTo path <<%~ fmap (simpleMerge modifications)
+  case Just target & pathToTraversal' path <<%~ fmap (simpleMerge modifications)
     of (Just _, Just r) -> Right r
        _                -> Left (concat ["Path ", show path, " not present in object ", show target])
 
@@ -218,7 +218,7 @@ modifyInPath' path modifications target =
 --   Left "Path [\"a\",\"q\",\"r\"] not present in object {\"x\":\"y\"}"
 --
 removeFromPath :: [Text] -> EJsonValue -> Either String EJsonValue
-removeFromPath path target = case (Just target & pathTo path <<.~ Nothing)
+removeFromPath path target = case (Just target & pathToTraversal' path <<.~ Nothing)
                                of (Just _, Just r) -> Right r
                                   _                -> Left (concat ["Path ", show path, " not present in object ", show target])
 
@@ -227,11 +227,10 @@ removeFromPath path target = case (Just target & pathTo path <<.~ Nothing)
 --   Both ends of the traversal are maybes in order to allow self-composition,
 --   and to allow the insertion/deletion of values at a point in the path.
 --
-pathTo :: [Text] -> Traversal' (Maybe EJsonValue) (Maybe EJsonValue)
-pathTo path = foldl (.) id (map textToPrism path)
-
-textToPrism :: Text -> Traversal' (Maybe EJsonValue) (Maybe EJsonValue)
-textToPrism x = _Just . _EJObject . at x
+pathToTraversal' :: [Text] -> Traversal' (Maybe EJsonValue) (Maybe EJsonValue)
+pathToTraversal' path = foldl (.) id (map pathSegmentToTraversal' path)
+  where
+  pathSegmentToTraversal' x = _Just . _EJObject . at x
 
 -- | A variatnt of removeFromPath that leaves the EJsonValue unchanged if the update is not sensible
 --

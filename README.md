@@ -165,3 +165,4 @@ You can look for incomplete items in the source by running `make todo`.
 * Roll my own UUID instead, or update UUID dependencies upstream so I can upgrade websockets dependency
 * Potentially use Isos for EJsonValue <-> Value conversions
 * Adopt a more layered aproach for internal organisation with an 'apps' layer before Deadpan.hs
+* Use proper opt-parser for main module
