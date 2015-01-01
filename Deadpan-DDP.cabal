@@ -77,4 +77,4 @@ test-suite quickcheck
   type:          exitcode-stdio-1.0
   ghc-options:   -threaded
   main-is:       test/QuickCheckTests.hs
-  build-depends: base, QuickCheck >= 2.0, process >= 1.0
+  build-depends: base, QuickCheck >= 2.0, quickcheck-script, process >= 1.0
