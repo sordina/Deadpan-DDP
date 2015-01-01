@@ -2,4 +2,4 @@ language: haskell
 ghc: 7.8
 before-script:
   - ls
-  - export PATH=$PATH:$PWD:$PWD/.cabal/bin:/.cabal/bin:/root/.cabal/bin
+  - export PATH="$PATH:$PWD:$PWD/.cabal/bin:/.cabal/bin:/root/.cabal/bin:$HOME/.cabal/bin:$PATH"
