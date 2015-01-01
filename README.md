@@ -137,22 +137,6 @@ In addition to these automated tests, there are Meteor test-applications, and De
 clients in the test/ directory.
 
 
-## Binaries
-
-Pre-compiled binaries can be found for the `deadpan` debugging tool below:
-
-* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.6.0.0-MacOSX-10.9.5-13F34.zip>
-* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.5.0.1-MacOSX-10.9.5-13F34.zip>
-* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.5.0.0-MacOSX-10.9.5-13F34.zip>
-* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.4.1.0-MacOSX-10.9.5-13F34.zip>
-* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.4.0.0-MacOSX-10.9.5-13F34.zip>
-* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.3.0.1-MacOSX-10.9.5-13F34.zip>
-* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.2.0.1-MacOSX-10.9.5-13F34.zip>
-* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.2.0.0-MacOSX-10.9.5-13F34.zip>
-* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.1.0.1-MacOSX-10.9.5-13F34.zip>
-* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.6.0.0-Linux-3.16.7-tinycore64-x86_64.zip>
-
-
 ## TODO
 
 You can look for incomplete items in the source by running `make todo`.
@@ -167,3 +151,11 @@ You can look for incomplete items in the source by running `make todo`.
 * Potentially use Isos for EJsonValue <-> Value conversions
 * Adopt a more layered aproach for internal organisation with an 'apps' layer before Deadpan.hs
 * Use proper opt-parser for main module
+
+
+## Binaries
+
+Pre-compiled binaries can be found for the `deadpan` debugging tool below:
+
+* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.6.0.0-Linux-3.16.7-tinycore64-x86_64.zip>
+* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.6.0.0-MacOSX-10.9.5-13F34.zip>
