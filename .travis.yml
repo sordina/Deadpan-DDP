@@ -2,3 +2,4 @@ language: haskell
 ghc: 7.8
 install:
   - cabal install quickcheck-script
+  - cabal install --only-dependencies --enable-tests
