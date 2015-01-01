@@ -66,12 +66,11 @@ import Control.Monad.Reader
 import Control.Lens
 import Data.Monoid
 import Data.Text hiding (reverse, map)
-import Data.UUID.V4     (nextRandom)
-import Data.UUID        (toString)
 
 -- Internal Imports
 
 import Web.DDP.Deadpan.Comms
+import Web.DDP.Deadpan.GUID
 import Data.EJson
 
 
@@ -140,10 +139,7 @@ runDeadpan app = runReaderT (_deadpanApp app)
 -- IDs
 --
 newID :: DeadpanApp Text
-newID = do guid <- liftIO nextRandom
-           let str  = toString guid
-               text = pack str
-           return text
+newID = liftIO newGuidText
 
 -- Handlers
 
