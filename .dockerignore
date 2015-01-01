@@ -1,0 +1,6 @@
+dist
+doc
+test
+.git
+.cabal-sandbox
+hugsin

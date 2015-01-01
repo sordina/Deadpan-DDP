@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -e
+
+version=`   sed -n 's/^version:[  ]*\([0-9-]*\)/\1/p' *.cabal`
+executable=`sed -n 's/^executable[  ]*\(.*\)/\1/p'      *.cabal`
+zipfile="$executable-$version.zip"
+
+if [ "`uname`" = "Darwin" ]
+then
+  zipfile="$executable-$version-`sw_vers -productName | sed 's/ //g'`-`sw_vers -productVersion`-`sw_vers -buildVersion`.zip"
+fi
+
+if [ "`uname`" = "Linux" ]
+then
+  zipfile="$executable-$version-`uname -mrs | sed 's/ /-/g'`.zip"
+fi
+
+echo $version
+echo $executable
+echo $zipfile
+
+zip $zipfile dist/build/$executable/$executable README.md *.cabal

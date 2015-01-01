@@ -150,6 +150,7 @@ Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.2.0.1-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.2.0.0-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.1.0.1-MacOSX-10.9.5-13F34.zip>
+* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.6.0.0-Linux-3.16.7-tinycore64-x86_64.zip>
 
 
 ## TODO
