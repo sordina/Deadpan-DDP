@@ -51,8 +51,7 @@ library
   build-depends:       base >= 4 && < 5, websockets, network,
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,
-                       vector, lens,
-                       network-uri, safe, mtl,
+                       vector, lens, network-uri, safe, mtl,
                        containers, stm, transformers, time >= 1.4, random, hashable
   hs-source-dirs:      src
   default-language:    Haskell2010
@@ -62,8 +61,7 @@ executable deadpan
   build-depends:       base >= 4 && < 5, websockets, network,
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,
-                       vector, lens,
-                       network-uri, safe, mtl,
+                       vector, lens, network-uri, safe, mtl,
                        containers, stm, transformers, time >= 1.4,
                        haskeline >= 0.7, random, hashable
   hs-source-dirs:      src

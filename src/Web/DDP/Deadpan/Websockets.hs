@@ -11,6 +11,7 @@ Intended for internal use.
 -}
 
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PackageImports    #-}
 
 module Web.DDP.Deadpan.Websockets where
 
@@ -18,8 +19,9 @@ module Web.DDP.Deadpan.Websockets where
 import           Safe                   (readDef)
 import           Network.Socket         (withSocketsDo)
 import           Data.Text              (Text())
-import qualified Network.URI            as U
-import qualified Network.WebSockets     as WS
+
+import qualified               Network.WebSockets as WS
+import qualified "network-uri" Network.URI        as U
 
 -- TODO: Use better types for these...
 type URL    = String
