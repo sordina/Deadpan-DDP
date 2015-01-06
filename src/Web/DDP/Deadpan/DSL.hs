@@ -65,7 +65,10 @@ import Network.WebSockets
 import Control.Monad.Reader
 import Control.Lens
 import Data.Monoid
+import Data.Foldable
 import Data.Text hiding (reverse, map)
+
+import qualified Data.Sequence as Seq
 
 -- Internal Imports
 
@@ -84,7 +87,7 @@ data LookupItem a = LI { _ident :: Text, _body :: a }
 
 makeLenses ''LookupItem
 
-type Lookup a = [ LookupItem a ]
+type Lookup a = Seq.Seq ( LookupItem a )
 
 data AppState cb = AppState
   { _callbackSet :: Lookup cb                      -- ^ Callbacks to match against by message
@@ -145,7 +148,7 @@ newID = liftIO newGuidText
 
 addHandler :: LookupItem Callback -> DeadpanApp ()
 addHandler i = modifyAppState foo
-  where foo x = x &~ callbackSet %= (i:)
+  where foo x = x &~ callbackSet %= (|>i)
 
 setHandler :: Text -> Callback -> DeadpanApp Text
 setHandler guid cb = addHandler (LI guid cb) >> return guid
@@ -167,7 +170,7 @@ setCatchAllHandler cb = newID >>= flip setHandler cb
 
 deleteHandlerID :: Text -> DeadpanApp ()
 deleteHandlerID k = modifyAppState $
-                    over callbackSet (Prelude.filter ((/= k) . _ident))
+                    over callbackSet (Seq.filter ((/= k) . _ident))
 
 modifyAppState :: (AppState Callback -> AppState Callback) -> DeadpanApp ()
 modifyAppState f = DeadpanApp $ ask >>= liftIO . atomically . flip modifyTVar f
@@ -240,4 +243,4 @@ getServerMessage = getAppState >>= liftIO . getEJ . _connection
 --
 respondToMessage :: Lookup Callback -> Maybe EJsonValue -> DeadpanApp ()
 respondToMessage _     Nothing        = return ()
-respondToMessage cbSet (Just m) = forM_ cbSet $ \cb -> (fork . _body cb) m
+respondToMessage cbSet (Just m) = for_ cbSet $ \cb -> (fork . _body cb) m

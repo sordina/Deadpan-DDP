@@ -143,15 +143,15 @@ clients in the test/ directory.
 
 You can look for incomplete items in the source by running `make todo`.
 
-* Add full minimongo capabilities for data modification
 * Fix error on exit "recv: invalid argument (Bad file descriptor)" check out <https://github.com/k0001/pipes-network/issues/2>
+* Add full minimongo capabilities for data modification
 * Use more qualified imports, including for internal imports
 * Narrow package dependency versions
 * Random number generation as-per the spec
 * Make a newtype for IDs
-* Potentially use Isos for EJsonValue <-> Value conversions
 * Adopt a more layered aproach for internal organisation with an 'apps' layer before Deadpan.hs
 * Use proper opt-parser for main module
+* Try out a auth example
 
 
 ## Binaries

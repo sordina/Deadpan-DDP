@@ -39,12 +39,15 @@ module Data.EJson (
     module Control.Lens,
 
     matches,
+
+    getInPath,
     putInPath,
     putInPath',
     modifyInPath,
     modifyInPath',
     removeFromPath,
     removeFromPath',
+    pathToTraversal',
 
     makeMsg,
     makeId,
@@ -70,6 +73,9 @@ import Control.Monad.State (execState)
 import Data.Text (Text())
 
 import qualified Data.HashMap.Strict as HM
+
+-- $setup
+-- >>> :set -XOverloadedStrings
 
 
 -- | A function to check if all of the values in 'a' match values that exist in 'b'.
@@ -101,6 +107,7 @@ matches a@(EJObject _) b@(EJObject _) = all pairMatches (kvs a)
 
 matches a b = a == b
 
+
 -- | putInPath is a method for placing a value into an EJsonValue object at a point indicated by a path
 --   The path is a list of text values indicating successive object keys.
 --   This can't be done with simple lenses, as the nested obects may not exist.
@@ -108,8 +115,6 @@ matches a b = a == b
 --   However, if they don't exist then EJObjects are created during the traversal.
 --
 --   Examples:
---
---   >>> :set -XOverloadedStrings
 --
 --   >>> putInPath ["a"] "b" (ejobject [("x","y")])
 --   Right {"a":"b","x":"y"}
@@ -142,7 +147,6 @@ putInPath path _ target = Left (concat ["Value ", show target, " does not match 
 --
 --   Example:
 --
---   >>> :set -XOverloadedStrings
 --   >>> putInPath' ["a"] "b" "hello"
 --   "hello"
 --
@@ -154,8 +158,6 @@ putInPath' path payload target = case putInPath path payload target
 -- | modifyInPath modifies values in an EJsonValue object at a point indicated by a path.
 --
 --   Examples:
---
---   >>> :set -XOverloadedStrings
 --
 --   >>> modifyInPath [] (ejobject [("q","r")]) (ejobject [("x","y")])
 --   Right {"q":"r","x":"y"}
@@ -186,8 +188,6 @@ simpleMerge modifications = execState $ traverseOf_ _EJObject (mapM_ setPair . H
 --
 --   Example:
 --
---   >>> :set -XOverloadedStrings
---
 --   >>> modifyInPath' ["a", "b"] "c" (ejobject [("a","hello")])
 --   {"a":"hello"}
 --
@@ -203,8 +203,6 @@ modifyInPath' path modifications target =
 --   The path is a list of text values indicating successive object keys.
 --
 --   Examples:
---
---   >>> :set -XOverloadedStrings
 --
 --   >>> removeFromPath ["a"] (ejobject [("a","b"),("x","y")])
 --   Right {"x":"y"}
@@ -222,6 +220,26 @@ removeFromPath path target = case (Just target & pathToTraversal' path <<.~ Noth
                                of (Just _, Just r) -> Right r
                                   _                -> Left (concat ["Path ", show path, " not present in object ", show target])
 
+-- | getInPath fetches a value from an EJsonValue object at a point indicated by a path.
+--
+--   The path is a list of text values indicating successive object keys.
+--
+--   Examples:
+--
+--   >>> getInPath ["a"] (ejobject [("a","b"),("x","y")])
+--   Just "b"
+--
+--   If you attempt to retrieve a value that does not exist,
+--   then you will get Nothing.
+--
+--   Example:
+--
+--   >>> getInPath ["a","q","r"] (ejobject [("x","y")])
+--   Nothing
+--
+getInPath :: [Text] -> EJsonValue -> Maybe EJsonValue
+getInPath path target = Just target ^. pathToTraversal' path
+
 -- | Constructs a Traversal' along a path of EJObject keys.
 --
 --   Both ends of the traversal are maybes in order to allow self-composition,
@@ -235,8 +253,6 @@ pathToTraversal' path = foldl (.) id (map pathSegmentToTraversal' path)
 -- | A variatnt of removeFromPath that leaves the EJsonValue unchanged if the update is not sensible
 --
 --   Example:
---
---   >>> :set -XOverloadedStrings
 --
 --   >>> removeFromPath' ["a","b"] (ejobject [("a", ejobject [("b","c")]), ("d","e")])
 --   {"a":{},"d":"e"}

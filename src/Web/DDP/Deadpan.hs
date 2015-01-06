@@ -30,10 +30,10 @@ import Control.Monad             as ReExports
 import Web.DDP.Deadpan.Websockets
 
 import Data.Maybe
-import Control.Applicative
 import Control.Concurrent.STM
 import Control.Concurrent.Chan
 import Control.Monad.IO.Class
+import Data.Sequence (empty)
 
 -- | Run a DeadpanApp against a set of connection parameters
 --
@@ -41,7 +41,7 @@ import Control.Monad.IO.Class
 --
 runBareClient :: Params -> DeadpanApp a -> IO a
 runBareClient params app = flip execURI params
-                $ \conn -> do appState <- newTVarIO $ AppState [] (ejobject []) conn
+                $ \conn -> do appState <- newTVarIO $ AppState empty (ejobject []) conn
                               runDeadpan app appState
 
 -- | Run a DeadpanApp after establishing a server conncetion
@@ -147,10 +147,7 @@ dataRemoved  m = fromMaybe (return ()) $ do
 --   >>> _collections $ set (subscriptions . _EJObjectKey "songs") (Just ejnull) (AppState undefined ejnull undefined)
 --   null
 --
---   TODO: Make this a Simple Prism somehow...
---   subscriptions :: Simple Prism (AppState a) (Maybe EJsonValue)
---
-subscriptions :: Applicative f => (EJsonValue -> f EJsonValue) -> AppState cb0 -> f (AppState cb0)
+subscriptions :: Traversal' (AppState a) EJsonValue
 subscriptions = collections . _EJObjectKey "subscription-data" . _Just
 
 

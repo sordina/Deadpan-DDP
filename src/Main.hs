@@ -11,7 +11,7 @@ import System.Environment
 import Data.Aeson
 import Data.Maybe
 import Control.Concurrent.Chan
-import Data.EJson.Aeson -- TODO: Aeson instance should come with EJson import
+import Data.EJson.Aeson()
 import qualified Data.ByteString.Lazy.Char8 as C8
 import qualified System.Console.Haskeline   as R
 
@@ -45,16 +45,17 @@ inOutLoop :: Chan (Maybe String) -> R.InputT IO ()
 inOutLoop c = do
   maybeLine <- R.getInputLine ""
   case maybeLine of
-    Nothing      -> liftIO $ writeChan c Nothing -- EOF / control-d
-    Just ":exit" -> liftIO $ writeChan c Nothing
-    Just line    -> do liftIO $ writeChan c (Just line)
-                       inOutLoop c
+    Nothing     -> liftIO $ writeChan c Nothing -- EOF / control-d
+    Just "exit" -> liftIO $ writeChan c Nothing
+    Just "help" -> liftIO instructions >> inOutLoop c
+    Just ""     -> inOutLoop c
+    Just line   -> liftIO (writeChan c (Just line)) >> inOutLoop c
 
 sendPossibleMessage :: String -> DeadpanApp ()
 sendPossibleMessage msgStr = do
   let decoded = decode $ C8.pack msgStr
   case decoded of Just m  -> sendData m
-                  Nothing -> liftIO $ print "Invalid Message"
+                  Nothing -> liftIO $ putStrLn "Invalid Message"
 
 getVersion :: [String] -> (Maybe (Maybe Version), [String])
 getVersion ss = (extractVersion ss, deleteVersion ss)
@@ -78,3 +79,9 @@ help :: IO ()
 help = hPutStrLn stderr $ "Usage: deadpan [-h | --help] [ ( -v | --version ) "
     ++ "( " ++ intercalate " | " (map show $ reverse $ [minBound :: Version ..]) ++ " )"
     ++ " ] <URL>"
+
+instructions :: IO ()
+instructions = hPutStrLn stderr $ unlines [ "Input EJSON messages to send to the server."
+                                          , "\"exit\" to exit."
+                                          , "\"help\" for instructions."
+                                          ]
