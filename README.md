@@ -6,7 +6,7 @@ A Haskell
 [DDP](https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md)
 Client. [(Other Clients)](http://www.meteorpedia.com/read/DDP_Clients)
 
-[ ![build status](https://secure.travis-ci.org/sordina/deadpan-ddp.svg) ](https://travis-ci.org/sordina/Deadpan-DDP)
+[![Build Status](https://secure.travis-ci.org/sordina/deadpan-ddp.svg)](http://travis-ci.org/sordina/Deadpan-DDP)
 
 Deadpan can be used for writing clients for [Meteor](https://www.meteor.com/) sites, among other purposes.
 
