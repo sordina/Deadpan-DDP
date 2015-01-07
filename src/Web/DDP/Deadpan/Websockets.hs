@@ -23,6 +23,10 @@ import           Data.Text              (Text())
 import qualified               Network.WebSockets as WS
 import qualified "network-uri" Network.URI        as U
 
+-- $setup
+-- >>> import Control.Applicative
+-- >>> import Test.QuickCheck
+
 -- TODO: Use better types for these...
 type URL    = String
 type Domain = String

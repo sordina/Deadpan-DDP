@@ -35,6 +35,10 @@ import Control.Concurrent.Chan
 import Control.Monad.IO.Class
 import Data.Sequence (empty)
 
+-- $setup
+-- >>> import Control.Applicative
+-- >>> import Test.QuickCheck
+
 -- | Run a DeadpanApp against a set of connection parameters
 --
 --   Only runs the app. Does not send connection request. Does not respond to ping!

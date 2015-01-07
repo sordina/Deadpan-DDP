@@ -76,7 +76,8 @@ import qualified Data.HashMap.Strict as HM
 
 -- $setup
 -- >>> :set -XOverloadedStrings
-
+-- >>> import Control.Applicative
+-- >>> import Test.QuickCheck
 
 -- | A function to check if all of the values in 'a' match values that exist in 'b'.
 --   Not the same as equality.

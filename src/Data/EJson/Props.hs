@@ -18,6 +18,10 @@ import Data.EJson.Aeson ()
 import Data.Aeson
 import qualified Data.ByteString.Lazy as BS
 
+-- $setup
+-- >>> import Control.Applicative
+-- >>> import Test.QuickCheck
+
 -- | prop> prop_ejopristest_null
 prop_ejopristest_null :: Bool
 prop_ejopristest_null = EJNull ^. _EJObjectKey "key" == Nothing
