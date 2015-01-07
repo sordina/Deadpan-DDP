@@ -131,7 +131,7 @@ therefore, you should be able to install it by running the following commands:
 
 ## Testing
 
-[ ![build status](https://travis-ci.org/sordina/deadpan-ddp.svg) ](https://travis-ci.org/sordina/Deadpan-DDP)
+[![build status](https://travis-ci.org/sordina/deadpan-ddp.svg)](https://travis-ci.org/sordina/Deadpan-DDP)
 
 A test-suite can be run by calling `cabal test`.
 
