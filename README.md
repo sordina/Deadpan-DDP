@@ -133,7 +133,7 @@ therefore, you should be able to install it by running the following commands:
 
 A test-suite can be run by calling `cabal test`.
 
-This triggers the QuickCheck tests, and Doctests.
+This triggers the Doctests, including QuickCheck properties.
 
 In addition to these automated tests, there are Meteor test-applications, and Deadpan
 clients in the test/ directory.
@@ -144,11 +144,11 @@ clients in the test/ directory.
 You can look for incomplete items in the source by running `make todo`.
 
 * Fix error on exit "recv: invalid argument (Bad file descriptor)" check out <https://github.com/k0001/pipes-network/issues/2>
+* Make a newtype for IDs
 * Add full minimongo capabilities for data modification
 * Use more qualified imports, including for internal imports
 * Narrow package dependency versions
 * Random number generation as-per the spec
-* Make a newtype for IDs
 * Adopt a more layered aproach for internal organisation with an 'apps' layer before Deadpan.hs
 * Use proper opt-parser for main module
 * Try out a auth example

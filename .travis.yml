@@ -1,6 +1,2 @@
 language: haskell
 ghc: 7.8
-before_script:
-  - which cabal
-  - cabal install quickcheck-script
-  - export PATH="$PATH:~/.cabal/bin"

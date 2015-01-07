@@ -72,9 +72,3 @@ test-suite doctests
   ghc-options:   -threaded
   main-is:       test/DocTestTests.hs
   build-depends: base, doctest >= 0.8
-
-test-suite quickcheck
-  type:          exitcode-stdio-1.0
-  ghc-options:   -threaded
-  main-is:       test/QuickCheckTests.hs
-  build-depends: base, QuickCheck >= 2.0, process >= 1.0
