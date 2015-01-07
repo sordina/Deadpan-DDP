@@ -43,6 +43,7 @@ getURI uri = do parsed    <- U.parseURI uri        ?>>> ("Couldn't parse URI [" 
                     path   = U.uriPath parsed
                 return (domain, port, path)
 
+-- | prop> prop_getURI_full
 prop_getURI_full, prop_getURI_missingPort :: Bool
 prop_getURI_full        = getURI "http://localhost:1234/testing" == Right ("localhost", 1234, "/testing")
 prop_getURI_missingPort = getURI "http://localhost/testing"      == Right ("localhost", 80,   "/testing")
