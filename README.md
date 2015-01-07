@@ -6,6 +6,8 @@ A Haskell
 [DDP](https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md)
 Client. [(Other Clients)](http://www.meteorpedia.com/read/DDP_Clients)
 
+[ ![build status](https://travis-ci.org/sordina/deadpan-ddp.svg) ](https://travis-ci.org/sordina/Deadpan-DDP)
+
 Deadpan can be used for writing clients for [Meteor](https://www.meteor.com/) sites, among other purposes.
 
 ## Implemented
@@ -129,7 +131,7 @@ therefore, you should be able to install it by running the following commands:
 
 ## Testing
 
-![Build Status](https://travis-ci.org/sordina/Deadpan-DDP.svg)
+[ ![build status](https://travis-ci.org/sordina/deadpan-ddp.svg) ](https://travis-ci.org/sordina/Deadpan-DDP)
 
 A test-suite can be run by calling `cabal test`.
 
