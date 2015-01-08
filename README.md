@@ -160,6 +160,7 @@ You can look for incomplete items in the source by running `make todo`.
 
 Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 
+* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.7.0.0-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.6.0.1-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.6.0.0-Linux-3.16.7-tinycore64-x86_64.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.6.0.0-MacOSX-10.9.5-13F34.zip>
