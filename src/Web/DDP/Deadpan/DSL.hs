@@ -51,6 +51,7 @@ This can be used to...
 module Web.DDP.Deadpan.DSL
   ( module Web.DDP.Deadpan.DSL
   , module Data.EJson
+  , module Web.DDP.Deadpan.GUID
   , Text
   , pack
   )
@@ -83,7 +84,7 @@ import Data.EJson
 --
 --   _ident is a reference to the callback, not the expected message id.
 --
-data LookupItem a = LI { _ident :: Text, _body :: a }
+data LookupItem a = LI { _ident :: GUID, _body :: a }
 
 makeLenses ''LookupItem
 
@@ -141,8 +142,8 @@ runDeadpan app = runReaderT (_deadpanApp app)
 
 -- IDs
 --
-newID :: DeadpanApp Text
-newID = liftIO newGuidText
+newID :: DeadpanApp GUID
+newID = liftIO newGuid
 
 -- Handlers
 
@@ -150,25 +151,25 @@ addHandler :: LookupItem Callback -> DeadpanApp ()
 addHandler i = modifyAppState foo
   where foo x = x &~ callbackSet %= (|>i)
 
-setHandler :: Text -> Callback -> DeadpanApp Text
+setHandler :: GUID -> Callback -> DeadpanApp GUID
 setHandler guid cb = addHandler (LI guid cb) >> return guid
 
 onMatches :: EJsonValue -> Callback -> Callback
 onMatches val cb e = when (matches val e) (cb e)
 
-setMatchHandler :: EJsonValue -> Callback -> DeadpanApp Text
+setMatchHandler :: EJsonValue -> Callback -> DeadpanApp GUID
 setMatchHandler val cb = newID >>= flip setHandler (onMatches val cb)
 
-setIdHandler :: Text -> Callback -> DeadpanApp Text
+setIdHandler :: Text -> Callback -> DeadpanApp GUID
 setIdHandler guid cb = newID >>= flip setHandler (onMatches (makeId guid) cb)
 
-setMsgHandler :: Text -> Callback -> DeadpanApp Text
+setMsgHandler :: Text -> Callback -> DeadpanApp GUID
 setMsgHandler msg cb = newID >>= flip setHandler (onMatches (makeMsg msg) cb)
 
-setCatchAllHandler :: Callback -> DeadpanApp Text
+setCatchAllHandler :: Callback -> DeadpanApp GUID
 setCatchAllHandler cb = newID >>= flip setHandler cb
 
-deleteHandlerID :: Text -> DeadpanApp ()
+deleteHandlerID :: GUID -> DeadpanApp ()
 deleteHandlerID k = modifyAppState $
                     over callbackSet (Seq.filter ((/= k) . _ident))
 

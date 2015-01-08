@@ -72,7 +72,7 @@ runPingClientVersion params v app = runConnectClientVersion params v (handlePing
 
 -- | Automatically respond to server pings
 --
-handlePings :: DeadpanApp Text
+handlePings :: DeadpanApp GUID
 handlePings = setMsgHandler "ping" pingCallback
 
 -- | Log all incomming messages to STDOUT
@@ -179,6 +179,6 @@ putInBase k v = modifyAppState $ set (collections . _EJObjectKey k) (Just v)
 --
 --   TODO: The handler deletes itself when the session is set.
 --
-setSession :: DeadpanApp Text
+setSession :: DeadpanApp GUID
 setSession = setMsgHandler "connected" $
        \e -> forOf_ (_EJObjectKey "session" . _Just) e (putInBase "session")

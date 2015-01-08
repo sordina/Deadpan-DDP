@@ -49,11 +49,11 @@ Provide an id to refer to the subscription in future.
 @
 
 -}
-clientDataSub :: Text -> Text -> [ EJsonValue ] -> DeadpanApp ()
+clientDataSub :: GUID -> Text -> [ EJsonValue ] -> DeadpanApp ()
 clientDataSub subid name params
   = sendMessage "sub" $ ejobject [("name",   ejstring name)
                                  ,("params", ejarray  params)
-                                 ,("id",     ejstring subid)]
+                                 ,("id",     ejstring (getGuidText subid))]
 
 -- | Activates a subscription with an auto-generated ID, returning the ID.
 --
@@ -64,8 +64,8 @@ subscribeWait :: Text -> [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValu
 subscribeWait name params = do
   mv         <- liftIO newEmptyMVar
   subId      <- newID
-  handlerIdL <- setMatchHandler (makeNoSub    subId) (handlerL mv)
-  handlerIdR <- setMatchHandler (makeSubReady subId) (handlerR mv)
+  handlerIdL <- setMatchHandler (makeNoSub    (getGuidText subId)) (handlerL mv)
+  handlerIdR <- setMatchHandler (makeSubReady (getGuidText subId)) (handlerR mv)
   _          <- clientDataSub subId name params
   res        <- liftIO $ readMVar mv
 
@@ -109,9 +109,9 @@ unsubscribe = clientDataUnsub
       randomSeed: optional JSON value           (an arbitrary client-determined seed for pseudo-random generators)
   @
 -}
-clientRPCMethod :: Text -> Maybe [EJsonValue] -> Text -> Maybe Text -> DeadpanApp ()
+clientRPCMethod :: Text -> Maybe [EJsonValue] -> GUID -> Maybe Text -> DeadpanApp ()
 clientRPCMethod method params rpcid seed = do
-  let msg = [("method", ejstring method), ("id", ejstring rpcid)]
+  let msg = [("method", ejstring method), ("id", ejstring (getGuidText rpcid))]
          &~ do forOf_ _Just params $ \v -> modify (("params", ejarray  v):)
                forOf_ _Just seed   $ \v -> modify (("seed",   ejstring v):)
 
@@ -125,7 +125,7 @@ rpcWait :: Text -> Maybe [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValu
 rpcWait method params = do
   mv         <- liftIO newEmptyMVar
   rpcId      <- newID
-  handlerId  <- setMatchHandler (makeId rpcId) (handler mv)
+  handlerId  <- setMatchHandler (makeId (getGuidText rpcId)) (handler mv)
   _          <- clientRPCMethod method params rpcId Nothing
   res        <- liftIO $ readMVar mv
 

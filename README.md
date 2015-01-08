@@ -146,7 +146,6 @@ clients in the test/ directory.
 You can look for incomplete items in the source by running `make todo`.
 
 * Fix error on exit "recv: invalid argument (Bad file descriptor)" check out <https://github.com/k0001/pipes-network/issues/2>
-* Make a newtype for IDs
 * Add full minimongo capabilities for data modification
 * Use more qualified imports, including for internal imports
 * Narrow package dependency versions

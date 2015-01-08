@@ -1,5 +1,9 @@
 # Deadpan-DDP Change Log
 
+## 0.7.0.0
+
+* Added newtype for IDs to prevent library mistakes
+
 ## 0.6.0.0
 
 * Subscription capabilities have begun to be added

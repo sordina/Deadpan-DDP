@@ -20,7 +20,14 @@ Provides functions to generate simple GUIDs.
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 
-module Web.DDP.Deadpan.GUID ( module Web.DDP.Deadpan.GUID) where
+module Web.DDP.Deadpan.GUID ( GUID() -- No export of constructors in order to protect generation of IDs
+                            , getGuidText
+                            , newGuid
+                            , hashTriple
+                            , newGuidInt
+                            , newGuidString
+                            , newGuidText
+                            ) where
 
 -- External Imports
 
@@ -41,6 +48,10 @@ instance Hashable Day
 deriving instance Generic UTCTime
 instance Hashable UTCTime
 
+newtype GUID = GUID {getGuidText :: Text} deriving (Eq,Ord,Generic,Hashable)
+
+instance Show GUID where show = show . getGuidText
+
 
 hashTriple :: IO (Integer,UTCTime,Integer)
 hashTriple = do
@@ -49,11 +60,14 @@ hashTriple = do
   rand <- randomIO
   return (cpu,time,rand)
 
-newGuid :: IO Int
-newGuid = hash `fmap` hashTriple
+newGuidInt :: IO Int
+newGuidInt = hash `fmap` hashTriple
 
 newGuidString :: IO String
 newGuidString = (show . hash) `fmap` hashTriple
 
 newGuidText :: IO Text
 newGuidText = pack `fmap` newGuidString
+
+newGuid :: IO GUID
+newGuid = GUID `fmap` newGuidText
