@@ -37,6 +37,7 @@ module Data.EJson (
     module Data.EJson.EJson,
     module Data.EJson.EJson2Value,
     module Control.Lens,
+    module Data.Monoid,
 
     matches,
 
@@ -50,7 +51,6 @@ module Data.EJson (
     pathToTraversal',
 
     makeMsg,
-    makeId,
     makeSubReady,
     makeNoSub,
 
@@ -68,6 +68,7 @@ module Data.EJson (
 
 import Data.EJson.EJson
 import Data.EJson.EJson2Value
+import Data.Monoid
 import Control.Lens
 import Control.Monad.State (execState)
 import Data.Text (Text())
@@ -274,11 +275,6 @@ expand path payload = foldr f payload path where f x y = ejobject [(x,y)]
 --
 makeMsg :: Text -> EJsonValue
 makeMsg key = ejobject [("msg", ejstring key)]
-
--- | Construct a simple object with only an ID.
---
-makeId :: Text -> EJsonValue
-makeId key = ejobject [("id", ejstring key)]
 
 -- | Construct a matcher for subscription-ready based on ID.
 --

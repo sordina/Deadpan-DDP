@@ -27,7 +27,13 @@ module Web.DDP.Deadpan.GUID ( GUID() -- No export of constructors in order to pr
                             , newGuidInt
                             , newGuidString
                             , newGuidText
+                            , makeEJsonId
+                            , ejson2guid
                             ) where
+
+-- Internal Imports
+
+import Data.EJson
 
 -- External Imports
 
@@ -36,7 +42,6 @@ import System.CPUTime
 import Data.Time
 import Data.Text
 import Data.Hashable
-
 import GHC.Generics
 
 instance Hashable DiffTime where
@@ -71,3 +76,9 @@ newGuidText = pack `fmap` newGuidString
 
 newGuid :: IO GUID
 newGuid = GUID `fmap` newGuidText
+
+makeEJsonId :: GUID -> EJsonValue
+makeEJsonId key = ejobject [("id", ejstring (getGuidText key))]
+
+ejson2guid :: EJsonValue -> Maybe GUID
+ejson2guid v = fmap GUID $ v ^? _EJObjectKeyString "id"

@@ -26,10 +26,9 @@ import Control.Monad.State
 -- Client Heartbeat
 
 pingCallback :: Callback
-pingCallback ejv = do
-  let mpid = ejv ^. _EJObjectKey "id"
-  case mpid of Just pid -> sendMessage "pong" $ ejobject [("id", pid)]
-               Nothing  -> sendMessage "pong" $ ejobject []
+pingCallback = sendMessage "pong"
+             . maybe (ejobject []) makeEJsonId
+             . ejson2guid
 
 -- Client Data Subscriptions
 
@@ -51,9 +50,9 @@ Provide an id to refer to the subscription in future.
 -}
 clientDataSub :: GUID -> Text -> [ EJsonValue ] -> DeadpanApp ()
 clientDataSub subid name params
-  = sendMessage "sub" $ ejobject [("name",   ejstring name)
-                                 ,("params", ejarray  params)
-                                 ,("id",     ejstring (getGuidText subid))]
+  = sendMessage "sub" $ makeEJsonId subid
+                     <> ejobject [ ("name",   ejstring name)
+                                 , ("params", ejarray  params) ]
 
 -- | Activates a subscription with an auto-generated ID, returning the ID.
 --
@@ -89,11 +88,11 @@ Unsubscribe from an existing subscription indicated by its ID.
     id: string (the id passed to 'sub')
 @
 -}
-clientDataUnsub :: Text -> DeadpanApp ()
-clientDataUnsub subid = sendMessage "unsub" $ ejobject [("id", ejstring subid)]
+clientDataUnsub :: GUID -> DeadpanApp ()
+clientDataUnsub subid = sendMessage "unsub" (makeEJsonId subid)
 
 -- | Synonym for `clientDataUnsub`
-unsubscribe :: Text -> DeadpanApp ()
+unsubscribe :: GUID -> DeadpanApp ()
 unsubscribe = clientDataUnsub
 
 
@@ -111,11 +110,11 @@ unsubscribe = clientDataUnsub
 -}
 clientRPCMethod :: Text -> Maybe [EJsonValue] -> GUID -> Maybe Text -> DeadpanApp ()
 clientRPCMethod method params rpcid seed = do
-  let msg = [("method", ejstring method), ("id", ejstring (getGuidText rpcid))]
+  let msg = [("method", ejstring method)]
          &~ do forOf_ _Just params $ \v -> modify (("params", ejarray  v):)
                forOf_ _Just seed   $ \v -> modify (("seed",   ejstring v):)
 
-  sendMessage "method" (ejobject msg)
+  sendMessage "method" (makeEJsonId rpcid <> ejobject msg)
 
 -- | Like clientRPCMethod, except that it blocks, returning the response from the server.
 --
@@ -125,7 +124,7 @@ rpcWait :: Text -> Maybe [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValu
 rpcWait method params = do
   mv         <- liftIO newEmptyMVar
   rpcId      <- newID
-  handlerId  <- setMatchHandler (makeId (getGuidText rpcId)) (handler mv)
+  handlerId  <- setMatchHandler (makeEJsonId rpcId) (handler mv)
   _          <- clientRPCMethod method params rpcId Nothing
   res        <- liftIO $ readMVar mv
 

@@ -160,8 +160,8 @@ onMatches val cb e = when (matches val e) (cb e)
 setMatchHandler :: EJsonValue -> Callback -> DeadpanApp GUID
 setMatchHandler val cb = newID >>= flip setHandler (onMatches val cb)
 
-setIdHandler :: Text -> Callback -> DeadpanApp GUID
-setIdHandler guid cb = newID >>= flip setHandler (onMatches (makeId guid) cb)
+setIdHandler :: GUID -> Callback -> DeadpanApp GUID
+setIdHandler guid cb = newID >>= flip setHandler (onMatches (makeEJsonId guid) cb)
 
 setMsgHandler :: Text -> Callback -> DeadpanApp GUID
 setMsgHandler msg cb = newID >>= flip setHandler (onMatches (makeMsg msg) cb)
