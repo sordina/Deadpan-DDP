@@ -30,4 +30,4 @@ instance FromJSON EJsonValue where parseJSON = return . value2EJson
 --   take advantage of the Aeson functionality.
 --
 -- This is not used internally.
-instance ToJSON   EJsonValue where toJSON    = ejson2value
+instance ToJSON EJsonValue where toJSON = ejson2value

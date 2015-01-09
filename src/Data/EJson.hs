@@ -36,6 +36,10 @@ module Data.EJson (
 
     module Exports,
 
+    decodeText,
+    decodeString,
+    decodeByteString,
+
     matches,
 
     getInPath,
@@ -66,9 +70,22 @@ import Data.EJson.EJson2Value as Exports
 import Data.Monoid            as Exports
 import Control.Lens           as Exports
 import Control.Monad.State (execState)
-import Data.Text (Text())
+import Data.Text           (Text())
+import Data.Aeson          (decode)
+import Data.EJson.Aeson()
 
 import qualified Data.HashMap.Strict as HM
+import qualified Data.ByteString.Lazy.Char8 as C8
+import qualified Data.Text as T
+
+decodeText :: Text -> Maybe EJsonValue
+decodeText = decodeString . T.unpack
+
+decodeString :: String -> Maybe EJsonValue
+decodeString = decode . C8.pack
+
+decodeByteString :: C8.ByteString -> Maybe EJsonValue
+decodeByteString = decode
 
 -- $setup
 -- >>> :set -XOverloadedStrings

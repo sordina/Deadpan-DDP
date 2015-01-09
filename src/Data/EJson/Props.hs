@@ -13,11 +13,7 @@
 module Data.EJson.Props where
 
 import Data.EJson
-import Data.EJson.Aeson ()
-
 import Data.Maybe
-import Data.Aeson
-import qualified Data.ByteString.Lazy as BS
 
 -- $setup
 -- >>> import Control.Applicative
@@ -53,44 +49,41 @@ prop_ejarrayixtest_array = ejarray ["hello"]
 
 -- Examples from real apps
 
-decodeEJ :: BS.ByteString -> Maybe EJsonValue
-decodeEJ = decode
-
 ttt :: (a -> Bool) -> Maybe a -> Bool
 ttt f v = Just True == fmap f v
 
 -- | prop> prop_decodable_1
 prop_decodable_1 :: Bool
-prop_decodable_1 = ttt isEJDate $ decodeEJ "{\"$date\":1418373430495}"
+prop_decodable_1 = ttt isEJDate $ decodeByteString "{\"$date\":1418373430495}"
 
 -- | prop> prop_decodable_2
 prop_decodable_2 :: Bool
-prop_decodable_2 = ttt isEJObject $ decodeEJ "{\"msg\":\"added\",\"collection\":\"todos\",\"id\":\"jsoQsi4QWhTjyLM3v\",\"fields\":{\"checked\":false,\"createdAt\":{\"$date\":1418373430495},\"listId\":\"By8CtgWGvbZfJPFsd\",\"text\":\"Data on the Wire\"}}"
+prop_decodable_2 = ttt isEJObject $ decodeByteString "{\"msg\":\"added\",\"collection\":\"todos\",\"id\":\"jsoQsi4QWhTjyLM3v\",\"fields\":{\"checked\":false,\"createdAt\":{\"$date\":1418373430495},\"listId\":\"By8CtgWGvbZfJPFsd\",\"text\":\"Data on the Wire\"}}"
 
 -- | prop> prop_decodable_3
 prop_decodable_3 :: Bool
-prop_decodable_3 = ttt isEJObject $ decodeEJ "{\"msg\":\"ready\",\"subs\":[\"42463a77-578f-4503-8d2b-637a3c6c9ed6\"]}"
+prop_decodable_3 = ttt isEJObject $ decodeByteString "{\"msg\":\"ready\",\"subs\":[\"42463a77-578f-4503-8d2b-637a3c6c9ed6\"]}"
 
 -- | prop> prop_decodable_4
 prop_decodable_4 :: Bool
-prop_decodable_4 = ttt isEJObject $ decodeEJ "{\"msg\":\"added\",\"collection\":\"lists\",\"id\":\"By8CtgWGvbZfJPFsd\",\"fields\":{\"name\":\"Meteor Principles\",\"incompleteCount\":6}}"
+prop_decodable_4 = ttt isEJObject $ decodeByteString "{\"msg\":\"added\",\"collection\":\"lists\",\"id\":\"By8CtgWGvbZfJPFsd\",\"fields\":{\"name\":\"Meteor Principles\",\"incompleteCount\":6}}"
 
 -- | prop> prop_decodable_5
 prop_decodable_5 :: Bool
-prop_decodable_5 = ttt isEJObject $ decodeEJ "{\"msg\":\"added\",\"collection\":\"lists\",\"id\":\"sqrAXjWmzAE6WZhdf\",\"fields\":{\"name\":\"Languages\",\"incompleteCount\":6}}"
+prop_decodable_5 = ttt isEJObject $ decodeByteString "{\"msg\":\"added\",\"collection\":\"lists\",\"id\":\"sqrAXjWmzAE6WZhdf\",\"fields\":{\"name\":\"Languages\",\"incompleteCount\":6}}"
 
 -- | prop> prop_decodable_6
 prop_decodable_6 :: Bool
-prop_decodable_6 = ttt isEJObject $ decodeEJ "{\"msg\":\"added\",\"collection\":\"lists\",\"id\":\"F73xFyAuKrqsb2J3m\",\"fields\":{\"name\":\"Favorite Scientists\",\"incompleteCount\":6}}"
+prop_decodable_6 = ttt isEJObject $ decodeByteString "{\"msg\":\"added\",\"collection\":\"lists\",\"id\":\"F73xFyAuKrqsb2J3m\",\"fields\":{\"name\":\"Favorite Scientists\",\"incompleteCount\":6}}"
 
 -- | prop> prop_decodable_7
 prop_decodable_7 :: Bool
-prop_decodable_7 = ttt isEJObject $ decodeEJ "{\"msg\":\"added\",\"collection\":\"lists\",\"id\":\"pY53869jRS5LdLuze\",\"fields\":{\"incompleteCount\":0,\"name\":\"List foo\"}}"
+prop_decodable_7 = ttt isEJObject $ decodeByteString "{\"msg\":\"added\",\"collection\":\"lists\",\"id\":\"pY53869jRS5LdLuze\",\"fields\":{\"incompleteCount\":0,\"name\":\"List foo\"}}"
 
 -- | prop> prop_decodable_8
 prop_decodable_8 :: Bool
-prop_decodable_8 = ttt isEJObject $ decodeEJ "{\"msg\":\"ready\",\"subs\":[\"8a82270b-8087-4dcc-90d3-ae758d236056\"]}"
+prop_decodable_8 = ttt isEJObject $ decodeByteString "{\"msg\":\"ready\",\"subs\":[\"8a82270b-8087-4dcc-90d3-ae758d236056\"]}"
 
 -- | prop> prop_decodable_9
 prop_decodable_9 :: Bool
-prop_decodable_9 = ttt isEJObject $ decodeEJ "{\"msg\":\"added\",\"collection\":\"todos\",\"id\":\"wf2dBLkR78vebkPMf\",\"fields\":{\"checked\":true,\"createdAt\":{\"$date\":1418373430499},\"listId\":\"By8CtgWGvbZfJPFsd\",\"text\":\"Full Stack Reactivity\"}}"
+prop_decodable_9 = ttt isEJObject $ decodeByteString "{\"msg\":\"added\",\"collection\":\"todos\",\"id\":\"wf2dBLkR78vebkPMf\",\"fields\":{\"checked\":true,\"createdAt\":{\"$date\":1418373430499},\"listId\":\"By8CtgWGvbZfJPFsd\",\"text\":\"Full Stack Reactivity\"}}"

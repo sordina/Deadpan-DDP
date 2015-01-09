@@ -8,11 +8,8 @@ import System.IO
 import System.Exit
 import Web.DDP.Deadpan
 import System.Environment
-import Data.Aeson
 import Data.Maybe
 import Control.Concurrent.Chan
-import Data.EJson.Aeson()
-import qualified Data.ByteString.Lazy.Char8 as C8
 import qualified System.Console.Haskeline   as R
 
 main :: IO ()
@@ -53,7 +50,7 @@ inOutLoop c = do
 
 sendPossibleMessage :: String -> DeadpanApp ()
 sendPossibleMessage msgStr = do
-  let decoded = decode $ C8.pack msgStr
+  let decoded = decodeString msgStr
   case decoded of Just m  -> sendData m
                   Nothing -> liftIO $ putStrLn "Invalid Message"
 

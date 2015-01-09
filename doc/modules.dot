@@ -1,0 +1,65 @@
+digraph G {
+size="6,4";
+ratio="fill";
+u5[label="Main"];
+subgraph cluster_0 {
+label="Data";
+color="#ccffcc";
+style="filled";
+u4[label="EJson"];
+subgraph cluster_1 {
+label="EJson";
+color="#99ff99";
+style="filled";
+u3[label="Props"];
+u2[label="EJson2Value"];
+u1[label="EJson"];
+u0[label="Aeson"];
+
+}
+
+}
+subgraph cluster_2 {
+label="Web";
+color="#ccffcc";
+style="filled";
+subgraph cluster_3 {
+label="DDP";
+color="#99ff99";
+style="filled";
+u11[label="Deadpan"];
+subgraph cluster_4 {
+label="Deadpan";
+color="#66ff66";
+style="filled";
+u10[label="Websockets"];
+u9[label="GUID"];
+u8[label="DSL"];
+u7[label="Comms"];
+u6[label="Callbacks"];
+
+}
+
+}
+
+}
+u0 -> u1;
+u0 -> u2;
+u2 -> u1;
+u3 -> u4;
+u4 -> u0;
+u4 -> u1;
+u4 -> u2;
+u5 -> u11;
+u6 -> u8;
+u7 -> u4;
+u8 -> u4;
+u8 -> u7;
+u8 -> u9;
+u9 -> u4;
+u11 -> u6;
+u11 -> u8;
+u11 -> u10;
+
+}
+

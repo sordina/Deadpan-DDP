@@ -150,9 +150,10 @@ You can look for incomplete items in the source by running `make todo`.
 * Use more qualified imports, including for internal imports
 * Narrow package dependency versions
 * Random number generation as-per the spec
-* Adopt a more layered aproach for internal organisation with an 'apps' layer before Deadpan.hs
+* Adopt a more layered aproach (see doc/dot.png)
 * Use proper opt-parser for main module
 * Try out a auth example
+* Non Negative GUID Strings
 
 
 ## Binaries
