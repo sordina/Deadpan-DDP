@@ -1,5 +1,9 @@
 # Deadpan-DDP Change Log
 
+## 0.9.0.0
+
+* Fixed the exit error
+
 ## 0.8.0.0
 
 * Made GUID newtype abstract to prevent abuse

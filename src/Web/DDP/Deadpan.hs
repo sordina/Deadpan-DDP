@@ -53,12 +53,12 @@ runBareClient params app = flip execURI params
 --   Does not respond to ping!
 --
 runConnectClient :: Params -> DeadpanApp a -> IO a
-runConnectClient params app = runBareClient params (fetchMessages >> connect >> app)
+runConnectClient params app = runBareClient params (fetchMessagesThenExit $ connect >> app)
 
 -- Same as runConnectClient above but allows specifying version
 --
 runConnectClientVersion :: Params -> Version -> DeadpanApp a -> IO a
-runConnectClientVersion params v app = runBareClient params (fetchMessages >> connectVersion v >> app)
+runConnectClientVersion params v app = runBareClient params (fetchMessagesThenExit $ connectVersion v >> app)
 
 -- | Run a DeadpanApp after registering a ping handler, then establishing a server conncetion.
 --

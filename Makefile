@@ -7,7 +7,7 @@ docker-build:
 
 upload:
 	cabal-s3
-	cabl sdist
+	cabal sdist
 	cabal upload dist/*.tar.gz
 
 dot:

@@ -222,17 +222,33 @@ connect = sendMessage "connect" $ ejobject [ ("version", version2string V1)
                                            , ("support", ejarray reverseVersions) ]
 
 -- | Provides a way to fork a background thread running the app provided
+--
 fork :: DeadpanApp a -> DeadpanApp ThreadId
 fork app = do
   st <- DeadpanApp ask
   liftIO $ forkIO $ void $ runDeadpan app st
 
-fetchMessages :: DeadpanApp ()
-fetchMessages = void      $
-                 fork     $
-                  forever $ do message <- getServerMessage
-                               as      <- getAppState
-                               respondToMessage (_callbackSet as) message
+-- | Runs fetchMessages and kills the thread when the supplied app finishes.
+--
+--   Note: Any DeadpanApp calls made after this one will not be able to
+--   interact with server-sent messages.
+--
+fetchMessagesThenExit :: DeadpanApp a -> DeadpanApp a
+fetchMessagesThenExit app = do tid    <- fetchMessages
+                               result <- app
+                               liftIO $ killThread tid
+                               return result
+
+-- | Continuously pull down messages from the server in a background thread and
+--   respond to each message with the callback set.
+--   Returns a ThreadId so that this can be killed explicitly before the program
+--   exits in order to avoid the "recv: invalid argument (Bad file descriptor)"
+--   error.
+--
+fetchMessages :: DeadpanApp ThreadId
+fetchMessages = fork $ forever $ do message <- getServerMessage
+                                    as      <- getAppState
+                                    respondToMessage (_callbackSet as) message
 
 getServerMessage :: DeadpanApp (Maybe EJsonValue)
 getServerMessage = getAppState >>= liftIO . getEJ . _connection

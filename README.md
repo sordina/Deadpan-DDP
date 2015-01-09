@@ -147,7 +147,6 @@ clients in the test/ directory.
 
 You can look for incomplete items in the source by running `make todo`.
 
-* Fix error on exit "recv: invalid argument (Bad file descriptor)" check out <https://github.com/k0001/pipes-network/issues/2>
 * Add full minimongo capabilities for data modification
 * Use more qualified imports, including for internal imports
 * Narrow package dependency versions
@@ -162,6 +161,7 @@ You can look for incomplete items in the source by running `make todo`.
 
 Pre-compiled binaries can be found for the `deadpan` debugging tool below:
 
+* <http://sordina.binaries.s3.amazonaws.com/deadpan-0.9.0.0-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.8.0.0-MacOSX-10.9.5-13F34.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.7.0.0-Linux-3.16.7-tinycore64-x86_64.zip>
 * <http://sordina.binaries.s3.amazonaws.com/deadpan-0.7.0.0-MacOSX-10.9.5-13F34.zip>
