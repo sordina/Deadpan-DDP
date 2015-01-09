@@ -4,3 +4,4 @@ test
 .git
 .cabal-sandbox
 hugsin
+*.zip

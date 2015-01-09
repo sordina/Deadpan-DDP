@@ -3,3 +3,4 @@ hugsin
 .cabal-sandbox/
 .meteor/
 test/meteor/todos/
+*.zip

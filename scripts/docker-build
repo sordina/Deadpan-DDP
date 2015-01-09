@@ -1,0 +1,10 @@
+#!/bin/bash
+
+$(boot2docker shellinit 2>/dev/null | sed 's/ *//')
+
+# docker build .
+# docker run 0d2aef9c9a37
+zipfile="$(docker run 0d2aef9c9a37 /bin/ls '/opt/deadpan-ddp/' | grep zip)"
+echo $zipfile
+docker cp 5d42986386ab:/opt/deadpan-ddp/$zipfile `pwd`
+./scripts/cabal-s3-upload *.zip
