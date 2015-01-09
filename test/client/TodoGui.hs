@@ -6,7 +6,6 @@ module TodoGui where
 import Web.DDP.Deadpan
 import System.IO
 import Control.Concurrent.STM
-import Data.Monoid
 import System.Console.ANSI
 
 import qualified Data.Text         as T
@@ -46,7 +45,8 @@ format = T.unlines
                                 . _EJObject)
 
 vformat :: EJsonValue -> Text
-vformat v = " (" <> incomplete <> ") " <> name
+vformat v = " " <> name <> incomplete
   where
   name       = v ^._EJObjectKeyString "name"
-  incomplete = maybe "0" (pack . show) (v ^. _EJObjectKey "incompleteCount")
+  incomplete = maybe "0" (surround . pack . show) (v ^. _EJObjectKey "incompleteCount")
+  surround x = " (" <> x <> ")"
