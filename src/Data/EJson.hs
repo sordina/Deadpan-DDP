@@ -34,10 +34,7 @@
 
 module Data.EJson (
 
-    module Data.EJson.EJson,
-    module Data.EJson.EJson2Value,
-    module Control.Lens,
-    module Data.Monoid,
+    module Exports,
 
     matches,
 
@@ -51,8 +48,6 @@ module Data.EJson (
     pathToTraversal',
 
     makeMsg,
-    makeSubReady,
-    makeNoSub,
 
     isEJObject,
     isEJArray,
@@ -66,10 +61,10 @@ module Data.EJson (
 
   ) where
 
-import Data.EJson.EJson
-import Data.EJson.EJson2Value
-import Data.Monoid
-import Control.Lens
+import Data.EJson.EJson       as Exports
+import Data.EJson.EJson2Value as Exports
+import Data.Monoid            as Exports
+import Control.Lens           as Exports
 import Control.Monad.State (execState)
 import Data.Text (Text())
 
@@ -218,7 +213,7 @@ modifyInPath' path modifications target =
 --   Left "Path [\"a\",\"q\",\"r\"] not present in object {\"x\":\"y\"}"
 --
 removeFromPath :: [Text] -> EJsonValue -> Either String EJsonValue
-removeFromPath path target = case (Just target & pathToTraversal' path <<.~ Nothing)
+removeFromPath path target = case Just target & pathToTraversal' path <<.~ Nothing
                                of (Just _, Just r) -> Right r
                                   _                -> Left (concat ["Path ", show path, " not present in object ", show target])
 
@@ -275,19 +270,6 @@ expand path payload = foldr f payload path where f x y = ejobject [(x,y)]
 --
 makeMsg :: Text -> EJsonValue
 makeMsg key = ejobject [("msg", ejstring key)]
-
--- | Construct a matcher for subscription-ready based on ID.
---
--- TODO: Allow for propper matcher behavior and abstraction a-la clojure's midje methods.
---       This is important as there could be multiple subscription ids listed here...
---
-makeSubReady :: Text -> EJsonValue
-makeSubReady key = ejobject [("msg","ready"), ("subs", ejarray [ejstring key])]
-
--- | Construct a matcher for subscription failure based on ID.
---
-makeNoSub :: Text -> EJsonValue
-makeNoSub key = ejobject [("msg","nosub"), ("id", ejstring key)]
 
 -- |
 -- Examples:

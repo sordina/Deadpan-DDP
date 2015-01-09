@@ -35,7 +35,7 @@ run (Right params) Nothing         = runPingClient        params   (logEverythin
 --
 sendMessages :: DeadpanApp ()
 sendMessages = do
-  c <- liftIO $ newChan
+  c <- liftIO newChan
   let settings = R.defaultSettings { R.autoAddHistory = True }
   void $ fork $ liftIO $ R.runInputT settings (inOutLoop c)
   contents <- liftIO (getChanContents c)
@@ -73,11 +73,11 @@ deleteVersion (              x : xs) = x : deleteVersion xs
 deleteVersion xs                     = xs
 
 hashelp :: [String] -> Bool
-hashelp xs = any (flip elem xs) (words "-h --help")
+hashelp xs = any (`elem` xs) (words "-h --help")
 
 help :: IO ()
 help = hPutStrLn stderr $ "Usage: deadpan [-h | --help] [ ( -v | --version ) "
-    ++ "( " ++ intercalate " | " (map show $ reverse $ [minBound :: Version ..]) ++ " )"
+    ++ "( " ++ intercalate " | " (map show $ reverse [minBound :: Version ..]) ++ " )"
     ++ " ] <URL>"
 
 instructions :: IO ()

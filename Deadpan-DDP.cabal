@@ -1,5 +1,5 @@
 name:                Deadpan-DDP
-version:             0.7.0.0
+version:             0.8.0.0
 synopsis:            Write clients for Meteor's DDP Protocol
 description:         The Deadpan-DDP project includes a debugging-tool, as well as a general purpose library.
                      .
@@ -45,9 +45,9 @@ cabal-version:       >=1.10
 Extra-Source-Files:  changelog.md
 
 library
-  exposed-modules:     Data.EJson, Data.EJson.EJson, Data.EJson.Aeson,
+  exposed-modules:     Data.EJson, Data.EJson.EJson, Data.EJson.Aeson, Data.EJson.EJson2Value,
                        Web.DDP.Deadpan, Web.DDP.Deadpan.Callbacks, Web.DDP.Deadpan.Comms,
-                       Web.DDP.Deadpan.DSL, Web.DDP.Deadpan.Websockets
+                       Web.DDP.Deadpan.DSL, Web.DDP.Deadpan.Websockets, Web.DDP.Deadpan.GUID
   build-depends:       base >= 4 && < 5, websockets, network,
                        text, unordered-containers, base64-bytestring,
                        aeson, scientific, bytestring,

@@ -21,15 +21,18 @@ app = do
   response <- rpcWait "realMethod" Nothing
   liftIO $ putStrLn "Got response:"
   liftIO $ putStrLn (show response)
-  unsubscribe "test"
+  newID >>= unsubscribe
   getCollections >>= liftIO . putStrLn . ("Collections Yo: " ++) . show
-  clientRPCMethod "realMethod"    Nothing "testid1" Nothing
+  testid1 <- newID
+  clientRPCMethod "realMethod" Nothing testid1 Nothing
   liftIO getLine
-  clientRPCMethod "missingMethod" Nothing "testid2" Nothing
+  testid2 <- newID
+  clientRPCMethod "missingMethod" Nothing testid2 Nothing
   liftIO getLine
   errorResponse <- rpcWait "missingMethod" Nothing
   liftIO $ putStrLn "Got response:"
   liftIO $ putStrLn (show errorResponse)
   liftIO getLine
-  clientRPCMethod "realMethod2"   Nothing "testid3" Nothing
+  testid3 <- newID
+  clientRPCMethod "realMethod2" Nothing testid3 Nothing
   liftIO getLine

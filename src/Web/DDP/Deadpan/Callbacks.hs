@@ -63,8 +63,8 @@ subscribeWait :: Text -> [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValu
 subscribeWait name params = do
   mv         <- liftIO newEmptyMVar
   subId      <- newID
-  handlerIdL <- setMatchHandler (makeNoSub    (getGuidText subId)) (handlerL mv)
-  handlerIdR <- setMatchHandler (makeSubReady (getGuidText subId)) (handlerR mv)
+  handlerIdL <- setMatchHandler (guid2NoSub    subId) (handlerL mv)
+  handlerIdR <- setMatchHandler (guid2SubReady subId) (handlerR mv)
   _          <- clientDataSub subId name params
   res        <- liftIO $ readMVar mv
 

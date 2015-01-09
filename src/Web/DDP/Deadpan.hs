@@ -105,6 +105,13 @@ collect = void $ setMsgHandler "added"   dataAdded
               >> setMsgHandler "removed" dataRemoved
               >> setMsgHandler "changed" dataChanged
 
+dataOver :: ([Text] -> EJsonValue -> EJsonValue -> EJsonValue) -> Callback
+dataOver          f m = fromMaybe (return ()) $ do
+  collectionName <- m ^? _EJObjectKeyString "collection"
+  itemId         <- m ^? _EJObjectKeyString "id"
+  fields         <- m ^. _EJObjectKey       "fields"
+  return $ modifyAppState (over collections (f ["subscription-data", collectionName, itemId] fields))
+
 -- | An app to handle the addition of subscription data items...
 --
 --   For Example: {"collection":"lists","msg":"added","id":"F73xFyAuKrqsb2J3m","fields":{"incompleteCount":6,"name":"Favorite Scientists"}}
@@ -112,11 +119,7 @@ collect = void $ setMsgHandler "added"   dataAdded
 --   Not especially useful on its own. You would usually use `collect` instead.
 --
 dataAdded :: Callback
-dataAdded           m = fromMaybe (return ()) $ do
-  collectionName <- m ^? _EJObjectKeyString "collection"
-  itemId         <- m ^? _EJObjectKeyString "id"
-  fields         <- m ^. _EJObjectKey       "fields"
-  return $ modifyAppState (over collections (putInPath' ["subscription-data", collectionName, itemId] fields))
+dataAdded = dataOver putInPath'
 
 -- | An app to handle the modification of subscription data items...
 --
@@ -125,11 +128,7 @@ dataAdded           m = fromMaybe (return ()) $ do
 --   Not especially useful on its own. You would usually use `collect` instead.
 --
 dataChanged :: Callback
-dataChanged  m = fromMaybe (return ()) $ do
-  collectionName <- m ^? _EJObjectKeyString "collection"
-  itemId         <- m ^? _EJObjectKeyString "id"
-  fields         <- m ^. _EJObjectKey       "fields"
-  return $ modifyAppState (over collections (modifyInPath' ["subscription-data", collectionName, itemId] fields))
+dataChanged = dataOver modifyInPath'
 
 -- | An app to handle the removal of subscription data items...
 --

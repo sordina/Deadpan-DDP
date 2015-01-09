@@ -15,6 +15,7 @@ module Data.EJson.Props where
 import Data.EJson
 import Data.EJson.Aeson ()
 
+import Data.Maybe
 import Data.Aeson
 import qualified Data.ByteString.Lazy as BS
 
@@ -24,7 +25,7 @@ import qualified Data.ByteString.Lazy as BS
 
 -- | prop> prop_ejopristest_null
 prop_ejopristest_null :: Bool
-prop_ejopristest_null = EJNull ^. _EJObjectKey "key" == Nothing
+prop_ejopristest_null = isNothing $ EJNull ^. _EJObjectKey "key"
 
 -- | prop> prop_ejopristest_object
 prop_ejopristest_object :: Bool
@@ -42,7 +43,7 @@ prop_ejopristest_object2 = ejobject [("hello","world")]
 
 -- | prop> prop_ejarrayixtest_null
 prop_ejarrayixtest_null :: Bool
-prop_ejarrayixtest_null = ejnull ^? _EJAraryIndex 1 == Nothing
+prop_ejarrayixtest_null = isNothing $ ejnull ^? _EJAraryIndex 1
 
 -- | prop> prop_ejarrayixtest_array
 prop_ejarrayixtest_array :: Bool
@@ -56,7 +57,7 @@ decodeEJ :: BS.ByteString -> Maybe EJsonValue
 decodeEJ = decode
 
 ttt :: (a -> Bool) -> Maybe a -> Bool
-ttt f v = Just True == ffv && length (show ffv) > 0 where ffv = fmap f v
+ttt f v = Just True == fmap f v
 
 -- | prop> prop_decodable_1
 prop_decodable_1 :: Bool

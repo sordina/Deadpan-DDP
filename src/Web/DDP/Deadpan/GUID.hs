@@ -9,7 +9,6 @@ Provides functions to generate simple GUIDs.
 -}
 
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -21,7 +20,6 @@ Provides functions to generate simple GUIDs.
 
 
 module Web.DDP.Deadpan.GUID ( GUID() -- No export of constructors in order to protect generation of IDs
-                            , getGuidText
                             , newGuid
                             , hashTriple
                             , newGuidInt
@@ -29,6 +27,8 @@ module Web.DDP.Deadpan.GUID ( GUID() -- No export of constructors in order to pr
                             , newGuidText
                             , makeEJsonId
                             , ejson2guid
+                            , guid2SubReady
+                            , guid2NoSub
                             ) where
 
 -- Internal Imports
@@ -82,3 +82,16 @@ makeEJsonId key = ejobject [("id", ejstring (getGuidText key))]
 
 ejson2guid :: EJsonValue -> Maybe GUID
 ejson2guid v = fmap GUID $ v ^? _EJObjectKeyString "id"
+
+-- | Construct a matcher for subscription-ready based on ID.
+--
+-- TODO: Allow for propper matcher behavior and abstraction a-la clojure's midje methods.
+--       This is important as there could be multiple subscription ids listed here...
+--
+guid2SubReady :: GUID -> EJsonValue
+guid2SubReady key = ejobject [("msg","ready"), ("subs", ejarray [ejstring (getGuidText key)])]
+
+-- | Construct a matcher for subscription failure based on ID.
+--
+guid2NoSub :: GUID -> EJsonValue
+guid2NoSub key = ejobject [("msg","nosub"), ("id", ejstring (getGuidText key))]

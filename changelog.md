@@ -1,5 +1,9 @@
 # Deadpan-DDP Change Log
 
+## 0.8.0.0
+
+* Made GUID newtype abstract to prevent abuse
+
 ## 0.7.0.0
 
 * Added newtype for IDs to prevent library mistakes
