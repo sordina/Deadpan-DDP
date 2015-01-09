@@ -5,7 +5,16 @@ todo:
 docker-build:
 	./scripts/docker-build
 
+upload:
+	cabal-s3
+	cabl sdist
+	cabal upload dist/*.tar.gz
+
 dot:
 	find src -name '*.hs' | xargs graphmod -q > doc/modules.dot
-	dot -Tpng doc/modules.dot > doc/modules.png
-	open doc/modules.png
+	dot -Tsvg doc/modules.dot > doc/modules.svg
+	find src -name '*.hs' | xargs graphmod --no-cluster -q > doc/modulesnc.dot
+	dot -Tsvg doc/modulesnc.dot > doc/modulesnc.svg
+	open doc/modules.svg
+	open doc/modulesnc.svg
+
