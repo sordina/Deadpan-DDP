@@ -48,23 +48,24 @@ Provide an id to refer to the subscription in future.
 @
 
 -}
-clientDataSub :: GUID -> Text -> [ EJsonValue ] -> DeadpanApp ()
-clientDataSub subid name params
-  = sendMessage "sub" $ makeEJsonId subid
+clientDataSub :: GUID -> Text -> [ EJsonValue ] -> DeadpanApp GUID
+clientDataSub subid name params = do
+  sendMessage "sub" $ makeEJsonId subid
                      <> ejobject [ ("name",   ejstring name)
                                  , ("params", ejarray  params) ]
+  return subid
 
 -- | Activates a subscription with an auto-generated ID, returning the ID.
 --
-subscribe :: Text -> [ EJsonValue ] -> DeadpanApp ()
+subscribe :: Text -> [ EJsonValue ] -> DeadpanApp GUID
 subscribe name params = newID >>= \guid -> clientDataSub guid name params
 
-subscribeWait :: Text -> [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValue)
-subscribeWait name params = do
+subscribeWaitId :: Text -> [EJsonValue] -> DeadpanApp (Either EJsonValue (GUID, EJsonValue))
+subscribeWaitId name params = do
   mv         <- liftIO newEmptyMVar
   subId      <- newID
   handlerIdL <- setMatchHandler (guid2NoSub    subId) (handlerL mv)
-  handlerIdR <- setMatchHandler (guid2SubReady subId) (handlerR mv)
+  handlerIdR <- setMatchHandler (guid2SubReady subId) (handlerR subId mv)
   _          <- clientDataSub subId name params
   res        <- liftIO $ readMVar mv
 
@@ -75,9 +76,13 @@ subscribeWait name params = do
 
   where
   -- {"msg":"ready","subs":["849d1899-f3af-44b9-919c-7a1ca72c8857"]}
-  handlerR mv itm = liftIO $ putMVar mv $ Right itm
+  handlerR subId mv itm = liftIO $ putMVar mv $ Right (subId, itm)
   -- {"error":{...},"msg":"nosub","id":"af0a7ce1-3c37-40d7-8875-b8e3dd737765"}
   handlerL mv itm = forOf_ (_EJObjectKey "error"  . _Just) itm $ liftIO . putMVar mv . Left
+
+subscribeWait :: Text -> [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValue)
+subscribeWait name params = fmap (right' snd)
+                                 (subscribeWaitId name params)
 
 
 {- |

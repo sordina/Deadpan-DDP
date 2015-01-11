@@ -14,38 +14,77 @@ import qualified Data.HashMap.Lazy as M
 
 main :: IO ()
 main = do hSetBuffering stdout LineBuffering
-          go $ getURI "http://localhost:3000/websocket"
+          either print
+                 (\params -> void $ runPingClient params (setSession >> collect >> todoApp))
+                 (getURI "http://localhost:3000/websocket")
 
-go :: Show a => Either a Params -> IO ()
-go (Left  err   ) = print err
-go (Right params) = void $ runPingClient params (setSession >> collect >> app)
+todoApp :: DeadpanApp ()
+todoApp = do
+  previousCollections <- liftIO $ newTVarIO ejnull
+  currentList         <- liftIO $ newTVarIO Nothing
 
-app :: DeadpanApp String
-app = do
-  previous <- liftIO $ newTVarIO ejnull
-  setCatchAllHandler (dothings previous)
-  subscribeWait "publicLists" []
-  liftIO getLine
+  setCatchAllHandler   $ dothings previousCollections
+  subscribeWait          "publicLists" []
+  liftIO getContents >>= mapM_ (userInput currentList) . lines
+
+userInput :: TVar (Maybe GUID) -> String -> DeadpanApp ()
+userInput currentList s = do
+  cl <- liftIO $ readTVarIO currentList
+  traverseOf_ _Just unsubscribe cl
+  colls <- getCollections
+  subscribeToList currentList $ getNewList (Just colls)
+
+  where getNewList = lookup s
+                   . zip (map (:[]) ['A'..])
+                   . M.toList
+                   . view (pathToTraversal' ["subscription-data", "lists"]
+                                            . _Just
+                                            . _EJObject)
+
+subscribeToList :: TVar (Maybe GUID) -> Maybe (Text, EJsonValue) -> DeadpanApp ()
+subscribeToList _  Nothing         = return ()
+subscribeToList cl (Just (guid,_)) = do
+  res <- subscribeWaitId "todos" [ejstring guid]
+  case res of Left  err     -> liftIO $ print err
+              Right (sid,_) -> liftIO $ atomically $ writeTVar cl (Just sid)
 
 dothings :: TVar EJsonValue -> Callback
 dothings v _ = do
-  previous <- liftIO $ readTVarIO v
+  previousCollections <- liftIO $ readTVarIO v
   colls    <- getCollections
-  when (previous /= colls) $ void $ do
-    liftIO $ clearScreen
-    liftIO $ T.putStr $ format (Just colls)
+  when (previousCollections /= colls) $ void $ do
+    liftIO   clearScreen
+    liftIO $ T.putStrLn $ formatLists (Just colls)
+    liftIO $ T.putStrLn "---"
+    liftIO $ T.putStrLn $ formatTodo (Just colls)
     liftIO $ atomically $ swapTVar v colls
 
-format :: Maybe EJsonValue -> Text
-format = T.unlines
-       . map vformat
+formatTodo :: Maybe EJsonValue -> Text
+formatTodo = T.unlines
+           . zipWith formatItem [1..]
+           . M.elems
+           . view (pathToTraversal' ["subscription-data", "todos"]
+                                    . _Just
+                                    . _EJObject)
+
+formatItem :: Int -> EJsonValue -> Text
+formatItem i v = "[" <> pack (show i) <> "] " <> name <> incomplete
+  where
+  name       = v ^._EJObjectKeyString "text"
+  incomplete = case v ^? _EJObjectKey "checked" . _Just . _EJBool
+                 of Just True -> " :)"
+                    _         -> " :("
+
+formatLists :: Maybe EJsonValue -> Text
+formatLists = T.unlines
+       . zipWith formatList ['A'..]
        . M.elems
        . view (pathToTraversal' ["subscription-data", "lists"]
                                 . _Just
                                 . _EJObject)
 
-vformat :: EJsonValue -> Text
-vformat v = " " <> name <> incomplete
+formatList :: Char -> EJsonValue -> Text
+formatList i v = "[" <> pack [i] <> "] " <> name <> incomplete
   where
   name       = v ^._EJObjectKeyString "name"
   incomplete = maybe "0" (surround . pack . show) (v ^. _EJObjectKey "incompleteCount")

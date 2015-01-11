@@ -1,5 +1,10 @@
 # Deadpan-DDP Change Log
 
+## 0.9.1.0
+
+* Better TODO Example
+* Added subscription methods that return the subscription id
+
 ## 0.9.0.0
 
 * Fixed the exit error

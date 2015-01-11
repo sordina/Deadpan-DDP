@@ -1,5 +1,5 @@
 name:                Deadpan-DDP
-version:             0.9.0.0
+version:             0.9.1.0
 synopsis:            Write clients for Meteor's DDP Protocol
 description:         The Deadpan-DDP project includes a debugging-tool, as well as a general purpose library.
                      .
