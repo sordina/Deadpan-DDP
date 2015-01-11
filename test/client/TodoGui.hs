@@ -23,7 +23,7 @@ todoApp = do
   previousCollections <- liftIO $ newTVarIO ejnull
   currentList         <- liftIO $ newTVarIO Nothing
 
-  setCatchAllHandler   $ dothings previousCollections
+  setCatchAllHandler   $ renderUpdates previousCollections
   subscribeWait          "publicLists" []
   liftIO getContents >>= mapM_ (userInput currentList) . lines
 
@@ -48,10 +48,10 @@ subscribeToList cl (Just (guid,_)) = do
   case res of Left  err     -> liftIO $ print err
               Right (sid,_) -> liftIO $ atomically $ writeTVar cl (Just sid)
 
-dothings :: TVar EJsonValue -> Callback
-dothings v _ = do
+renderUpdates :: TVar EJsonValue -> Callback
+renderUpdates v _ = do
   previousCollections <- liftIO $ readTVarIO v
-  colls    <- getCollections
+  colls               <- getCollections
   when (previousCollections /= colls) $ void $ do
     liftIO   clearScreen
     liftIO $ T.putStrLn $ formatLists (Just colls)
