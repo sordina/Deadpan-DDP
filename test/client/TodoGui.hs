@@ -6,6 +6,7 @@ module TodoGui where
 import Web.DDP.Deadpan
 import System.IO
 import Control.Concurrent.STM
+import Control.Concurrent
 import System.Console.ANSI
 
 import qualified Data.Text         as T
@@ -22,10 +23,17 @@ todoApp :: DeadpanApp ()
 todoApp = do
   previousCollections <- liftIO $ newTVarIO ejnull
   currentList         <- liftIO $ newTVarIO Nothing
+  ch                  <- liftIO $ sequentialActions
 
-  setCatchAllHandler   $ renderUpdates previousCollections
+  setCatchAllHandler   $ renderUpdates ch previousCollections
   subscribeWait          "publicLists" []
   liftIO getContents >>= mapM_ (userInput currentList) . lines
+
+sequentialActions :: IO (Chan (IO ()))
+sequentialActions = do
+  ch <- liftIO $ newChan
+  forkIO $ getChanContents ch >>= sequence_
+  return ch
 
 userInput :: TVar (Maybe GUID) -> String -> DeadpanApp ()
 userInput currentList s = do
@@ -48,15 +56,17 @@ subscribeToList cl (Just (guid,_)) = do
   case res of Left  err     -> liftIO $ print err
               Right (sid,_) -> liftIO $ atomically $ writeTVar cl (Just sid)
 
-renderUpdates :: TVar EJsonValue -> Callback
-renderUpdates v _ = do
+-- NOTE: Updates are written to a chan in order to ensure that
+--       they don't clobber each other.
+renderUpdates :: Chan (IO ()) -> TVar EJsonValue -> Callback
+renderUpdates ch v _ = do
   previousCollections <- liftIO $ readTVarIO v
   colls               <- getCollections
   when (previousCollections /= colls) $ void $ do
-    liftIO   clearScreen
-    liftIO $ T.putStrLn $ formatLists (Just colls)
-    liftIO $ T.putStrLn "---"
-    liftIO $ T.putStrLn $ formatTodo (Just colls)
+    liftIO $ writeChan ch $ do clearScreen
+                               T.putStrLn $ formatLists (Just colls)
+                               T.putStrLn "---"
+                               T.putStrLn $ formatTodo (Just colls)
     liftIO $ atomically $ swapTVar v colls
 
 formatTodo :: Maybe EJsonValue -> Text

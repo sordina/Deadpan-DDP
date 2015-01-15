@@ -154,7 +154,6 @@ You can look for incomplete items in the source by running `make todo`.
 * Adopt a more layered aproach (see doc/dot.png)
 * Use proper opt-parser for main module
 * Try out a auth example
-* Non Negative GUID Strings
 
 
 ## Binaries

@@ -1,5 +1,9 @@
 # Deadpan-DDP Change Log
 
+## 0.9.2.0
+
+* Hex GUID strings
+
 ## 0.9.1.0
 
 * Better TODO Example

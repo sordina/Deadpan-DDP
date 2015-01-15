@@ -41,6 +41,7 @@ import System.Random
 import System.CPUTime
 import Data.Time
 import Data.Text
+import Text.Printf
 import Data.Hashable
 import GHC.Generics
 
@@ -69,7 +70,7 @@ newGuidInt :: IO Int
 newGuidInt = hash `fmap` hashTriple
 
 newGuidString :: IO String
-newGuidString = (show . hash) `fmap` hashTriple
+newGuidString = printf "%016x" `fmap` newGuidInt
 
 newGuidText :: IO Text
 newGuidText = pack `fmap` newGuidString
