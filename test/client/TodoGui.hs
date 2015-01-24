@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
 
-module TodoGui where
+module Main where
 
 import Web.DDP.Deadpan
 import System.IO

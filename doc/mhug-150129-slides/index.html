@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Lyndon Maydwell" />
+  <title>Deadpan-DDP</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="reveal.js/css/theme/simple.css" id="theme">
+    <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+    <script>
+      if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      }
+    </script>
+    <!--[if lt IE 9]>
+    <script src="reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Deadpan-DDP</h1>
+    <h2 class="author">Lyndon Maydwell</h2>
+    <h3 class="date">MHUG - January 29, 2015</h3>
+</section>
+
+<section><section id="deadpan-ddp" class="titleslide slide level1"><h1>Deadpan-DDP</h1></section><section id="on-github" class="slide level2">
+<h1>On GitHub</h1>
+<figure>
+<img src="http://i.imgur.com/Nc5mA2j.png" alt="..." /><figcaption>...</figcaption>
+</figure>
+<p><a href="https://github.com/sordina/Deadpan-DDP#deadpan-ddp" class="uri">https://github.com/sordina/Deadpan-DDP#deadpan-ddp</a></p>
+</section><section id="on-hackage" class="slide level2">
+<h1>On Hackage</h1>
+<figure>
+<img src="http://i.imgur.com/Nc5mA2j.png" alt="..." /><figcaption>...</figcaption>
+</figure>
+<p><a href="https://hackage.haskell.org/package/Deadpan-DDP" class="uri">https://hackage.haskell.org/package/Deadpan-DDP</a></p>
+</section><section id="binary-downloads" class="slide level2">
+<h1>Binary Downloads</h1>
+<figure>
+<img src="http://i.imgur.com/Nc5mA2j.png" alt="..." /><figcaption>...</figcaption>
+</figure>
+<p><a href="https://github.com/sordina/Deadpan-DDP#binaries" class="uri">https://github.com/sordina/Deadpan-DDP#binaries</a></p>
+</section></section>
+<section><section id="deadpan" class="titleslide slide level1"><h1>Deadpan</h1></section><section id="what-is-deadpan" class="slide level2">
+<h1>What is Deadpan?</h1>
+<p>Deadpan is a Haskell DDP client.</p>
+</section><section id="why-do-i-care" class="slide level2">
+<h1>Why do I care?</h1>
+<p>Becuase it lets you talk to DDP servers!</p>
+</section></section>
+<section><section id="ddp" class="titleslide slide level1"><h1>DDP</h1></section><section id="what-is-ddp" class="slide level2">
+<h1>What is DDP?</h1>
+<p><a href="https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md">DDP</a> is the protocol that <a href="http://meteor.com">Meteor.js</a> applications speak.</p>
+<p>It is a protocol that speaks EJSON over Websockets asynchronously.</p>
+<p>Subscriptions are made and retired using this protocol.</p>
+</section><section id="why-do-i-care-1" class="slide level2">
+<h1>Why do I care?</h1>
+<p>People have written Meteor applications...</p>
+<p>You may wish to interact with them from your Haskell programs.</p>
+</section></section>
+<section><section id="ejson" class="titleslide slide level1"><h1>EJSON</h1></section><section id="what-is-ejson" class="slide level2">
+<h1>What is EJSON?</h1>
+<p>EJSON is just JSON with a special way of interpreting specially constructed objects.</p>
+</section><section id="why-do-i-care-2" class="slide level2">
+<h1>Why do I care?</h1>
+<p>EJSON makes it easy to represent</p>
+<ul>
+<li>Dates</li>
+<li>Binary Data</li>
+<li>User-defined types</li>
+</ul>
+</section><section id="definition" class="slide level2">
+<h1>Definition</h1>
+<pre><code>    data EJsonValue
+        = EJObject !(Data.HashMap.Strict.HashMap Text EJsonValue)
+        | EJArray  !(Data.Vector.Vector EJsonValue)
+        | EJString !Text
+        | EJNumber !Scientific
+        | EJBool   !Bool
+        | EJDate   !EpochTime
+        | EJBinary !ByteString
+        | EJUser   !Text !EJsonValue
+        | EJNull deriving (Eq)</code></pre>
+</section><section id="notice" class="slide level2">
+<h1>Notice</h1>
+<p>This is very similar to Aeson's &quot;Value&quot; type.</p>
+</section><section id="value-definition" class="slide level2">
+<h1>Value Definition</h1>
+<pre><code>    -- Defined in ‘aeson-0.7.0.6:Data.Aeson.Types.Internal’
+
+    data Value
+        = Object !Object
+        | Array !Array
+        | String !Text
+        | Number !Scientific
+        | Bool !Bool
+        | Null</code></pre>
+</section><section id="bijection" class="slide level2">
+<h1>Bijection</h1>
+<p>We can go back and forward between JSON and EJSON:</p>
+<pre><code>    ejson2value :: EJsonValue -&gt; Value
+    ejson2value (EJObject h    ) = Object (Data.HashMap.Strict.map ejson2value h)
+    ejson2value (EJArray  v    ) = Array  (Data.Vector.map ejson2value v)
+    ejson2value (EJString t    ) = String t
+    ...
+
+    value2EJson :: Value -&gt; EJsonValue
+    value2EJson (Object o) = escapeObject o
+    value2EJson (Array  a) = EJArray $ Data.Vector.map value2EJson a
+    value2EJson (String s) = EJString s
+    ...</code></pre>
+</section><section id="no-maybes" class="slide level2">
+<h1>No Maybes</h1>
+<p>Failing to parse EJSON just returns whatever the literal JSON would be.</p>
+</section></section>
+<section><section id="websockets" class="titleslide slide level1"><h1>Websockets</h1></section><section id="what-are-websockets" class="slide level2">
+<h1>What are websockets?</h1>
+<p>They are a persistant, bi-directional message conduit between client and server.</p>
+<p>Very similar to a regular socket - Thus the name.</p>
+</section><section id="why-do-i-care-3" class="slide level2">
+<h1>Why do I care?</h1>
+<p>A persistant connection means that for longer lived applications, there is less of a sense of reconstructing temporal flow out of stateless requests. This isn't always the best way to do things, but for some situations it can make sense.</p>
+<p>You can envision a websocket based application as a conversation, rather than a sequence of request/responses.</p>
+<p>DDP uses websockets for its communication mechenism.</p>
+</section><section id="asynchronous" class="slide level2">
+<h1>Asynchronous</h1>
+<p>An important side-effect is that the server may send data to the client without waiting for a request, or a response Res1 corresponding to a request Req1 my be sent after requests Req2, Rec3, Rec4.</p>
+</section></section>
+<section><section id="the-deadpan-datatype" class="titleslide slide level1"><h1>The Deadpan Datatype</h1></section><section id="deadpanapp" class="slide level2">
+<h1><code>DeadpanApp</code>?</h1>
+<p>DeadpanApp is a monadic DSL that makes the high-level actions of a DDP application available to users through several conveniently defined functions.</p>
+</section><section id="rpc" class="slide level2">
+<h1>RPC</h1>
+<pre><code>clientRPCMethod :: Text
+                -&gt; Maybe [EJsonValue]
+                -&gt; Text
+                -&gt; Maybe Text
+                -&gt; DeadpanApp ()</code></pre>
+</section><section id="subscription" class="slide level2">
+<h1>Subscription</h1>
+<pre><code>subscribe :: Text
+          -&gt; Text
+          -&gt; Maybe [ EJsonValue ]
+          -&gt; DeadpanApp ()</code></pre>
+</section></section>
+<section><section id="stateful-behavior" class="titleslide slide level1"><h1>Stateful Behavior</h1></section><section id="where-we-at" class="slide level2">
+<h1>Where we at?</h1>
+<p>Since a DDP app is inherently communicating in a stateful context, <code>DeadpanApp</code> is actually just a thin wrapper over <code>StateT IO</code>.</p>
+<p>The applications state is defined as <code>AppState</code>:</p>
+<pre><code>data AppState cb = AppState
+  { _defaultCallback :: cb
+  , _callbackSet     :: Lookup cb
+  , _collections     :: TVar EJsonValue
+  }</code></pre>
+<p>With the cb parameter being set to... <code>DeadpanApp</code>.</p>
+</section></section>
+<section><section id="running-deadpanapp" class="titleslide slide level1"><h1>Running DeadpanApp</h1></section><section id="how-do-i-run-my-app" class="slide level2">
+<h1>How do I run my App?</h1>
+<p><code>Web.DDP.Deadpan</code> provides functions for running your application:</p>
+<pre><code>runClient :: AppState Callback
+          -&gt; Params
+          -&gt; DeadpanApp a
+          -&gt; IO a</code></pre>
+<p>Would be the most common.</p>
+</section></section>
+<section><section id="example" class="titleslide slide level1"><h1>Example</h1></section><section id="show-me-more" class="slide level2">
+<h1>Show me more!</h1>
+<pre><code>{-# LANGUAGE OverloadedStrings #-}
+module RPCClient where
+import Web.DDP.Deadpan
+
+main = go $ getURI &quot;http://localhost:3000/websocket&quot;
+
+go (Left  err   ) = print err
+go (Right params) = loggingClient &gt;&gt;= \clnt -&gt; runClient clnt params app
+
+app = do void $ liftIO getLine
+         clientRPCMethod &quot;realMethod&quot;    Nothing &quot;testid1&quot; Nothing
+         void $ liftIO getLine
+         clientRPCMethod &quot;missingMethod&quot; Nothing &quot;testid2&quot; Nothing
+         void $ liftIO getLine</code></pre>
+</section></section>
+<section><section id="debugging-app" class="titleslide slide level1"><h1>Debugging App</h1></section><section id="deadpan-1" class="slide level2">
+<h1><code>deadpan</code></h1>
+<p>A command-line app <code>deadpan</code> is built alongside this library.</p>
+<pre><code>&gt; deadpan
+Usage: deadpan [-h | --help] &lt;URL&gt;</code></pre>
+<p>This will connection to a DDP server, respond to pings, and print all incomming messages.</p>
+</section><section id="in-action" class="slide level2">
+<h1>In Action</h1>
+<p>Demonstrating the debugging app:</p>
+<pre><code>&gt; deadpan websocket://localhost:3000/websocket
+{&quot;server_id&quot;:&quot;0&quot;}
+{&quot;msg&quot;:&quot;connected&quot;,&quot;session&quot;:&quot;9EccYbEWeePEHLJRb&quot;}
+{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;qdfJLj7cQwLevYJEv&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 2&quot;,&quot;i&quot;:2}}
+{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;KM9TKFNoywzX2tqwj&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 8&quot;,&quot;i&quot;:8}}
+{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;zeM8HrqugzZpDXZPv&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 3&quot;,&quot;i&quot;:3}}
+{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;HrEGrqPvBTfiCvyAk&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 4&quot;,&quot;i&quot;:4}}
+...</code></pre>
+</section><section id="in-action-1" class="slide level2">
+<h1>In Action</h1>
+<p>Demonstrating the TODO GUI Client</p>
+<blockquote>
+<p>runhaskell TodoGui.hs</p>
+</blockquote>
+</section></section>
+<section><section id="todo" class="titleslide slide level1"><h1>TODO</h1></section><section id="whats-left" class="slide level2">
+<h1>What's left</h1>
+<ul>
+<li>Synchronous wrappers around async actions</li>
+<li>Useful defaults for data callbacks</li>
+<li>Make state sharable with TVars</li>
+<li>Bugfixes</li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+
+  <script src="reveal.js/lib/js/head.min.js"></script>
+  <script src="reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: 'reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: 'reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+    </body>
+</html>
