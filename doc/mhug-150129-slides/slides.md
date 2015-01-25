@@ -146,21 +146,40 @@ request Req1 my be sent after requests Req2, Rec3, Rec4.
 DeadpanApp is a monadic DSL that makes the high-level actions of a DDP application
 available to users through several conveniently defined functions.
 
-## RPC
+## Example: RPC
 
     clientRPCMethod :: Text
                     -> Maybe [EJsonValue]
-                    -> Text
+                    -> GUID
                     -> Maybe Text
                     -> DeadpanApp ()
 
 ## Subscription
 
     subscribe :: Text
-              -> Text
-              -> Maybe [ EJsonValue ]
-              -> DeadpanApp ()
+              -> [ EJsonValue ]
+              -> DeadpanApp GUID
 
+## Blocking
+
+    subscribeWait :: Text
+                  -> [EJsonValue]
+                  -> DeadpanApp (Either EJsonValue
+                                        EJsonValue)
+
+## Implementation
+
+    subscribeWaitId name params = do
+      mv      <- liftIO newEmptyMVar
+      subId   <- newID
+      handleL <- setMatchHandler (guid2NoSub    subId) (handlerL mv)
+      handleR <- setMatchHandler (guid2SubReady subId) (handlerR subId mv)
+      _       <- clientDataSub subId name params
+      res     <- liftIO $ readMVar mv
+
+      deleteHandlerID handlerIdR
+      deleteHandlerID handlerIdL
+      return res
 
 # Stateful Behavior
 
@@ -172,12 +191,19 @@ Since a DDP app is inherently communicating in a stateful context,
 The applications state is defined as `AppState`:
 
     data AppState cb = AppState
-      { _defaultCallback :: cb
-      , _callbackSet     :: Lookup cb
-      , _collections     :: TVar EJsonValue
-      }
+      { _callbackSet :: Lookup cb
+      , _collections :: EJsonValue
+      , _connection  :: Websocket.Connection }
 
 With the cb parameter being set to... `DeadpanApp`.
+
+# Lenses
+
+## Data-Actions
+
+Example:
+
+    forOf_ _Just seed $ \v -> modify (("seed", ejstring v):)
 
 
 # Running DeadpanApp
@@ -186,10 +212,9 @@ With the cb parameter being set to... `DeadpanApp`.
 
 `Web.DDP.Deadpan` provides functions for running your application:
 
-    runClient :: AppState Callback
-              -> Params
-              -> DeadpanApp a
-              -> IO a
+    runPingClient :: Params
+                  -> DeadpanApp a
+                  -> IO a
 
 Would be the most common.
 
@@ -198,18 +223,21 @@ Would be the most common.
 ## Show me more!
 
     {-# LANGUAGE OverloadedStrings #-}
-    module RPCClient where
+
+    module SimpleClient where
+
     import Web.DDP.Deadpan
 
-    main = go $ getURI "http://localhost:3000/websocket"
+    main = either print
+                  (go app)
+                  (getURI "http://localhost:3000/websocket")
 
-    go (Left  err   ) = print err
-    go (Right params) = loggingClient >>= \clnt -> runClient clnt params app
+    go app params = runPingClient params (logEverything >> app)
 
     app = do void $ liftIO getLine
-             clientRPCMethod "realMethod"    Nothing "testid1" Nothing
+             rpcWait "realMethod"    Nothing
              void $ liftIO getLine
-             clientRPCMethod "missingMethod" Nothing "testid2" Nothing
+             rpcWait "missingMethod" Nothing
              void $ liftIO getLine
 
 # Debugging App
@@ -219,9 +247,13 @@ Would be the most common.
 A command-line app `deadpan` is built alongside this library.
 
     > deadpan
-    Usage: deadpan [-h | --help] <URL>
+    Usage: deadpan [-h | --help]
+                   [ ( -v | --version ) ( V1 | Vpre2 | Vpre1 ) ]
+                   <URL>
 
 This will connection to a DDP server, respond to pings, and print all incomming messages.
+
+EJSON entered will be sent as a message to the server.
 
 ## In Action
 
@@ -230,23 +262,22 @@ Demonstrating the debugging app:
     > deadpan websocket://localhost:3000/websocket
     {"server_id":"0"}
     {"msg":"connected","session":"9EccYbEWeePEHLJRb"}
-    {"collection":"test","msg":"added","id":"qdfJLj7cQwLevYJEv","fields":{"name":"I am 2","i":2}}
-    {"collection":"test","msg":"added","id":"KM9TKFNoywzX2tqwj","fields":{"name":"I am 8","i":8}}
-    {"collection":"test","msg":"added","id":"zeM8HrqugzZpDXZPv","fields":{"name":"I am 3","i":3}}
-    {"collection":"test","msg":"added","id":"HrEGrqPvBTfiCvyAk","fields":{"name":"I am 4","i":4}}
+    {"collection":"x","msg":"added","id":"qdfJ","fields":{"name":"A","i":2}}
+    {"collection":"x","msg":"added","id":"KM9T","fields":{"name":"B","i":8}}
+    {"collection":"x","msg":"added","id":"zeM8","fields":{"name":"C","i":3}}
+    {"collection":"x","msg":"added","id":"HrEG","fields":{"name":"D","i":4}}
     ...
 
 ## In Action
 
-Demonstrating the TODO GUI Client
+Demonste the TODO GUI Client.
 
 > runhaskell TodoGui.hs
 
-# TODO
+# Thanks
 
-## What's left
+## For Attending
 
-* Synchronous wrappers around async actions
-* Useful defaults for data callbacks
-* Make state sharable with TVars
-* Bugfixes
+Meetup Link:
+
+<http://www.meetup.com/Melbourne-Haskell-Users-Group/events/219608241/>

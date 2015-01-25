@@ -142,89 +142,112 @@
 <section><section id="the-deadpan-datatype" class="titleslide slide level1"><h1>The Deadpan Datatype</h1></section><section id="deadpanapp" class="slide level2">
 <h1><code>DeadpanApp</code>?</h1>
 <p>DeadpanApp is a monadic DSL that makes the high-level actions of a DDP application available to users through several conveniently defined functions.</p>
-</section><section id="rpc" class="slide level2">
-<h1>RPC</h1>
+</section><section id="example-rpc" class="slide level2">
+<h1>Example: RPC</h1>
 <pre><code>clientRPCMethod :: Text
                 -&gt; Maybe [EJsonValue]
-                -&gt; Text
+                -&gt; GUID
                 -&gt; Maybe Text
                 -&gt; DeadpanApp ()</code></pre>
 </section><section id="subscription" class="slide level2">
 <h1>Subscription</h1>
 <pre><code>subscribe :: Text
-          -&gt; Text
-          -&gt; Maybe [ EJsonValue ]
-          -&gt; DeadpanApp ()</code></pre>
+          -&gt; [ EJsonValue ]
+          -&gt; DeadpanApp GUID</code></pre>
+</section><section id="blocking" class="slide level2">
+<h1>Blocking</h1>
+<pre><code>subscribeWait :: Text
+              -&gt; [EJsonValue]
+              -&gt; DeadpanApp (Either EJsonValue
+                                    EJsonValue)</code></pre>
+</section><section id="implementation" class="slide level2">
+<h1>Implementation</h1>
+<pre><code>subscribeWaitId name params = do
+  mv      &lt;- liftIO newEmptyMVar
+  subId   &lt;- newID
+  handleL &lt;- setMatchHandler (guid2NoSub    subId) (handlerL mv)
+  handleR &lt;- setMatchHandler (guid2SubReady subId) (handlerR subId mv)
+  _       &lt;- clientDataSub subId name params
+  res     &lt;- liftIO $ readMVar mv
+
+  deleteHandlerID handlerIdR
+  deleteHandlerID handlerIdL
+  return res</code></pre>
 </section></section>
 <section><section id="stateful-behavior" class="titleslide slide level1"><h1>Stateful Behavior</h1></section><section id="where-we-at" class="slide level2">
 <h1>Where we at?</h1>
 <p>Since a DDP app is inherently communicating in a stateful context, <code>DeadpanApp</code> is actually just a thin wrapper over <code>StateT IO</code>.</p>
 <p>The applications state is defined as <code>AppState</code>:</p>
 <pre><code>data AppState cb = AppState
-  { _defaultCallback :: cb
-  , _callbackSet     :: Lookup cb
-  , _collections     :: TVar EJsonValue
-  }</code></pre>
+  { _callbackSet :: Lookup cb
+  , _collections :: EJsonValue
+  , _connection  :: Websocket.Connection }</code></pre>
 <p>With the cb parameter being set to... <code>DeadpanApp</code>.</p>
+</section></section>
+<section><section id="lenses" class="titleslide slide level1"><h1>Lenses</h1></section><section id="data-actions" class="slide level2">
+<h1>Data-Actions</h1>
+<p>Example:</p>
+<pre><code>forOf_ _Just seed $ \v -&gt; modify ((&quot;seed&quot;, ejstring v):)</code></pre>
 </section></section>
 <section><section id="running-deadpanapp" class="titleslide slide level1"><h1>Running DeadpanApp</h1></section><section id="how-do-i-run-my-app" class="slide level2">
 <h1>How do I run my App?</h1>
 <p><code>Web.DDP.Deadpan</code> provides functions for running your application:</p>
-<pre><code>runClient :: AppState Callback
-          -&gt; Params
-          -&gt; DeadpanApp a
-          -&gt; IO a</code></pre>
+<pre><code>runPingClient :: Params
+              -&gt; DeadpanApp a
+              -&gt; IO a</code></pre>
 <p>Would be the most common.</p>
 </section></section>
 <section><section id="example" class="titleslide slide level1"><h1>Example</h1></section><section id="show-me-more" class="slide level2">
 <h1>Show me more!</h1>
 <pre><code>{-# LANGUAGE OverloadedStrings #-}
-module RPCClient where
+
+module SimpleClient where
+
 import Web.DDP.Deadpan
 
-main = go $ getURI &quot;http://localhost:3000/websocket&quot;
+main = either print
+              (go app)
+              (getURI &quot;http://localhost:3000/websocket&quot;)
 
-go (Left  err   ) = print err
-go (Right params) = loggingClient &gt;&gt;= \clnt -&gt; runClient clnt params app
+go app params = runPingClient params (logEverything &gt;&gt; app)
 
 app = do void $ liftIO getLine
-         clientRPCMethod &quot;realMethod&quot;    Nothing &quot;testid1&quot; Nothing
+         rpcWait &quot;realMethod&quot;    Nothing
          void $ liftIO getLine
-         clientRPCMethod &quot;missingMethod&quot; Nothing &quot;testid2&quot; Nothing
+         rpcWait &quot;missingMethod&quot; Nothing
          void $ liftIO getLine</code></pre>
 </section></section>
 <section><section id="debugging-app" class="titleslide slide level1"><h1>Debugging App</h1></section><section id="deadpan-1" class="slide level2">
 <h1><code>deadpan</code></h1>
 <p>A command-line app <code>deadpan</code> is built alongside this library.</p>
 <pre><code>&gt; deadpan
-Usage: deadpan [-h | --help] &lt;URL&gt;</code></pre>
+Usage: deadpan [-h | --help]
+               [ ( -v | --version ) ( V1 | Vpre2 | Vpre1 ) ]
+               &lt;URL&gt;</code></pre>
 <p>This will connection to a DDP server, respond to pings, and print all incomming messages.</p>
+<p>EJSON entered will be sent as a message to the server.</p>
 </section><section id="in-action" class="slide level2">
 <h1>In Action</h1>
 <p>Demonstrating the debugging app:</p>
 <pre><code>&gt; deadpan websocket://localhost:3000/websocket
 {&quot;server_id&quot;:&quot;0&quot;}
 {&quot;msg&quot;:&quot;connected&quot;,&quot;session&quot;:&quot;9EccYbEWeePEHLJRb&quot;}
-{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;qdfJLj7cQwLevYJEv&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 2&quot;,&quot;i&quot;:2}}
-{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;KM9TKFNoywzX2tqwj&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 8&quot;,&quot;i&quot;:8}}
-{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;zeM8HrqugzZpDXZPv&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 3&quot;,&quot;i&quot;:3}}
-{&quot;collection&quot;:&quot;test&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;HrEGrqPvBTfiCvyAk&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;I am 4&quot;,&quot;i&quot;:4}}
+{&quot;collection&quot;:&quot;x&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;qdfJ&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;A&quot;,&quot;i&quot;:2}}
+{&quot;collection&quot;:&quot;x&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;KM9T&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;B&quot;,&quot;i&quot;:8}}
+{&quot;collection&quot;:&quot;x&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;zeM8&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;C&quot;,&quot;i&quot;:3}}
+{&quot;collection&quot;:&quot;x&quot;,&quot;msg&quot;:&quot;added&quot;,&quot;id&quot;:&quot;HrEG&quot;,&quot;fields&quot;:{&quot;name&quot;:&quot;D&quot;,&quot;i&quot;:4}}
 ...</code></pre>
 </section><section id="in-action-1" class="slide level2">
 <h1>In Action</h1>
-<p>Demonstrating the TODO GUI Client</p>
+<p>Demonste the TODO GUI Client.</p>
 <blockquote>
 <p>runhaskell TodoGui.hs</p>
 </blockquote>
 </section></section>
-<section><section id="todo" class="titleslide slide level1"><h1>TODO</h1></section><section id="whats-left" class="slide level2">
-<h1>What's left</h1>
-<ul>
-<li>Synchronous wrappers around async actions</li>
-<li>Useful defaults for data callbacks</li>
-<li>Make state sharable with TVars</li>
-<li>Bugfixes</li>
-</ul>
+<section><section id="thanks" class="titleslide slide level1"><h1>Thanks</h1></section><section id="for-attending" class="slide level2">
+<h1>For Attending</h1>
+<p>Meetup Link:</p>
+<p><a href="http://www.meetup.com/Melbourne-Haskell-Users-Group/events/219608241/" class="uri">http://www.meetup.com/Melbourne-Haskell-Users-Group/events/219608241/</a></p>
 </section></section>
     </div>
   </div>
