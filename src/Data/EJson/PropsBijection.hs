@@ -18,7 +18,7 @@
 --
 -- TODO: Clean this up by using a proper library for Value Arbitrary instance
 
-module Data.EJson.Props where
+module Data.EJson.PropsBijection where
 
 import Data.EJson
 import Data.Maybe

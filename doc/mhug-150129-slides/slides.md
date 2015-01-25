@@ -138,6 +138,12 @@ An important side-effect is that the server may send data to the client
 without waiting for a request, or a response Res1 corresponding to a
 request Req1 my be sent after requests Req2, Rec3, Rec4.
 
+# The Library
+
+## Modules
+
+![Module Connections](../modulesnc_small.png)
+
 
 # The Deadpan Datatype
 
@@ -273,6 +279,19 @@ Demonstrating the debugging app:
 Demonste the TODO GUI Client.
 
 > runhaskell TodoGui.hs
+
+## TODO
+
+* Add full minimongo capabilities for data modification
+* Use more qualified imports, including for internal imports
+* Narrow package dependency versions
+* Random number generation as-per the spec
+* Adopt a more layered aproach (see doc/dot.png)
+* Use proper opt-parser for main module
+* Try out an auth example
+* Allow for intermittent connection to the server
+* Execption Handling
+* Rename DeadpanApp to App?
 
 # Thanks
 

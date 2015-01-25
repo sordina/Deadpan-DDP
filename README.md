@@ -153,7 +153,10 @@ You can look for incomplete items in the source by running `make todo`.
 * Random number generation as-per the spec
 * Adopt a more layered aproach (see doc/dot.png)
 * Use proper opt-parser for main module
-* Try out a auth example
+* Try out an auth example
+* Allow for intermittent connection to the server
+* Execption Handling
+* Rename DeadpanApp to App?
 
 
 ## Binaries

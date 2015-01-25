@@ -5,154 +5,164 @@
  -->
 <!-- Title: G Pages: 1 -->
 <svg width="430pt" height="288pt"
- viewBox="0.00 0.00 430.14 288.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph1" class="graph" transform="scale(0.464516 0.464516) rotate(0) translate(4 616)">
+ viewBox="0.00 0.00 430.37 288.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph1" class="graph" transform="scale(0.407163 0.407163) rotate(0) translate(4 703.333)">
 <title>G</title>
-<polygon fill="white" stroke="white" points="-4,5 -4,-616 923,-616 923,5 -4,5"/>
+<polygon fill="white" stroke="white" points="-4,5 -4,-703.333 1054,-703.333 1054,5 -4,5"/>
+<!-- u6 -->
+<g id="node1" class="node"><title>u6</title>
+<ellipse fill="#ccffcc" stroke="black" cx="296" cy="-679" rx="31.1319" ry="18"/>
+<text text-anchor="middle" x="296" y="-673.4" font-family="Times,serif" font-size="14.00">Main</text>
+</g>
+<!-- u12 -->
+<g id="node8" class="node"><title>u12</title>
+<ellipse fill="#99cc99" stroke="black" cx="296" cy="-596" rx="85.3387" ry="18"/>
+<text text-anchor="middle" x="296" y="-590.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan</text>
+</g>
+<!-- u6&#45;&gt;u12 -->
+<g id="edge18" class="edge"><title>u6&#45;&gt;u12</title>
+<path fill="none" stroke="black" d="M296,-660.822C296,-650.19 296,-636.306 296,-624.204"/>
+<polygon fill="black" stroke="black" points="299.5,-624.153 296,-614.153 292.5,-624.153 299.5,-624.153"/>
+</g>
 <!-- u5 -->
-<g id="node1" class="node"><title>u5</title>
-<ellipse fill="#ccffcc" stroke="black" cx="385.447" cy="-594" rx="31.1319" ry="18"/>
-<text text-anchor="middle" x="385.447" y="-588.4" font-family="Times,serif" font-size="14.00">Main</text>
-</g>
-<!-- u11 -->
-<g id="node7" class="node"><title>u11</title>
-<ellipse fill="#99cc99" stroke="black" cx="385.447" cy="-522" rx="85.3387" ry="18"/>
-<text text-anchor="middle" x="385.447" y="-516.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan</text>
-</g>
-<!-- u5&#45;&gt;u11 -->
-<g id="edge16" class="edge"><title>u5&#45;&gt;u11</title>
-<path fill="none" stroke="black" d="M385.447,-575.697C385.447,-567.983 385.447,-558.712 385.447,-550.112"/>
-<polygon fill="black" stroke="black" points="388.947,-550.104 385.447,-540.104 381.947,-550.104 388.947,-550.104"/>
-</g>
-<!-- u4 -->
-<g id="node2" class="node"><title>u4</title>
-<ellipse fill="#99ff99" stroke="black" cx="580.447" cy="-234" rx="54.131" ry="18"/>
-<text text-anchor="middle" x="580.447" y="-228.4" font-family="Times,serif" font-size="14.00">Data.EJson</text>
+<g id="node2" class="node"><title>u5</title>
+<ellipse fill="#99ff99" stroke="black" cx="513" cy="-267" rx="54.131" ry="18"/>
+<text text-anchor="middle" x="513" y="-261.4" font-family="Times,serif" font-size="14.00">Data.EJson</text>
 </g>
 <!-- u2 -->
-<g id="node4" class="node"><title>u2</title>
-<ellipse fill="#66ff66" stroke="black" cx="644.447" cy="-90" rx="107.081" ry="18"/>
-<text text-anchor="middle" x="644.447" y="-84.4" font-family="Times,serif" font-size="14.00">Data.EJson.EJson2Value</text>
+<g id="node5" class="node"><title>u2</title>
+<ellipse fill="#66ff66" stroke="black" cx="562" cy="-103" rx="107.081" ry="18"/>
+<text text-anchor="middle" x="562" y="-97.4" font-family="Times,serif" font-size="14.00">Data.EJson.EJson2Value</text>
 </g>
-<!-- u4&#45;&gt;u2 -->
-<g id="edge14" class="edge"><title>u4&#45;&gt;u2</title>
-<path fill="none" stroke="black" d="M588.04,-216.153C598.999,-191.838 619.361,-146.66 632.389,-117.753"/>
-<polygon fill="black" stroke="black" points="635.746,-118.823 636.664,-108.268 629.364,-115.946 635.746,-118.823"/>
+<!-- u5&#45;&gt;u2 -->
+<g id="edge16" class="edge"><title>u5&#45;&gt;u2</title>
+<path fill="none" stroke="black" d="M514.943,-248.851C517.516,-228.842 522.834,-194.937 532,-167 536.089,-154.536 542.086,-141.345 547.646,-130.272"/>
+<polygon fill="black" stroke="black" points="550.875,-131.647 552.36,-121.157 544.657,-128.432 550.875,-131.647"/>
 </g>
 <!-- u1 -->
-<g id="node5" class="node"><title>u1</title>
-<ellipse fill="#66ff66" stroke="black" cx="644.447" cy="-18" rx="80.3578" ry="18"/>
-<text text-anchor="middle" x="644.447" y="-12.4" font-family="Times,serif" font-size="14.00">Data.EJson.EJson</text>
+<g id="node6" class="node"><title>u1</title>
+<ellipse fill="#66ff66" stroke="black" cx="562" cy="-21" rx="80.3578" ry="18"/>
+<text text-anchor="middle" x="562" y="-15.4" font-family="Times,serif" font-size="14.00">Data.EJson.EJson</text>
 </g>
-<!-- u4&#45;&gt;u1 -->
-<g id="edge12" class="edge"><title>u4&#45;&gt;u1</title>
-<path fill="none" stroke="black" d="M566.227,-216.261C541.992,-185.59 498.12,-119.199 528.447,-72 539.864,-54.2311 558.879,-42.3454 578.244,-34.4258"/>
-<polygon fill="black" stroke="black" points="579.621,-37.6471 587.747,-30.8481 577.155,-31.096 579.621,-37.6471"/>
+<!-- u5&#45;&gt;u1 -->
+<g id="edge14" class="edge"><title>u5&#45;&gt;u1</title>
+<path fill="none" stroke="black" d="M497.711,-249.632C468.955,-216.78 412.596,-141.155 446,-85 458.763,-63.5437 481.67,-48.9402 503.775,-39.2425"/>
+<polygon fill="black" stroke="black" points="505.25,-42.4205 513.168,-35.381 502.589,-35.9463 505.25,-42.4205"/>
 </g>
 <!-- u0 -->
-<g id="node6" class="node"><title>u0</title>
-<ellipse fill="#66ff66" stroke="black" cx="724.447" cy="-162" rx="81.2634" ry="18"/>
-<text text-anchor="middle" x="724.447" y="-156.4" font-family="Times,serif" font-size="14.00">Data.EJson.Aeson</text>
+<g id="node7" class="node"><title>u0</title>
+<ellipse fill="#66ff66" stroke="black" cx="623" cy="-185" rx="81.2634" ry="18"/>
+<text text-anchor="middle" x="623" y="-179.4" font-family="Times,serif" font-size="14.00">Data.EJson.Aeson</text>
 </g>
-<!-- u4&#45;&gt;u0 -->
-<g id="edge10" class="edge"><title>u4&#45;&gt;u0</title>
-<path fill="none" stroke="black" d="M609.935,-218.666C631.073,-208.39 659.828,-194.412 683.235,-183.034"/>
-<polygon fill="black" stroke="black" points="684.78,-186.174 692.243,-178.655 681.719,-179.879 684.78,-186.174"/>
+<!-- u5&#45;&gt;u0 -->
+<g id="edge12" class="edge"><title>u5&#45;&gt;u0</title>
+<path fill="none" stroke="black" d="M534.47,-250.385C550.953,-238.398 573.933,-221.685 592.349,-208.292"/>
+<polygon fill="black" stroke="black" points="594.421,-211.113 600.449,-202.4 590.303,-205.452 594.421,-211.113"/>
+</g>
+<!-- u4 -->
+<g id="node3" class="node"><title>u4</title>
+<ellipse fill="#66ff66" stroke="black" cx="758" cy="-350" rx="114.356" ry="18"/>
+<text text-anchor="middle" x="758" y="-344.4" font-family="Times,serif" font-size="14.00">Data.EJson.PropsBijection</text>
+</g>
+<!-- u4&#45;&gt;u5 -->
+<g id="edge10" class="edge"><title>u4&#45;&gt;u5</title>
+<path fill="none" stroke="black" d="M711.051,-333.478C667.611,-319.116 603.374,-297.879 559.937,-283.518"/>
+<polygon fill="black" stroke="black" points="560.778,-280.11 550.185,-280.294 558.581,-286.756 560.778,-280.11"/>
 </g>
 <!-- u3 -->
-<g id="node3" class="node"><title>u3</title>
-<ellipse fill="#66ff66" stroke="black" cx="815.447" cy="-306" rx="79.2521" ry="18"/>
-<text text-anchor="middle" x="815.447" y="-300.4" font-family="Times,serif" font-size="14.00">Data.EJson.Props</text>
+<g id="node4" class="node"><title>u3</title>
+<ellipse fill="#66ff66" stroke="black" cx="970" cy="-350" rx="79.2521" ry="18"/>
+<text text-anchor="middle" x="970" y="-344.4" font-family="Times,serif" font-size="14.00">Data.EJson.Props</text>
 </g>
-<!-- u3&#45;&gt;u4 -->
-<g id="edge8" class="edge"><title>u3&#45;&gt;u4</title>
-<path fill="none" stroke="black" d="M769.299,-291.254C728.919,-279.226 670.444,-261.808 629.285,-249.548"/>
-<polygon fill="black" stroke="black" points="630.06,-246.127 619.477,-246.626 628.062,-252.835 630.06,-246.127"/>
+<!-- u3&#45;&gt;u5 -->
+<g id="edge8" class="edge"><title>u3&#45;&gt;u5</title>
+<path fill="none" stroke="black" d="M911.62,-337.706C901.419,-335.773 890.904,-333.807 881,-332 771.4,-312.004 643.168,-290.022 570.672,-277.726"/>
+<polygon fill="black" stroke="black" points="570.834,-274.204 560.389,-275.984 569.664,-281.105 570.834,-274.204"/>
 </g>
 <!-- u2&#45;&gt;u1 -->
 <g id="edge6" class="edge"><title>u2&#45;&gt;u1</title>
-<path fill="none" stroke="black" d="M644.447,-71.6966C644.447,-63.9827 644.447,-54.7125 644.447,-46.1124"/>
-<polygon fill="black" stroke="black" points="647.947,-46.1043 644.447,-36.1043 640.947,-46.1044 647.947,-46.1043"/>
+<path fill="none" stroke="black" d="M562,-84.6412C562,-74.2971 562,-60.941 562,-49.2206"/>
+<polygon fill="black" stroke="black" points="565.5,-49.0501 562,-39.0501 558.5,-49.0501 565.5,-49.0501"/>
 </g>
 <!-- u0&#45;&gt;u2 -->
 <g id="edge4" class="edge"><title>u0&#45;&gt;u2</title>
-<path fill="none" stroke="black" d="M705.488,-144.411C695.3,-135.497 682.567,-124.355 671.37,-114.558"/>
-<polygon fill="black" stroke="black" points="673.377,-111.664 663.547,-107.713 668.768,-116.932 673.377,-111.664"/>
+<path fill="none" stroke="black" d="M610.063,-167.034C601.653,-156.003 590.538,-141.427 581.116,-129.071"/>
+<polygon fill="black" stroke="black" points="583.765,-126.771 574.918,-120.941 578.198,-131.016 583.765,-126.771"/>
 </g>
 <!-- u0&#45;&gt;u1 -->
 <g id="edge2" class="edge"><title>u0&#45;&gt;u1</title>
-<path fill="none" stroke="black" d="M740.495,-144.028C756.061,-125.421 775.313,-95.137 760.447,-72 749.03,-54.2311 730.015,-42.3454 710.65,-34.4258"/>
-<polygon fill="black" stroke="black" points="711.739,-31.096 701.147,-30.8481 709.273,-37.6471 711.739,-31.096"/>
+<path fill="none" stroke="black" d="M643.625,-167.365C665.577,-147.555 694.988,-113.558 678,-85 665.237,-63.5437 642.33,-48.9402 620.225,-39.2425"/>
+<polygon fill="black" stroke="black" points="621.411,-35.9463 610.832,-35.381 618.75,-42.4205 621.411,-35.9463"/>
 </g>
-<!-- u10 -->
-<g id="node8" class="node"><title>u10</title>
-<ellipse fill="#66cc66" stroke="black" cx="174.447" cy="-450" rx="134.293" ry="18"/>
-<text text-anchor="middle" x="174.447" y="-444.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan.Websockets</text>
+<!-- u11 -->
+<g id="node9" class="node"><title>u11</title>
+<ellipse fill="#66cc66" stroke="black" cx="134" cy="-514" rx="134.293" ry="18"/>
+<text text-anchor="middle" x="134" y="-508.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan.Websockets</text>
 </g>
-<!-- u11&#45;&gt;u10 -->
-<g id="edge34" class="edge"><title>u11&#45;&gt;u10</title>
-<path fill="none" stroke="black" d="M341.727,-506.496C309.84,-495.917 266.327,-481.482 231.673,-469.985"/>
-<polygon fill="black" stroke="black" points="232.744,-466.653 222.151,-466.826 230.54,-473.297 232.744,-466.653"/>
-</g>
-<!-- u8 -->
-<g id="node10" class="node"><title>u8</title>
-<ellipse fill="#66cc66" stroke="black" cx="485.447" cy="-378" rx="106.324" ry="18"/>
-<text text-anchor="middle" x="485.447" y="-372.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan.DSL</text>
-</g>
-<!-- u11&#45;&gt;u8 -->
-<g id="edge32" class="edge"><title>u11&#45;&gt;u8</title>
-<path fill="none" stroke="black" d="M397.311,-504.153C414.659,-479.519 447.086,-433.473 467.401,-404.625"/>
-<polygon fill="black" stroke="black" points="470.39,-406.459 473.286,-396.268 464.667,-402.429 470.39,-406.459"/>
-</g>
-<!-- u6 -->
-<g id="node12" class="node"><title>u6</title>
-<ellipse fill="#66cc66" stroke="black" cx="586.447" cy="-450" rx="126.081" ry="18"/>
-<text text-anchor="middle" x="586.447" y="-444.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan.Callbacks</text>
-</g>
-<!-- u11&#45;&gt;u6 -->
-<g id="edge30" class="edge"><title>u11&#45;&gt;u6</title>
-<path fill="none" stroke="black" d="M427.583,-506.326C457.628,-495.862 498.324,-481.69 531.004,-470.308"/>
-<polygon fill="black" stroke="black" points="532.576,-473.467 540.868,-466.873 530.273,-466.857 532.576,-473.467"/>
+<!-- u12&#45;&gt;u11 -->
+<g id="edge36" class="edge"><title>u12&#45;&gt;u11</title>
+<path fill="none" stroke="black" d="M263.994,-579.195C238.892,-566.798 203.734,-549.437 176.31,-535.894"/>
+<polygon fill="black" stroke="black" points="177.848,-532.75 167.332,-531.46 174.748,-539.026 177.848,-532.75"/>
 </g>
 <!-- u9 -->
-<g id="node9" class="node"><title>u9</title>
-<ellipse fill="#66cc66" stroke="black" cx="161.447" cy="-306" rx="112.166" ry="18"/>
-<text text-anchor="middle" x="161.447" y="-300.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan.GUID</text>
+<g id="node11" class="node"><title>u9</title>
+<ellipse fill="#66cc66" stroke="black" cx="373" cy="-432" rx="106.324" ry="18"/>
+<text text-anchor="middle" x="373" y="-426.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan.DSL</text>
 </g>
-<!-- u9&#45;&gt;u4 -->
-<g id="edge28" class="edge"><title>u9&#45;&gt;u4</title>
-<path fill="none" stroke="black" d="M236.356,-292.485C318.413,-278.777 448.244,-257.086 522.753,-244.639"/>
-<polygon fill="black" stroke="black" points="523.602,-248.045 532.889,-242.945 522.449,-241.141 523.602,-248.045"/>
-</g>
-<!-- u8&#45;&gt;u4 -->
-<g id="edge22" class="edge"><title>u8&#45;&gt;u4</title>
-<path fill="none" stroke="black" d="M554.36,-364.209C576.7,-356.443 599.133,-343.982 612.447,-324 625.572,-304.3 613.766,-278.562 600.946,-259.835"/>
-<polygon fill="black" stroke="black" points="603.597,-257.53 594.874,-251.517 597.943,-261.658 603.597,-257.53"/>
-</g>
-<!-- u8&#45;&gt;u9 -->
-<g id="edge26" class="edge"><title>u8&#45;&gt;u9</title>
-<path fill="none" stroke="black" d="M422.592,-363.42C369.036,-351.85 291.99,-335.204 235.461,-322.991"/>
-<polygon fill="black" stroke="black" points="236.024,-319.532 225.511,-320.841 234.546,-326.374 236.024,-319.532"/>
+<!-- u12&#45;&gt;u9 -->
+<g id="edge34" class="edge"><title>u12&#45;&gt;u9</title>
+<path fill="none" stroke="black" d="M296.458,-577.984C297.624,-557.507 301.609,-522.568 315,-496 322.34,-481.438 334.037,-467.789 345.011,-456.944"/>
+<polygon fill="black" stroke="black" points="347.584,-459.328 352.431,-449.907 342.767,-454.249 347.584,-459.328"/>
 </g>
 <!-- u7 -->
-<g id="node11" class="node"><title>u7</title>
-<ellipse fill="#66cc66" stroke="black" cx="485.447" cy="-306" rx="118.036" ry="18"/>
-<text text-anchor="middle" x="485.447" y="-300.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan.Comms</text>
+<g id="node13" class="node"><title>u7</title>
+<ellipse fill="#66cc66" stroke="black" cx="450" cy="-514" rx="126.081" ry="18"/>
+<text text-anchor="middle" x="450" y="-508.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan.Callbacks</text>
 </g>
-<!-- u8&#45;&gt;u7 -->
-<g id="edge24" class="edge"><title>u8&#45;&gt;u7</title>
-<path fill="none" stroke="black" d="M485.447,-359.697C485.447,-351.983 485.447,-342.712 485.447,-334.112"/>
-<polygon fill="black" stroke="black" points="488.947,-334.104 485.447,-324.104 481.947,-334.104 488.947,-334.104"/>
+<!-- u12&#45;&gt;u7 -->
+<g id="edge32" class="edge"><title>u12&#45;&gt;u7</title>
+<path fill="none" stroke="black" d="M326.794,-579.003C350.403,-566.739 383.208,-549.697 409.032,-536.282"/>
+<polygon fill="black" stroke="black" points="410.94,-539.235 418.201,-531.519 407.713,-533.023 410.94,-539.235"/>
 </g>
-<!-- u7&#45;&gt;u4 -->
-<g id="edge20" class="edge"><title>u7&#45;&gt;u4</title>
-<path fill="none" stroke="black" d="M508.444,-288.055C521.268,-278.606 537.373,-266.739 551.098,-256.625"/>
-<polygon fill="black" stroke="black" points="553.311,-259.342 559.286,-250.592 549.159,-253.707 553.311,-259.342"/>
+<!-- u10 -->
+<g id="node10" class="node"><title>u10</title>
+<ellipse fill="#66cc66" stroke="black" cx="513" cy="-350" rx="112.166" ry="18"/>
+<text text-anchor="middle" x="513" y="-344.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan.GUID</text>
 </g>
-<!-- u6&#45;&gt;u8 -->
-<g id="edge18" class="edge"><title>u6&#45;&gt;u8</title>
-<path fill="none" stroke="black" d="M562.255,-432.233C549.013,-423.056 532.422,-411.557 518.052,-401.598"/>
-<polygon fill="black" stroke="black" points="519.654,-398.45 509.441,-395.63 515.667,-404.203 519.654,-398.45"/>
+<!-- u10&#45;&gt;u5 -->
+<g id="edge30" class="edge"><title>u10&#45;&gt;u5</title>
+<path fill="none" stroke="black" d="M513,-331.822C513,-321.19 513,-307.306 513,-295.204"/>
+<polygon fill="black" stroke="black" points="516.5,-295.153 513,-285.153 509.5,-295.153 516.5,-295.153"/>
+</g>
+<!-- u9&#45;&gt;u5 -->
+<g id="edge24" class="edge"><title>u9&#45;&gt;u5</title>
+<path fill="none" stroke="black" d="M372.012,-413.835C371.674,-392.571 374.097,-356.199 392,-332 409.42,-308.453 438.115,-292.744 463.189,-282.785"/>
+<polygon fill="black" stroke="black" points="464.465,-286.044 472.59,-279.245 461.998,-279.493 464.465,-286.044"/>
+</g>
+<!-- u9&#45;&gt;u10 -->
+<g id="edge28" class="edge"><title>u9&#45;&gt;u10</title>
+<path fill="none" stroke="black" d="M401.669,-414.618C422.856,-402.511 451.913,-385.907 475.029,-372.698"/>
+<polygon fill="black" stroke="black" points="476.942,-375.636 483.888,-367.635 473.469,-369.558 476.942,-375.636"/>
+</g>
+<!-- u8 -->
+<g id="node12" class="node"><title>u8</title>
+<ellipse fill="#66cc66" stroke="black" cx="227" cy="-350" rx="118.036" ry="18"/>
+<text text-anchor="middle" x="227" y="-344.4" font-family="Times,serif" font-size="14.00">Web.DDP.Deadpan.Comms</text>
+</g>
+<!-- u9&#45;&gt;u8 -->
+<g id="edge26" class="edge"><title>u9&#45;&gt;u8</title>
+<path fill="none" stroke="black" d="M343.102,-414.618C320.836,-402.417 290.234,-385.649 266.037,-372.39"/>
+<polygon fill="black" stroke="black" points="267.56,-369.234 257.108,-367.498 264.196,-375.372 267.56,-369.234"/>
+</g>
+<!-- u8&#45;&gt;u5 -->
+<g id="edge22" class="edge"><title>u8&#45;&gt;u5</title>
+<path fill="none" stroke="black" d="M280.459,-333.86C332.903,-319.006 412.233,-296.539 463.332,-282.067"/>
+<polygon fill="black" stroke="black" points="464.491,-285.376 473.159,-279.284 462.584,-278.641 464.491,-285.376"/>
+</g>
+<!-- u7&#45;&gt;u9 -->
+<g id="edge20" class="edge"><title>u7&#45;&gt;u9</title>
+<path fill="none" stroke="black" d="M433.67,-496.034C422.849,-484.791 408.483,-469.866 396.447,-457.36"/>
+<polygon fill="black" stroke="black" points="398.763,-454.719 389.306,-449.941 393.719,-459.574 398.763,-454.719"/>
 </g>
 </g>
 </svg>

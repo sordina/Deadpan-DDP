@@ -139,6 +139,12 @@
 <h1>Asynchronous</h1>
 <p>An important side-effect is that the server may send data to the client without waiting for a request, or a response Res1 corresponding to a request Req1 my be sent after requests Req2, Rec3, Rec4.</p>
 </section></section>
+<section><section id="the-library" class="titleslide slide level1"><h1>The Library</h1></section><section id="modules" class="slide level2">
+<h1>Modules</h1>
+<figure>
+<img src="../modulesnc_small.png" alt="Module Connections" /><figcaption>Module Connections</figcaption>
+</figure>
+</section></section>
 <section><section id="the-deadpan-datatype" class="titleslide slide level1"><h1>The Deadpan Datatype</h1></section><section id="deadpanapp" class="slide level2">
 <h1><code>DeadpanApp</code>?</h1>
 <p>DeadpanApp is a monadic DSL that makes the high-level actions of a DDP application available to users through several conveniently defined functions.</p>
@@ -243,6 +249,20 @@ Usage: deadpan [-h | --help]
 <blockquote>
 <p>runhaskell TodoGui.hs</p>
 </blockquote>
+</section><section id="todo" class="slide level2">
+<h1>TODO</h1>
+<ul>
+<li>Add full minimongo capabilities for data modification</li>
+<li>Use more qualified imports, including for internal imports</li>
+<li>Narrow package dependency versions</li>
+<li>Random number generation as-per the spec</li>
+<li>Adopt a more layered aproach (see doc/dot.png)</li>
+<li>Use proper opt-parser for main module</li>
+<li>Try out an auth example</li>
+<li>Allow for intermittent connection to the server</li>
+<li>Execption Handling</li>
+<li>Rename DeadpanApp to App?</li>
+</ul>
 </section></section>
 <section><section id="thanks" class="titleslide slide level1"><h1>Thanks</h1></section><section id="for-attending" class="slide level2">
 <h1>For Attending</h1>
