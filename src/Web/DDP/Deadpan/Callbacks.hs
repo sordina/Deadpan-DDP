@@ -113,22 +113,26 @@ unsubscribe = clientDataUnsub
       randomSeed: optional JSON value           (an arbitrary client-determined seed for pseudo-random generators)
   @
 -}
-clientRPCMethod :: Text -> Maybe [EJsonValue] -> GUID -> Maybe Text -> DeadpanApp ()
+clientRPCMethod :: Text -> [EJsonValue] -> GUID -> Maybe Text -> DeadpanApp GUID
 clientRPCMethod method params rpcid seed = do
-  let msg = [("method", ejstring method)]
-         &~ do forOf_ _Just params $ \v -> modify (("params", ejarray  v):)
-               forOf_ _Just seed   $ \v -> modify (("seed",   ejstring v):)
+  let msg = [ ("method", ejstring method)
+            , ("params", ejarray  params) ]
+         &~ (forOf_ _Just seed   $ \v -> modify (("seed",   ejstring v):))
 
   sendMessage "method" (makeEJsonId rpcid <> ejobject msg)
+  return rpcid
+
+rpc :: Text -> [EJsonValue] -> DeadpanApp GUID
+rpc method params = newID >>= \guid -> clientRPCMethod method params guid Nothing
 
 -- | Like clientRPCMethod, except that it blocks, returning the response from the server.
 --
 -- TODO: Should we use the seed?
 --
-rpcWait :: Text -> Maybe [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValue)
+rpcWait :: Text -> [EJsonValue] -> DeadpanApp (Either EJsonValue EJsonValue)
 rpcWait method params = do
   mv         <- liftIO newEmptyMVar
-  rpcId      <- newID
+  rpcId      <- newID -- Can't use rpc, since we need the ID to set handlers first...
   handlerId  <- setMatchHandler (makeEJsonId rpcId) (handler mv)
   _          <- clientRPCMethod method params rpcId Nothing
   res        <- liftIO $ readMVar mv

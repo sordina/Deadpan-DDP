@@ -149,7 +149,7 @@ available to users through several conveniently defined functions.
 ## Example: RPC
 
     clientRPCMethod :: Text
-                    -> Maybe [EJsonValue]
+                    -> [EJsonValue]
                     -> GUID
                     -> Maybe Text
                     -> DeadpanApp ()
@@ -235,9 +235,9 @@ Would be the most common.
     go app params = runPingClient params (logEverything >> app)
 
     app = do void $ liftIO getLine
-             rpcWait "realMethod"    Nothing
+             rpcWait "realMethod" []
              void $ liftIO getLine
-             rpcWait "missingMethod" Nothing
+             rpcWait "missingMethod" []
              void $ liftIO getLine
 
 # Debugging App

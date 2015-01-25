@@ -15,6 +15,7 @@ module Data.EJson.Props where
 import Data.EJson
 import Data.Maybe
 
+
 -- $setup
 -- >>> import Control.Applicative
 -- >>> import Test.QuickCheck

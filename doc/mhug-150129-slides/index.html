@@ -145,7 +145,7 @@
 </section><section id="example-rpc" class="slide level2">
 <h1>Example: RPC</h1>
 <pre><code>clientRPCMethod :: Text
-                -&gt; Maybe [EJsonValue]
+                -&gt; [EJsonValue]
                 -&gt; GUID
                 -&gt; Maybe Text
                 -&gt; DeadpanApp ()</code></pre>
@@ -212,9 +212,9 @@ main = either print
 go app params = runPingClient params (logEverything &gt;&gt; app)
 
 app = do void $ liftIO getLine
-         rpcWait &quot;realMethod&quot;    Nothing
+         rpcWait &quot;realMethod&quot; []
          void $ liftIO getLine
-         rpcWait &quot;missingMethod&quot; Nothing
+         rpcWait &quot;missingMethod&quot; []
          void $ liftIO getLine</code></pre>
 </section></section>
 <section><section id="debugging-app" class="titleslide slide level1"><h1>Debugging App</h1></section><section id="deadpan-1" class="slide level2">
