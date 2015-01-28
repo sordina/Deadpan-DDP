@@ -7,22 +7,37 @@ import qualified Data.Text as T
 import Graphics.Vty.Widgets.All
 import Graphics.Vty.Input.Events
 import Data.IORef
+import Data.List
+import Data.Maybe
 import System.Exit
 import Control.Concurrent
+import Control.Lens
 
 type SubscriptionChan = Chan T.Text
 type ItemList         = [(T.Text, T.Text)]
 type ListChan         = Chan ItemList
 
 listUpdater :: ListChan -> Widget (List T.Text FormattedText) -> IO ()
-listUpdater lists l1 = do
-  ls <- getChanContents lists
-  mapM_ (updateList l1) ls
+listUpdater chan l = do
+  ls <- getChanContents chan
+  mapM_ (updateList l) ls
+
+selectByVal :: Widget (List T.Text FormattedText) -> T.Text -> IO ()
+selectByVal l val = getIndexByVal l val >>= scrollBy l . pred
+
+getIndexByVal :: Widget (List T.Text FormattedText) -> T.Text -> IO Int
+getIndexByVal l val = do
+  s     <- getListSize l
+  items <- catMaybes `fmap` mapM (getListItem l) [0..s]
+  let x  = findIndex ((== val) . fst) items
+  return $ fromMaybe 0 x
 
 updateList :: Widget (List T.Text FormattedText) -> ItemList -> IO ()
 updateList l1 l = schedule $ do
+  -- i <- getSelected l1
   clearList l1
   mapM_ (\(x,y) -> addToList l1 x =<< plainText y) l
+  -- forOf_ (_Just . _2 . _1) i (selectByVal l1)
 
 sendKey :: Widget a -> Key -> [Modifier] -> IO Bool
 sendKey w k l = do
