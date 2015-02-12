@@ -157,6 +157,8 @@ You can look for incomplete items in the source by running `make todo`.
 * Allow for intermittent connection to the server
 * Execption Handling
 * Rename DeadpanApp to App?
+* Package each client as its own cabal project to track dependencies
+* Create script to add haddock items to the readme to avoid out of sync issues...
 
 
 ## Binaries

@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
-module SimpleClient where
+
+module Main where
+
 import Web.DDP.Deadpan
 
 main = either print (go app)
@@ -8,7 +10,7 @@ main = either print (go app)
 go app params = runPingClient params (logEverything >> app)
 
 app = do void $ liftIO getLine
-         rpcWait "realMethod"    Nothing
+         rpcWait "realMethod"    []
          void $ liftIO getLine
-         rpcWait "missingMethod" Nothing
+         rpcWait "missingMethod" []
          void $ liftIO getLine

@@ -4,6 +4,10 @@
 
 # Deadpan-DDP
 
+## Presentation Concluded
+
+<http://www.meetup.com/Melbourne-Haskell-Users-Group/events/219608241/>
+
 ## On GitHub
 
 ![...](http://i.imgur.com/Nc5mA2j.png)
