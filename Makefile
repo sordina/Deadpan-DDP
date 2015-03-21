@@ -1,6 +1,6 @@
 todo:
-	grep -r TODO src test/client/* README.md
-	grep -r undefined src test/client/* README.md
+	grep -r TODO src test/client/*.hs README.md
+	grep -r undefined src test/client/*.hs README.md
 
 docker-build:
 	./scripts/docker-build
