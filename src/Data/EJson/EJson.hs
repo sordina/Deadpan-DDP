@@ -56,6 +56,7 @@ module Data.EJson.EJson (
    ) where
 
 import Control.Monad
+import Control.Applicative
 import Data.Monoid
 import Data.Aeson
 import Data.Scientific
