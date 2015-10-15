@@ -31,6 +31,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Data.EJson (
 
@@ -67,9 +68,8 @@ module Data.EJson (
 
 import Data.EJson.EJson       as Exports
 import Data.EJson.EJson2Value as Exports
-import Data.Monoid            as Exports
 import Control.Lens           as Exports
-import Control.Monad.State (execState)
+import Control.Monad.State (execState, MonadState())
 import Data.Text           (Text())
 import Data.Aeson          (decode)
 import Data.EJson.Aeson()
@@ -196,6 +196,7 @@ modifyInPath path modifications target =
 simpleMerge :: EJsonValue -> EJsonValue -> EJsonValue
 simpleMerge modifications = execState $ traverseOf_ _EJObject (mapM_ setPair . HM.toList) modifications
   where
+  setPair :: MonadState EJsonValue m => (Text, EJsonValue) -> m ()
   setPair (k,v) = _EJObjectKey k .= Just v
 
 -- | A variatnt of modifyInPath that leaves the EJsonValue unchanged if the update is not sensible.

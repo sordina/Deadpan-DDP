@@ -158,6 +158,7 @@ You can look for incomplete items in the source by running `make todo`.
 * Execption Handling
 * Rename DeadpanApp to App?
 * Create script to add haddock items to the readme to avoid out of sync issues...
+* Fix the VTY example to not move the item selection on update
 
 
 ## Binaries

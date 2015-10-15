@@ -55,7 +55,6 @@ module Data.EJson.EJson (
              , _EJNull
    ) where
 
-import Data.Monoid
 import Control.Monad
 import Data.Aeson
 import Data.Scientific
@@ -68,7 +67,6 @@ import Data.ByteString.Base64
 import Data.Maybe
 import Data.String
 import Control.Lens
-import Control.Applicative
 
 import qualified Data.Vector
 import qualified Data.HashMap.Strict as HM

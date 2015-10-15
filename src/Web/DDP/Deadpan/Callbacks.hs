@@ -18,6 +18,7 @@ module Web.DDP.Deadpan.Callbacks where
 import Web.DDP.Deadpan.DSL
 import Control.Concurrent.MVar
 import Control.Monad.State
+import Data.Monoid
 
 -- Old Stuff...
 

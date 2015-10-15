@@ -4,3 +4,4 @@ hugsin
 .meteor/
 test/meteor/todos/
 *.zip
+cabal.sandbox.config
