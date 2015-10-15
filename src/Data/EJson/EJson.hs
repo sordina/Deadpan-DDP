@@ -56,6 +56,7 @@ module Data.EJson.EJson (
    ) where
 
 import Control.Monad
+import Data.Monoid
 import Data.Aeson
 import Data.Scientific
 import Data.Time.Clock.POSIX
