@@ -1,6 +1,6 @@
 language: haskell
 ghc:
   - '7.8'
-  - '7.10'
+    # - '7.10' # Not available yet...
 
 sudo: false
