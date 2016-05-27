@@ -228,8 +228,7 @@ connect = sendMessage "connect" $ ejobject [ ("version", version2string V1)
 fork :: DeadpanApp a -> DeadpanApp ThreadId
 fork app = do
   st <- DeadpanApp ask
-  -- liftIO $ forkIO $ void $ onException (runDeadpan app st) (throwIO ThreadKilled)
-  a <- liftIO $ async $ void $ onException (runDeadpan app st) (throwIO ThreadKilled)
+  a <- liftIO $ async $ void $ runDeadpan app st
   liftIO $ link a
   liftIO $ return $ asyncThreadId a
 
