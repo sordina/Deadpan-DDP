@@ -62,9 +62,11 @@ module Web.DDP.Deadpan.DSL
 import Control.Concurrent.STM
 import Control.Concurrent
 import Control.Applicative
+import Control.Exception
 import Network.WebSockets
 import Control.Monad.Reader
 import Control.Lens
+import Control.Concurrent.Async
 import Data.Monoid
 import Data.Foldable
 import Data.Text hiding (reverse, map)
@@ -226,7 +228,9 @@ connect = sendMessage "connect" $ ejobject [ ("version", version2string V1)
 fork :: DeadpanApp a -> DeadpanApp ThreadId
 fork app = do
   st <- DeadpanApp ask
-  liftIO $ forkIO $ void $ runDeadpan app st
+  a <- liftIO $ async $ void $ runDeadpan app st
+  liftIO $ link a
+  liftIO $ return $ asyncThreadId a
 
 -- | Runs fetchMessages and kills the thread when the supplied app finishes.
 --
